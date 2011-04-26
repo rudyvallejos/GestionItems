@@ -1,0 +1,5 @@
+test_module = None
+test_suite = repoze.who
+test_loader = None
+tests_require = Paste
+   zope.interface
