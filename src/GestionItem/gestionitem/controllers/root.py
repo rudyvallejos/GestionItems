@@ -8,15 +8,30 @@ from tgext.admin.controller import AdminController
 from repoze.what import predicates
 
 from gestionitem.lib.base import BaseController
-from gestionitem.model import DBSession, metadata
-from gestionitem import model
+from gestionitem.model import DBSession, metadata, Recurso
+from gestionitem import model 
 from gestionitem.controllers.secure import SecureController
-
 from gestionitem.controllers.error import ErrorController
+from sprox.formbase import AddRecordForm
+from tw.forms import TextField,CalendarDatePicker
+from tg import tmpl_context
+from tg import validate
+from sqlalchemy.orm import sessionmaker
+
+
+
 
 __all__ = ['RootController']
 
+class AddMovie(AddRecordForm):
+    __model__ = Recurso
+    __omit_fields__ = [
+        'id'
+    ]
+    #descripcion = TextField
 
+      
+    
 class RootController(BaseController):
     """
     The root controller for the GestionItem application.
@@ -31,26 +46,106 @@ class RootController(BaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
 
     """
+   
+    
     secc = SecureController()
 
     admin = AdminController(model, DBSession, config_type=TGAdminConfig)
 
     error = ErrorController()
-
+    dict(subtitulo='')
     @expose('gestionitem.templates.index')
     def index(self):
         """Handle the front-page."""
-        return dict(page='index')
+      
+        return dict(page='Indice',subtitulo='Indice')
+    
+    
+    @expose(template='gestionitem.templates.recurso')
+    def recurso(self, **named):
+        recursos=DBSession.query(Recurso).order_by( Recurso.id )
+        from webhelpers import paginate
+        count = recursos.count()
+        page =int( named.get( 'page', '1' ))
+        currentPage = paginate.Page(
+            recursos, page, item_count=count,
+            items_per_page=3,
+        )
+        recursos = currentPage.items
 
+        return dict(page='recurso',
+                    recursos=recursos, 
+                    subtitulo='ABM-Recurso',currentPage = currentPage)
+    
+    @expose('gestionitem.templates.agregar_recurso')
+    def agregar_recurso(self):
+        #recurso=DBSession.query(Recurso).filter_by(id=6).one()
+        recurso=Recurso
+        recurso.descripcion=''
+        recursos=DBSession.query(Recurso)
+        return dict(page='Nuevo recurso',
+                    recursos=recursos, 
+                    recurso=recurso,subtitulo='ABM-Recurso')
+    @expose()
+    def save( self, id, data, submit ):
+        """Create a new movie record"""
+        new = Recurso(
+            descripcion = data,
+        )
+        DBSession.add( new )
+        redirect( './recurso' )    
+        flash( '''Recurso Agregado! %s''')
+    @expose()
+    def actualizar( self, id, data, submit ):
+        """Create a new movie record"""
+       
+        Session = sessionmaker(bind=Recurso)
+        session = Session()
+        recurso = DBSession.query(Recurso).filter_by(id=id).one()
+        #recurso=q.filter_by(id=id).one()
+
+        #session = create_session(bind=Recurso, autocommit=True, autoflush=False)
+        #recurso = session.query(Recurso)
+        recurso.descripcion=data
+        #DBSession.update( new )
+        #DBSession.commit()
+        #setattr(recurso, id, data)
+        #recurso.data=data
+        #session.merge(data)
+        #DBSession.execute("update recurso set descripcion=:data where id=:id", {'data':data,'id':id})
+        DBSession.flush()
+        #recurso.update(recurso,synchronize_session='expire')
+        redirect( './recurso' )
+    @expose()
+    def eliminar_recurso(self,id):
+        #recurso = DBSession.query(Recurso).filter_by(id=id).delete()
+        recurso=DBSession.query(Recurso).filter_by(id=id).one()
+        DBSession.delete(DBSession.query(Recurso).filter_by(id=id).one())
+        redirect( '../recurso' )        
+          
+    @expose(template="gestionitem.templates.recurso_editar")
+    def recurso_editar(self,id):
+        recurso = DBSession.query(Recurso).filter_by(id=id).one()
+        return dict(page='Editar recurso',
+                    id=id,recurso=recurso,subtitulo='ABM-Recurso')
+
+
+    
+    
+    
+    
+    
     @expose('gestionitem.templates.about')
     def about(self):
         """Handle the 'about' page."""
-        return dict(page='about')
+        #aux=Recurso()
+        aux=DBSession.query(Recurso).filter_by(id=1).one()
+        return dict(page='about',aux=aux,subtitulo='About')
 
     @expose('gestionitem.templates.environ')
     def environ(self):
         """This method showcases TG's access to the wsgi environment."""
-        return dict(environment=request.environ)
+        return dict(environment=request.environ,subtitulo='')
 
     @expose('gestionitem.templates.data')
     @expose('json')
@@ -61,13 +156,13 @@ class RootController(BaseController):
     @expose('gestionitem.templates.authentication')
     def auth(self):
         """Display some information about auth* on this application."""
-        return dict(page='auth')
+        return dict(page='auth',subtitulo='Autenticacion')
 
     @expose('gestionitem.templates.index')
     @require(predicates.has_permission('manage', msg=l_('Only for managers')))
     def manage_permission_only(self, **kw):
         """Illustrate how a page for managers only works."""
-        return dict(page='managers stuff')
+        return dict(page='managers stuff',subtitulo='')
 
     @expose('gestionitem.templates.index')
     @require(predicates.is_user('editor', msg=l_('Only for the editor')))
@@ -80,9 +175,9 @@ class RootController(BaseController):
         """Start the user login."""
         login_counter = request.environ['repoze.who.logins']
         if login_counter > 0:
-            flash(_('Wrong credentials'), 'warning')
+            flash(_('Error de acceso'), 'warning')
         return dict(page='login', login_counter=str(login_counter),
-                    came_from=came_from)
+                    came_from=came_from,subtitulo='Loguin')
 
     @expose()
     def post_login(self, came_from='/'):
@@ -95,9 +190,10 @@ class RootController(BaseController):
             login_counter = request.environ['repoze.who.logins'] + 1
             redirect('/login', came_from=came_from, __logins=login_counter)
         userid = request.identity['repoze.who.userid']
-        flash(_('Welcome back, %s!') % userid)
+        flash(_('Bienvenido, %s!') % userid)
         redirect(came_from)
 
+    
     @expose()
     def post_logout(self, came_from=url('/')):
         """
@@ -105,5 +201,7 @@ class RootController(BaseController):
         goodbye as well.
 
         """
-        flash(_('We hope to see you soon!'))
+        flash(_('Hasta pronto!'))
         redirect(came_from)
+
+    

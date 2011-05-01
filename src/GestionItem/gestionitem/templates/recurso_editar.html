@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+    <title>Turbogears Admin System - Group Listing</title><style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+</head>
+
+
+<body class="tundra">
+
+<!--div py:replace="aux.descripcion">Page text goes here.</div-->
+<div>
+  <!--form action="/save" method="post">
+    <input type="hidden" name="id" value="${recurso.id}"/>
+    <textarea name="data" py:content="recurso.descripcion" rows="10" cols="60"/>
+    <input type="submit" name="submit" value="Save"/>
+  </form-->
+  <!--<h2>Nuevo Recurso</h2>
+	${tmpl_context.add_movie_form( action='add_movie') }!-->
+  
+ <h2>Editar recurso</h2>
+ <a href="${tg.url('/agregar_recurso')}">Agregar Nuevo Recurso</a>
+    <div class="crud_table" style="height:50%; width:90%">
+   <div>
+   <!--form action="/actualizar" method="post">  
+            
+   <table border="0" cellspacing="0" cellpadding="2">
+        <tr id="id" class="even" title="">
+            <td class="labelcol">
+                <label id="id.label" for="id" class="fieldlabel required">Id</label>
+            </td>
+            <td class="fieldcol">
+                <input type="text" name="id" class="textfield required" id="id" value="${id}" disabled="disabled"/>
+            </td>
+        </tr><tr id="descripcion.container" class="odd" title="">
+            <td class="labelcol">
+                <label id="descripcion.label" for="descripcion" class="fieldlabel">Descripcion</label>
+            </td>
+            <td class="fieldcol">
+                <textarea id="data" name="descripcion" class="textarea" rows="7" cols="50">${recurso.descripcion}</textarea>
+            </td>
+
+        </tr><tr id="submit.container" class="even" title="">
+            <td class="labelcol">
+            </td>
+            <td class="fieldcol">
+                <input type="submit" class="submitbutton" value="Actualizar"/>
+            </td>
+        </tr>
+        
+    </table>
+    </form-->
+  <form action="/actualizar" method="post">
+    <input type="hidden" name="id" value="${recurso.id}"/>
+    <textarea name="data" py:content="recurso.descripcion" rows="10" cols="60"/>
+    <input type="submit" name="submit" value="Guardar"/>
+  </form>
+  </div>
+      </div>
+  
+  
+  
+</div>
+
+ <div style="clear:both;"/>
+
+</body>
+</html>
+

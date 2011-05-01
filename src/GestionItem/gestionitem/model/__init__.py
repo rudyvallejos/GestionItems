@@ -6,6 +6,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 #from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 
+
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.
 maker = sessionmaker(autoflush=True, autocommit=False,
@@ -16,7 +17,6 @@ DBSession = scoped_session(maker)
 # defined with SQLAlchemy's declarative extension, but if you need more
 # control, you can switch to the traditional method.
 DeclarativeBase = declarative_base()
-
 # There are two convenient ways for you to spare some typing.
 # You can have a query property on all your model classes by doing this:
 # DeclarativeBase.query = DBSession.query_property()
@@ -26,6 +26,7 @@ DeclarativeBase = declarative_base()
 # Global metadata.
 # The default metadata is the one from the declarative base.
 metadata = DeclarativeBase.metadata
+
 
 # If you have multiple databases with overlapping table names, you'll need a
 # metadata for each database. Feel free to rename 'metadata2'.
@@ -60,3 +61,6 @@ def init_model(engine):
 
 # Import your model modules here.
 from gestionitem.model.auth import User, Group, Permission
+from recurso import *
+
+
