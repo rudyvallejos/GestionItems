@@ -16,6 +16,26 @@ from gestionitem.controllers.error import ErrorController
 
 __all__ = ['RootController']
 
+from tgext.crud import CrudRestController
+from sprox.tablebase import TableBase
+from sprox.fillerbase import TableFiller
+from gestionitem.model.modelo import Proyecto
+
+
+
+class ProyectoTable(TableBase):
+    __model__ = Proyecto
+proyecto_table = ProyectoTable(DBSession)
+
+class ProyectoTableFiller(TableFiller):
+    __model__ = Proyecto
+proyecto_table_filler = ProyectoTableFiller(DBSession)
+
+class ProyectoController(CrudRestController):
+    model = Proyecto
+    table = proyecto_table
+    table_filler = proyecto_table_filler
+
 
 class RootController(BaseController):
     """
@@ -36,6 +56,7 @@ class RootController(BaseController):
     admin = AdminController(model, DBSession, config_type=TGAdminConfig)
 
     error = ErrorController()
+    proyectos = ProyectoController(DBSession)
 
     @expose('gestionitem.templates.index')
     def index(self):
