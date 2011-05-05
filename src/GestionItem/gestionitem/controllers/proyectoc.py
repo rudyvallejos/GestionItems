@@ -7,29 +7,16 @@ from sprox.formbase import AddRecordForm, EditableForm
 from tw.core import WidgetsList
 from tw.forms import TableForm, SingleSelectField, TextField
 from formencode.validators import NotEmpty
-# This WidgetsList is just a container
 
+# This WidgetsList is just a container
 
 class ProyectoForm(TableForm):
     # This WidgetsList is just a container
     class fields(WidgetsList):
         descripcion =  TextField(validator=NotEmpty)
-        estadochoices = ((1,"action"),
-                         (2,"animation"),
-                         (3,"comedy"),
-                         (4,"documentary"),
-                         (5,"drama"),
-                         (6,"sci-fi"))
-
-#        rows= [(row['id']) for row in estadochoices]
-
-
-        estado = SingleSelectField(options=estadochoices)
-proyecto_add_form_tw = ProyectoForm("create_proyecto_form")
-
-
-    
-    
+        rows = DBSession.query(EstadoProyecto.id,EstadoProyecto.descripcion).order_by(EstadoProyecto.id)
+        estado = SingleSelectField(options = rows)
+proyecto_add_form_tw = ProyectoForm("crear_proyecto_form")
 
 class ProyectoTable(TableBase):
     __model__ = Proyecto
@@ -48,6 +35,7 @@ proyecto_add_form = ProyectoAddForm(DBSession)
 class ProyectoEditForm(EditableForm):
     __model__ = Proyecto
     __omit_fields__ = ['id']
+    
 proyecto_edit_form = ProyectoEditForm(DBSession)
 
 class ProyectoFillerForm(EditFormFiller):
