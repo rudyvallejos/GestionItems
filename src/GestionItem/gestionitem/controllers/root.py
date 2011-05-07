@@ -8,7 +8,7 @@ from tgext.admin.controller import AdminController
 from repoze.what import predicates
 
 from gestionitem.lib.base import BaseController
-from gestionitem.model import DBSession, metadata, Recurso
+from gestionitem.model import DBSession, metadata, Recurso, TipoItemUsuario, Proyecto,TipoItemUsuarioAtributos
 from gestionitem import model 
 from gestionitem.controllers.secure import SecureController
 from gestionitem.controllers.error import ErrorController
@@ -18,10 +18,11 @@ from tg import tmpl_context
 from tg import validate
 from sqlalchemy.orm import sessionmaker
 from gestionitem.model.auth import Group, User, Permission
+#from gestionitem.controllers.rest import TipoRestController
 
 
 from proyectoc import ProyectoController
-
+from gestionitem.controllers.tipoItemControler import TipoItemControler
 
 
 
@@ -52,10 +53,11 @@ class RootController(BaseController):
 
     """
    
-    proyectos = ProyectoController(DBSession)
+    tipoItems = TipoItemControler()
     
     secc = SecureController()
-
+   # tipoItemUsuario = TipoRestController()
+   
     admin = AdminController([User, Group,Recurso], DBSession, config_type=TGAdminConfig)
     error = ErrorController()
     dict(subtitulo='')
@@ -65,7 +67,27 @@ class RootController(BaseController):
         """Handle the front-page."""
         return dict(page='Indice',subtitulo='Indice')
     
+    @expose(template='gestionitem.templates.proyectoList')
+    def proyectoList(self, **named):
+        proyectos=DBSession.query(Proyecto).order_by( Proyecto.id )
+        from webhelpers import paginate
+        count = proyectos.count()
+        page =int( named.get( 'page', '1' ))
+        currentPage = paginate.Page(
+            proyectos, page, item_count=count,
+            items_per_page=3,
+        )
+        proyectos = currentPage.items
+        return dict(page='proyecto',
+                    proyectos=proyectos, 
+                    subtitulo='Proyectos',currentPage = currentPage)
+    @expose(template="gestionitem.templates.proyectoDef")
+    def proyectoDef(self,id):
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        return dict(page='Definir Proyecto',
+                    id=id,proyecto=proyecto,subtitulo='Definicion de Proyectos')
     
+
     @expose(template='gestionitem.templates.recurso')
     def recurso(self, **named):
         recursos=DBSession.query(Recurso).order_by( Recurso.id )
@@ -81,7 +103,7 @@ class RootController(BaseController):
         return dict(page='recurso',
                     recursos=recursos, 
                     subtitulo='ABM-Recurso',currentPage = currentPage)
-    
+ 
     @expose('gestionitem.templates.agregar_recurso')
     def agregar_recurso(self):
         #recurso=DBSession.query(Recurso).filter_by(id=6).one()
@@ -208,7 +230,10 @@ class RootController(BaseController):
         DBSession.flush()
         #recurso.update(recurso,synchronize_session='expire')
         redirect( './permiso' )
-
+    
+      
+    
+    
     
     
     

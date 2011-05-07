@@ -1,4 +1,4 @@
-#Wed Apr 27 20:50:48 PYT 2011
+#Fri May 06 19:33:19 PYT 2011
 eclipse.preferences.version=1
 encoding//lib/python2.6/site-packages/tg/controllers/util.py=utf-8
 encoding//src/GestionItem/gestionitem/__init__.py=utf-8
@@ -6,8 +6,10 @@ encoding//src/GestionItem/gestionitem/config/app_cfg.py=utf-8
 encoding//src/GestionItem/gestionitem/controllers/__init__.py=utf-8
 encoding//src/GestionItem/gestionitem/controllers/root.py=utf-8
 encoding//src/GestionItem/gestionitem/controllers/secure.py=utf-8
+encoding//src/GestionItem/gestionitem/controllers/template.py=utf-8
 encoding//src/GestionItem/gestionitem/model/__init__.py=utf-8
 encoding//src/GestionItem/gestionitem/model/auth.py=utf-8
+encoding//src/GestionItem/gestionitem/templates/__init__.py=utf-8
 encoding//src/GestionItem/gestionitem/tests/functional/test_authentication.py=utf-8
 encoding//src/GestionItem/gestionitem/tests/functional/test_root.py=utf-8
 encoding//src/GestionItem/gestionitem/websetup/__init__.py=utf-8

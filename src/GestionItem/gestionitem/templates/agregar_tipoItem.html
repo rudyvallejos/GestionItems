@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+<script type="text/javascript">
+
+function comprueba(objOrigen) {
+
+    document.getElementById("CargaAtributos").style.display = "none";
+
+}
+
+
+</script>
+
+
+
+
+
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <!--title>Editing: ${aux.descripcion}</title-->
+</head>
+
+<body>
+<!--div onclick="comprueba(this)">Otro comentario</div-->
+<div><h3>Agregar Nuevo tipo de Item</h3></div>
+<div id="CargaAtributos">
+  <form  display="none" action="/saveItem" method="post">
+    <input type="hidden" name="id" value="${tipoItem.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <div><label>Nombre:</label>
+    <input name="descripcion" value="${tipoItem.descripcion}"/>
+    
+    <!--textarea name="data" py:content="recurso.descripcion" rows="10" cols="60"/-->
+    <P>Proyecto:
+		<SELECT  disable="TRUE" readonly="TRUE">
+		<OPTION disable ="true">${proyecto.descripcion}</OPTION>
+		</SELECT>
+	</P>
+    </div>
+    <input type="submit" name="submit" value="Guardar"/>
+  </form>
+  <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
+  <!--<h2>Nuevo Recurso</h2>
+	${tmpl_context.add_movie_form( action='add_movie') }!-->
+  
+ 
+  
+  
+  
+</div>
+
+
+</body>
+</html>

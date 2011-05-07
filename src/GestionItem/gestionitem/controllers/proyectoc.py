@@ -31,6 +31,8 @@ class ProyectoAddForm(AddRecordForm):
     __model__ = Proyecto
     __omit_fields__ = ['id']
 proyecto_add_form = ProyectoAddForm(DBSession)
+DBSession.query(EstadoProyecto.id,EstadoProyecto.descripcion).order_by(EstadoProyecto.id)
+
 
 class ProyectoEditForm(EditableForm):
     __model__ = Proyecto

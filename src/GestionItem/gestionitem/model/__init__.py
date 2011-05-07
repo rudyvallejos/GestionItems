@@ -63,5 +63,5 @@ def init_model(engine):
 from gestionitem.model.auth import User, Group, Permission
 from recurso import *
 from gestionitem.model.proyecto import *
-
+from gestionitem.model.tipoItemUsuario import *
 

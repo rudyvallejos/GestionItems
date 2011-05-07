@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+    <title>Turbogears Admin System - Group Listing</title><style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+</head>
+
+
+<body class="tundra">
+
+<!--div py:replace="aux.descripcion">Page text goes here.</div-->
+<div>
+   <h2>Tipo de Item: ${tipoItem.descripcion}</h2>
+   <h3>Lista de Atributos</h3>
+ <a href="/agregar_Atributo/${tipoItem.id}">Agregar Nuevo Atributo</a>
+    <div class="crud_table" style="height:50%; width:90%">
+    <div>
+     
+    <table class="grid">
+        <thead>
+            <tr><th></th><th>Identificador</th><th >Nombre de Atributo</th><th>Tipo de Dato</th><th></th></tr>
+        </thead>
+        <tbody >
+        	<tr class="navigation" py:if="currentPage.page_count > 1">
+    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+			</tr>
+			<tr class="navigation" py:if="currentPage.item_count == 0">
+    			<td colspan="4" class="pager">No existen datos</td>
+			</tr>
+        
+            <tr class="even" py:for="atributo in atributos">
+            <td class="col_0">
+                <div><div><a class="edit_link" href="/recurso_editar/${atributo.id}" style="text-decoration:none">edit</a></div><div>
+                
+                <form method="POST" action="/eliminar_recurso/${atributo.id}" class="button-to">
+                	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con id ${tipoItem.id}?');" 
+                	value="eliminar"  type="submit" style="background-color: transparent; float:left; border:0; color: #286571; display: inline; margin: 0; padding: 0;"/>
+                </form>
+                </div></div>
+            
+            </td>
+            	<td class="col_0">${atributo.id}</td>
+                <td class="col_1">${atributo.descripcion}</td>
+                <td class="col_1"><a href="/atributosList/${atributo.id}">Lista Atributos</a></td>
+                <td class="col_1"><a href="/atributosDef/${atributo.id}">Def. Atributos</a></td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+      </div>
+  
+  
+  
+</div>
+
+ <div style="clear:both;"/>
+
+</body>
+</html>
