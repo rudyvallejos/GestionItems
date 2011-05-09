@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <xi:include href="master.html" />
+
+    <head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+        <title>Editar Proyecto</title><style>
+            #menu_items {
+                padding:0px 12px 0px 2px;
+                list-style-type:None
+            }
+        </style>
+        <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+    </head>
+
+
+    <body class="tundra">
+
+
+        <div>
+
+            <h2>Editar proyecto</h2>
+            <a href="${tg.url('/proyecto')}">Lista de proyectos</a>
+            <div class="crud_table" style="height:50%; width:90%">
+                <div>
+
+                    <form action="/proyecto/actualizar" method="post">
+                        <table border="0" cellspacing="0" cellpadding="2">
+                            <tr>
+                                <input type="hidden" name="id" value="${proyecto.id}"/>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Nombre</label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" class="textfield required" value="${proyecto.descripcion}"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Lider</label>
+                                </td>
+                                <td>
+                                    <select>
+                                        <option>proyecto.lider.user_name</option>
+                                        <option>${proyecto.lider.user_name}</option>
+                                        <option>Component_5</option>
+                                        <option>Component_6</option>
+                                        <option>Component_7</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <input type="submit" name="submit" value="Guardar"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div style="clear:both;"/>
+
+    </body>
+</html>
+

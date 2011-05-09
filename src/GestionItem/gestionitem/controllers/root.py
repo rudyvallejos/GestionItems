@@ -21,7 +21,7 @@ from gestionitem.model.auth import Group, User, Permission
 #from gestionitem.controllers.rest import TipoRestController
 
 
-from proyectoc import ProyectoController
+from gestionitem.controllers.proyectoController import ProyectoController
 from gestionitem.controllers.tipoItemControler import TipoItemControler
 
 
@@ -52,7 +52,9 @@ class RootController(BaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
 
     """
-   
+    
+    proyecto = ProyectoController()
+    
     tipoItems = TipoItemControler()
     
     secc = SecureController()
@@ -66,28 +68,7 @@ class RootController(BaseController):
     def index(self):
         """Handle the front-page."""
         return dict(page='Indice',subtitulo='Indice')
-    
-    @expose(template='gestionitem.templates.proyectoList')
-    def proyectoList(self, **named):
-        proyectos=DBSession.query(Proyecto).order_by( Proyecto.id )
-        from webhelpers import paginate
-        count = proyectos.count()
-        page =int( named.get( 'page', '1' ))
-        currentPage = paginate.Page(
-            proyectos, page, item_count=count,
-            items_per_page=3,
-        )
-        proyectos = currentPage.items
-        return dict(page='proyecto',
-                    proyectos=proyectos, 
-                    subtitulo='Proyectos',currentPage = currentPage)
-    @expose(template="gestionitem.templates.proyectoDef")
-    def proyectoDef(self,id):
-        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
-        return dict(page='Definir Proyecto',
-                    id=id,proyecto=proyecto,subtitulo='Definicion de Proyectos')
-    
-
+   
     @expose(template='gestionitem.templates.recurso')
     def recurso(self, **named):
         recursos=DBSession.query(Recurso).order_by( Recurso.id )
