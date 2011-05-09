@@ -44,17 +44,17 @@
                 <td class="col_0">
                     <div><div><a class="edit_link" href="/proyecto/editar/${proyecto.id}" style="text-decoration:none">edit</a></div><div>
                 
-                    <form method="POST" action="/eliminar_proyecto/${proyecto.id}" class="button-to">
+                    <form method="POST" action="/proyecto/eliminar/${proyecto.id}" class="button-to" >
                 	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con id ${proyecto.id}?');" 
-                	value="eliminar"  type="submit" style="background-color: transparent; float:left; border:0; color: #286571; display: inline; margin:          0;padding: 0;"/>
+                	value="eliminar"  type="submit" style="background-color: transparent; float:left; border:0; color: #286571; display: inline; margin:0;padding: 0;"/>
                     </form>
                     </div></div>
                 </td>
-            	<td class="col_0"><a href="/proyectoDef/${proyecto.id}">${proyecto.id}</a></td>
-                <td class="col_1"><a href="/proyectoDef/${proyecto.id}">${proyecto.descripcion}</a></td>
-		<td class="col_2"><a href="/proyectoDef/${proyecto.id}">${proyecto.lider.user_name}</a></td>  
-                <td class="col_3"><a href="/proyectoDef/${proyecto.id}">${proyecto.fecha_creacion}</a></td> 
-                <td class="col_4"><a href="/proyectoDef/${proyecto.id}">${proyecto.estadoObj.descripcion}</a></td>   
+            	<td class="col_1"><a href="/proyectoDef/${proyecto.id}">${proyecto.id}</a></td>
+                <td class="col_2"><a href="/proyectoDef/${proyecto.id}">${proyecto.descripcion}</a></td>
+		<td class="col_3"><a href="/proyectoDef/${proyecto.id}">${proyecto.lider.user_name}</a></td>  
+                <td class="col_4"><a href="/proyectoDef/${proyecto.id}">${proyecto.fecha_creacion}</a></td> 
+                <td class="col_5"><a href="/proyectoDef/${proyecto.id}">${proyecto.estadoObj.descripcion}</a></td>   
             </tr>
           </tbody>
         </table>
