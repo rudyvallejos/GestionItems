@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
@@ -15,6 +15,7 @@
         </style>
         <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
         <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+        
     </head>
 
 
@@ -23,8 +24,8 @@
 
         <div>
 
-            <h2>Editar proyecto</h2>
-            <a href="${tg.url('/proyecto')}">Lista de proyectos</a>
+            <h2>Editar Proyecto</h2>
+            <a href="${tg.url('/proyecto')}">salir</a>
             <div class="crud_table" style="height:50%; width:90%">
                 <div>
 
@@ -38,7 +39,7 @@
                                     <label>Nombre</label>
                                 </td>
                                 <td>
-                                    <input type="text" name="name" class="textfield required" value="${proyecto.descripcion}"/>
+                                    <input type="text" name="descripcion" class="textfield required" value="${proyecto.descripcion}"/>
                                 </td>
                             </tr>
                             <tr>
@@ -46,12 +47,12 @@
                                     <label>Lider</label>
                                 </td>
                                 <td>
-                                    <select>
-                                        <option>proyecto.lider.user_name</option>
-                                        <option>${proyecto.lider.user_name}</option>
-                                        <option>Component_5</option>
-                                        <option>Component_6</option>
-                                        <option>Component_7</option>
+                                    <select name="id_user">
+                                        <option value="${proyecto.lider.user_id}">${proyecto.lider.user_name}</option>
+                                        <div py:for="usuario in usuarios">
+                                            <option value="${usuario.user_id}">${usuario.user_name}</option>
+                                        
+                                        </div>
                                     </select>
                                 </td>
                             </tr>
@@ -74,4 +75,3 @@
 
     </body>
 </html>
-

@@ -6,12 +6,10 @@ Created on 02/05/2011
 from sqlalchemy import ForeignKey, Column
 from sqlalchemy.types import Unicode, Integer, DateTime
 from datetime import datetime
-from sqlalchemy.orm import mapper, relation, backref
+from sqlalchemy.orm import relation
 
+from gestionitem.model import DeclarativeBase
 
-
-from gestionitem.model import DeclarativeBase, metadata, DBSession
-from gestionitem.model.auth import User
 
 __all__ = ['Proyecto']
 

@@ -5,17 +5,10 @@ Created on 06/05/2011
 '''
 from gestionitem.lib.base import BaseController
 from gestionitem.model.proyecto import Proyecto , EstadoProyecto
-from gestionitem.model import *
+from gestionitem.model import DBSession
+from gestionitem.model.auth import User
 from tg import expose, flash, tmpl_context, validate, redirect
 from sprox.formbase import AddRecordForm
-from formencode.validators import NotEmpty
-from sprox.formbase import EditableForm
-from sprox.fillerbase import EditFormFiller
-
-
-
-
-
 
 class AddProyecto(AddRecordForm):
     __model__ = Proyecto
@@ -24,31 +17,15 @@ class AddProyecto(AddRecordForm):
 add_Proyecto_form = AddProyecto(DBSession)
 
 
+
 class ProyectoController(BaseController):
     
     @expose()
     def index(self):
         """Handle the front-page."""
         redirect('/proyecto/lista')
-               
-
-    @expose( )
-    @validate(
-        form = add_Proyecto_form,
-        error_handler = index,
-    )
-    def add_proyecto( self, descripcion, lider, **named ):
-        """Registra un proyecto nuevo """
-        new = Proyecto(
-            descripcion = descripcion,
-            id_lider = lider,
-            estado = 1,
-        )
-        DBSession.add( new )
-        flash( '''Proyecto Registrado: %s'''%( descripcion, ))
-        redirect( './index' )
-
-   
+        
+    
     @expose(template='gestionitem.templates.proyectoTmpl.lista')
     def lista(self, **named):
         proyectos=DBSession.query(Proyecto).order_by( Proyecto.id )
@@ -72,8 +49,55 @@ class ProyectoController(BaseController):
         return dict(
             page='Nuevo Proyecto',
         )
+               
 
+
+    @expose()
+    @validate(
+        form = add_Proyecto_form,
+        error_handler = index,
+    )
+    def add_proyecto( self, descripcion, lider, **named ):
+        """Registra un proyecto nuevo """
+        new = Proyecto(
+            descripcion = descripcion,
+            id_lider = lider,
+            estado = 1,
+        )
+        DBSession.add( new )
+        flash( '''Proyecto Registrado: %s'''%( descripcion, ))
+        redirect( './index' )
         
+    
+    @expose(template="gestionitem.templates.proyectoTmpl.editar")
+    def editar(self,id):
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        usuarios=DBSession.query(User).filter(User.user_id != proyecto.lider.user_id)
+        return dict(page='Editar Proyecto',
+                    id=id,
+                    proyecto=proyecto,
+                    subtitulo='ABM-Permiso',
+                    usuarios = usuarios)
+    
+    
+    @expose()    
+    def actualizar( self, id, descripcion,id_user ,submit ):
+        """Create a new movie record"""
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        proyecto.descripcion = descripcion
+        proyecto.id_lider = id_user
+        
+        DBSession.flush()
+        
+        redirect( '/proyecto' )
+        
+    
+    @expose()
+    def eliminar(self,id):
+        DBSession.delete(DBSession.query(Proyecto).filter_by(id=id).one())
+        redirect( '/proyecto' )    
+
+
         
     @expose(template="gestionitem.templates.proyectoDef")
     def proyectoDef(self,id):
@@ -82,14 +106,12 @@ class ProyectoController(BaseController):
                     id=id,proyecto=proyecto,subtitulo='Definicion de Proyectos')
         
         
-    @expose(template="gestionitem.templates.proyectoTmpl.editar")
-    def editar(self,id):
-        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
-        return dict(page='Editar Proyecto',
-                    id=id,proyecto=proyecto,subtitulo='ABM-Proyecto')
     
-
-
+    
+    
+        
+    
+        
 
 
 
