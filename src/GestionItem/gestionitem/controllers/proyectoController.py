@@ -13,6 +13,7 @@ from sprox.formbase import AddRecordForm
 class AddProyecto(AddRecordForm):
     __model__ = Proyecto
     __omit_fields__ = ['id','estadoObj','fecha_creacion']
+    
 
 add_Proyecto_form = AddProyecto(DBSession)
 

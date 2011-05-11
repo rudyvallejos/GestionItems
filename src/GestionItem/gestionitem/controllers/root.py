@@ -6,6 +6,8 @@ from pylons.i18n import ugettext as _, lazy_ugettext as l_
 from tgext.admin.tgadminconfig import TGAdminConfig
 from tgext.admin.controller import AdminController
 from repoze.what import predicates
+from tgext.admin import AdminController, AdminConfig
+
 
 from gestionitem.lib.base import BaseController
 from gestionitem.model import DBSession, metadata, Recurso, TipoItemUsuario, Proyecto,TipoItemUsuarioAtributos
@@ -23,6 +25,9 @@ from gestionitem.model.auth import Group, User, Permission
 
 from gestionitem.controllers.proyectoController import ProyectoController
 from gestionitem.controllers.tipoItemControler import TipoItemControler
+from gestionitem.controllers.myAdminConfig import MyAdminConfig
+from tg import config
+
 
 
 
@@ -58,9 +63,12 @@ class RootController(BaseController):
     tipoItems = TipoItemControler()
     
     secc = SecureController()
-   # tipoItemUsuario = TipoRestController()
+#    tipoItemUsuario = TipoRestController()
+#    admin = AdminController(model, DBSession)
+
    
-    admin = AdminController([User, Group,Recurso], DBSession, config_type=TGAdminConfig)
+    admin = AdminController([User, Group, Permission], DBSession, config_type=MyAdminConfig)
+
     error = ErrorController()
     dict(subtitulo='')
     
@@ -148,7 +156,7 @@ class RootController(BaseController):
         page =int( named.get( 'page', '1' ))
         currentPage = paginate.Page(
             permisos, page, item_count=count,
-            items_per_page=3,
+            items_per_page=5,
         )
         permisos = currentPage.items
 
@@ -193,23 +201,13 @@ class RootController(BaseController):
     def actualizar_permiso( self, id, name,descripcion, submit ):
         """Create a new movie record"""
        
-        Session = sessionmaker(bind=Permission)
-        session = Session()
         permiso = DBSession.query(Permission).filter_by(permission_id=id).one()
-        #recurso=q.filter_by(id=id).one()
-
-        #session = create_session(bind=Recurso, autocommit=True, autoflush=False)
-        #recurso = session.query(Recurso)
+       
         permiso.permission_name = name
         permiso.description = descripcion
-        #DBSession.update( new )
-        #DBSession.commit()
-        #setattr(recurso, id, data)
-        #recurso.data=data
-        #session.merge(data)
-        #DBSession.execute("update recurso set descripcion=:data where id=:id", {'data':data,'id':id})
+        
         DBSession.flush()
-        #recurso.update(recurso,synchronize_session='expire')
+       
         redirect( './permiso' )
     
       

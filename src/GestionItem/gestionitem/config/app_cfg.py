@@ -54,6 +54,7 @@ base_config.sa_auth.group_class = model.Group
 base_config.sa_auth.permission_class = model.Permission
 # override this if you would like to provide a different who plugin for
 # managing login and logout of your application
+
 base_config.sa_auth.form_plugin = None
 
 # override this if you are using a different charset for the login form
