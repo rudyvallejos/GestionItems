@@ -1,7 +1,8 @@
-#Sat May 14 19:43:13 PYT 2011
+#Mon May 16 11:27:46 PYT 2011
 eclipse.preferences.version=1
 encoding//lib/python2.6/site-packages/repoze.what-1.0.9-py2.6.egg/repoze/what/predicates.py=utf-8
 encoding//lib/python2.6/site-packages/repoze.what_quickstart-1.0.8-py2.6.egg/repoze/what/plugins/quickstart/__init__.py=utf-8
+encoding//lib/python2.6/site-packages/tg/controllers/decoratedcontroller.py=utf-8
 encoding//lib/python2.6/site-packages/tg/controllers/util.py=utf-8
 encoding//lib/python2.6/site-packages/tg/decorators.py=utf-8
 encoding//src/GestionItem/gestionitem/__init__.py=utf-8
@@ -12,6 +13,7 @@ encoding//src/GestionItem/gestionitem/controllers/error.py=utf-8
 encoding//src/GestionItem/gestionitem/controllers/root.py=utf-8
 encoding//src/GestionItem/gestionitem/controllers/secure.py=utf-8
 encoding//src/GestionItem/gestionitem/controllers/template.py=utf-8
+encoding//src/GestionItem/gestionitem/lib/base.py=utf-8
 encoding//src/GestionItem/gestionitem/model/__init__.py=utf-8
 encoding//src/GestionItem/gestionitem/model/auth.py=utf-8
 encoding//src/GestionItem/gestionitem/templates/__init__.py=utf-8

@@ -282,6 +282,6 @@ class RootController(BaseController):
 
         """
         flash(_('Hasta pronto!'))
-        redirect(came_from)
+        redirect('/index')
 
     

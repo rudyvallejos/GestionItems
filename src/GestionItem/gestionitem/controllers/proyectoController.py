@@ -9,6 +9,9 @@ from gestionitem.model import DBSession
 from gestionitem.model.auth import User
 from tg import expose, flash, tmpl_context, validate, redirect
 from sprox.formbase import AddRecordForm
+from tg import request
+
+
 
 class AddProyecto(AddRecordForm):
     __model__ = Proyecto
@@ -29,7 +32,14 @@ class ProyectoController(BaseController):
     
     @expose(template='gestionitem.templates.proyectoTmpl.lista')
     def lista(self, **named):
-        proyectos=DBSession.query(Proyecto).order_by( Proyecto.id )
+        identity = request.environ.get('repoze.who.identity')
+
+        if request.identity:
+            id = identity['user']
+        proyectos=DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id)
+#        nombre = request.identity['repoze.who.userid']
+        
+         
         from webhelpers import paginate
         count = proyectos.count()
         page =int( named.get( 'page', '1' ))
