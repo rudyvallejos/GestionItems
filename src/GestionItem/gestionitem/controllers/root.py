@@ -27,6 +27,9 @@ from gestionitem.controllers.proyectoController import ProyectoController
 from gestionitem.controllers.tipoItemControler import TipoItemControler
 from gestionitem.controllers.myAdminConfig import MyAdminConfig
 from tg import config
+from repoze.what.predicates import in_group  
+    
+
 
 
 
@@ -34,14 +37,6 @@ from tg import config
 
 __all__ = ['RootController']
 
-class AddMovie(AddRecordForm):
-    __model__ = Recurso
-    __omit_fields__ = [
-        'id'
-    ]
-    #descripcion = TextField
-
-      
     
 class RootController(BaseController):
     """
@@ -60,14 +55,16 @@ class RootController(BaseController):
     
     proyecto = ProyectoController()
     
+    
+    
     tipoItems = TipoItemControler()
     
     secc = SecureController()
 #    tipoItemUsuario = TipoRestController()
-#    admin = AdminController(model, DBSession)
+
 
    
-    admin = AdminController([User, Group, Permission], DBSession, config_type=MyAdminConfig)
+    admin = AdminController([User, Group, Permission], DBSession, config_type = MyAdminConfig)
 
     error = ErrorController()
     dict(subtitulo='')
