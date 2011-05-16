@@ -20,7 +20,7 @@ from tg import tmpl_context
 from tg import validate
 from sqlalchemy.orm import sessionmaker
 from gestionitem.model.auth import Group, User, Permission
-#from gestionitem.controllers.rest import TipoRestController
+from gestionitem.controllers.rest import TipoRestController
 
 
 from gestionitem.controllers.proyectoController import ProyectoController
@@ -60,7 +60,7 @@ class RootController(BaseController):
     tipoItems = TipoItemControler()
     
     secc = SecureController()
-#    tipoItemUsuario = TipoRestController()
+    tipoItemUsuario = TipoRestController()
 
 
    

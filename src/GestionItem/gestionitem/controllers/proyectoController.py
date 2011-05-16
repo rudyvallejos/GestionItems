@@ -36,7 +36,8 @@ class ProyectoController(BaseController):
 
         if request.identity:
             id = identity['user']
-        proyectos=DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id)
+        proyectos =DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id)
+        
 #        nombre = request.identity['repoze.who.userid']
         
          
