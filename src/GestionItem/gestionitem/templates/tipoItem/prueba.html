@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <script type="text/javascript" src="http://gettopup.com/releases/latest/top_up-min.js"></script>
+  </head>
+  <body>
+    <div id="examples">
+      <!--a href="photos/by-ben-adamson.jpg"><img src="thumbnails/by-ben-adamson.jpg"/></a>
+      <a href="photos/2.jpg"><img src="thumbnails/2.jpg"/></a>
+      <a href="photos/3.jpg"><img alt="At Sunset" src="thumbnails/3.jpg"/></a-->
+    </div>
+    <script type="text/javascript">
+      TopUp.addPresets({
+        "#examples a": {
+          title: "Gallery {alt} ({current} of {total})",
+          group: "examples",
+          readAltText: 1,
+          shaded: 1
+        }
+      });
+    </script>
+      </body>
+</html>

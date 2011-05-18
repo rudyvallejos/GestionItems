@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+</head>
+
+<body>
+<div><h3>Editar tipo de Item</h3></div>
+<div id="CargaAtributos">
+  <form  display="none" action="/tipoItems/actualizar_tipoItem" method="post">
+    <input type="hidden" name="id" value="${tipoItem.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <div><label>Nombre:</label>
+    <input name="nombre" value="${tipoItem.descripcion}"/>
+    <P>Proyecto:
+		<SELECT  disable="TRUE" readonly="TRUE">
+		<OPTION disable ="true">${proyecto.descripcion}</OPTION>
+		</SELECT>
+	</P>
+    </div>
+    <input type="submit" name="submit" value="Guardar"/>
+  </form>
+  <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
+  <!--<h2>Nuevo Recurso</h2>
+	${tmpl_context.add_movie_form( action='add_movie') }!-->
+  
+ 
+  
+  
+  
+</div>
+
+<br/><br/>
+<a href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista">Def. Tipo Item</a>
+  
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+<SCRIPT LANGUAGE="JavaScript">
+function cargarVector(atributos)
+{
+  var f;
+  py:for each="i, atributo in enumerate(atributos)"
+  	obj = document.form.(i);	
+  	obj.value="prueba"
+  
+}
+function cambiaPalabra() {
+
+document.form.1.value="Adios";
+}
+
+</SCRIPT>
+
+
+
+
+
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <!--title>Editing: ${aux.descripcion}</title-->
+</head>
+
+<body>
+<!--div onclick="comprueba(this)">Otro comentario</div-->
+<div><h3>Agregar Nuevo Item</h3></div>
+<div id="CargaAtributos">
+ 	<form  display="none"  name="form" action="/item/saveItem" method="get">
+     <input type="hidden" name="idFase" value="${fase.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <table border="0">
+	<tr>
+		<td>Proyecto:</td>
+		<td><input  size="35" disable="TRUE" readonly="TRUE" value="${proyecto.descripcion}"/>
+		</td>
+		<td>Fase:</td>
+		<td><input  size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
+		</td>
+	</tr>
+
+	<tr>
+		<td><label>Cod.Item:</label></td>
+		<td><input name="codItem" value="${item.cod_item}"/></td>
+		
+		<td>Complejidad:</td>
+		<td><SELECT name="complejidad">
+		<OPTION  selected="true" disable ="false">1</OPTION>
+		<OPTION py:for="complejidad in compleLista">${complejidad}</OPTION>
+		</SELECT></td>
+	</tr>
+	<tr>
+		<td><label>Descripcion:</label></td>
+		<td><textarea name="descripcion" py:content="item.descripcion" rows="7" cols="38"/></td>
+		
+	</tr>
+	<tr>
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<td>Tipo de Item:</td>
+		<td><SELECT name="tipoItem" ONCHANGE="location = this.options[this.selectedIndex].value;">
+		<!--py:for each="tipo in tipoItems"-->
+		<!--OPTION  selected="true" disable ="false">default</OPTION>
+		<OPTION py:for="tipo in tipoItems" >${tipo.descripcion}</OPTION-->
+		<py:if test="tipos in tipoItems">
+        	 <py:for each="tipo in tipoItems">
+        	  <py:if test="tipos.id == tipo.id">
+        	  	<option selected="false" value="0" disable ="false">default</option>
+                <option value="$tipo.id" selected="selected">$tipo.descripcion</option>
+              </py:if>
+              <py:if test="tipos.id!= tipo.id">
+              	<option value="$tipo.id">$tipo.descripcion</option>
+              </py:if>
+			</py:for>
+		</py:if>
+		<py:if test="tipos==0">
+        		
+              	<option selected="true" value="0" disable ="false">default</option>
+              	<option py:for="tipo in tipoItems" value="$tipo.id">$tipo.descripcion</option>              
+				<input type="hidden" name="lista" value=""/>
+				<input type="hidden" name="idAtributos" value=""/>
+		</py:if>	  	  
+		</SELECT></td>
+	</tr>
+	<div>
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	
+	<py:for each="i, atributo in enumerate(atributos)" >
+	
+	
+	<tr>
+		
+		<td>${atributo.nombre_atributo}</td>
+		<td><input size="35" name="lista" /></td>
+		<td><input type="hidden" name="idAtributos" value="${atributo.id}"/></td>
+	
+	</tr>
+		
+		
+	</py:for>
+	</div>
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<tr>
+		<td/>
+	
+		<td> 
+		<input type="button" name="submit" value="Cancelar" />
+		<py:if test="fase.numero_fase==1"><input type="submit"  name="submit" title="Guardar el item sin relacionar con otro" value="Guardar Sin Relacionar"/>
+		</py:if>
+		<input type="submit"  name="submit" title="Relacionar el item con otro" value="Relacionar"/>	
+		</td>
+		
+	</tr>
+	</table>
+    
+  </form>
+  <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
+  <!--<h2>Nuevo Recurso</h2>
+	${tmpl_context.add_movie_form( action='add_movie') }!-->
+  
+ 
+  
+  
+  
+</div>
+
+<br/><br/>
+<a href="/item/itemList/${fase.id}/lista">Lista Item</a>
+  
+</body>
+</html>

@@ -33,7 +33,7 @@ function comprueba(objOrigen) {
 <!--div onclick="comprueba(this)">Otro comentario</div-->
 <div><h3>Agregar Nuevo tipo de Item</h3></div>
 <div id="CargaAtributos">
-  <form  display="none" action="/saveItem" method="post">
+  <form  display="none" action="/tipoItems/saveItem" method="post">
     <input type="hidden" name="id" value="${tipoItem.id}"/>
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <div><label>Nombre:</label>
@@ -58,6 +58,8 @@ function comprueba(objOrigen) {
   
 </div>
 
-
+<br/><br/>
+<a href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista">Def. Tipo Item</a>
+  
 </body>
 </html>

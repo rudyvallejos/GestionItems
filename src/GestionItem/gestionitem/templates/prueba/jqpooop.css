@@ -1,0 +1,88 @@
+/*-----------Style for jQPOOOP--------------------------*/
+
+	
+.popup{
+
+z-index:10000;
+width:400px;
+height:200px;
+position:relative;
+border: solid 3px #6b6b6b;
+background: white url(imgs/top_back.jpg) 0 0 repeat-x;
+
+}
+
+.popup h6 {
+
+background: url(imgs/warning.jpg) 0 0 no-repeat;
+margin: 5px 0 0 10px;
+padding: 5px 0 0 30px;
+font-size: 14px;
+height: 22px;
+float:left;
+
+}
+
+.popup button {
+
+float: right;
+background: none;
+border: none;
+margin: 6px 6px 0 0;
+
+}
+/*
+ * jQuery  Plugin jQPOOOP v 0.0.9
+ * http://www.dieroboter.com/jQPOOOP/
+ * Copyright (c) 2009 Esteban Martin Gimenez
+ *http://www.dieroboter.com
+ * Dual licensed under the MIT and GPL licenses.
+ *Email:jqpooop@gmail.com
+ * Date: 2009-08-12 20:42:16 
+ * Revision: 9
+ * Style CSS
+ *
+ */
+
+.popup p {
+
+clear: both;
+margin: 60px 10px 10px 10px;
+font-size: 14px;
+text-align: center;
+
+}
+
+.popup .accept {
+
+width: 80px;
+height: 26px;
+display: block;
+background: url(imgs/blue_bt_right.jpg) right top no-repeat;
+text-align: center;
+margin: 0 auto;
+margin-top: 30px;
+
+}
+
+.popup a{
+
+	font-family:arial;
+	color:black;
+	font-weight:bold;
+	text-decoration: none;
+}
+
+
+.popup .accept span {
+padding-top:5px;
+font-size: 13px;
+font-weight: bold;
+color: #1b6181;
+display: block;
+height: 21px;
+width: 80px;
+float: left;
+
+background: url(imgs/blue_bt_left.jpg) 0 0 no-repeat;
+}

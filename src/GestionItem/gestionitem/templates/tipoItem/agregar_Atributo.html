@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+</head>
+
+<body>
+
+<div><h2>Agregar Atributo</h2></div>
+<div><h3>Tipo de Item: ${tipoItem.descripcion}</h3></div> 
+
+  <form  display="none" action="/tipoItems/saveItemAtri" method="post">
+	
+    <input type="hidden" name="id" value="${tipoItem.id}"/>
+    <label>Nombre:</label>
+    <input name="descripcion" value="${atributo.descripcion}"/>
+    Tipo:
+		<SELECT name="tipoId">
+		<OPTION py:for="tipo in tipos"  value="${tipo.id}">${tipo.descripcion}</OPTION>
+		</SELECT>
+	<br/><br/>
+ 	<input type="submit" name="submit" value="Guardar"/>
+  </form>
+
+<br/><br/>
+<a href="/tipoItems/atributosDef/${tipoItem.id}">Def. Atributos</a>
+    
+  
+  <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
+  <!--<h2>Nuevo Recurso</h2>
+	${tmpl_context.add_movie_form( action='add_movie') }!-->
+  
+ 
+  
+  
+  
+
+
+
+</body>
+</html>

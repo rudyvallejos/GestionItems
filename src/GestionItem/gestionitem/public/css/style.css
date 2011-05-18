@@ -329,3 +329,5 @@ clear:both;
     text-align: center;
     color: darkgrey;
 }
+.centrado { text-indent:0px ; text-align:center ; } 
+.izquierda { text-indent:0px ; text-align:right ; } 
