@@ -10,7 +10,7 @@ from tgext.admin import AdminController, AdminConfig
 
 
 from gestionitem.lib.base import BaseController
-from gestionitem.model import DBSession, metadata, Recurso, TipoItemUsuario, Proyecto,TipoItemUsuarioAtributos
+from gestionitem.model import DBSession, metadata, Recurso, TipoItemUsuario, Proyecto,TipoItemUsuarioAtributos, Fase
 from gestionitem import model 
 from gestionitem.controllers.secure import SecureController
 from gestionitem.controllers.error import ErrorController
@@ -25,6 +25,8 @@ from gestionitem.controllers.rest import TipoRestController
 
 from gestionitem.controllers.proyectoController import ProyectoController
 from gestionitem.controllers.tipoItemControler import TipoItemControler
+
+from gestionitem.controllers.itemControler import ItemControler
 from gestionitem.controllers.myAdminConfig import MyAdminConfig
 from tg import config
 from repoze.what.predicates import in_group  
@@ -52,6 +54,8 @@ class RootController(BaseController):
     must be wrapped around with :class:`tg.controllers.WSGIAppController`.
 
     """
+
+    item = ItemControler()
     
     proyecto = ProyectoController()
     
@@ -73,7 +77,41 @@ class RootController(BaseController):
     def index(self):
         """Handle the front-page."""
         return dict(page='Indice',subtitulo='Indice')
+
+    @expose('gestionitem.templates.prueba.demo')
+    def demo(self):
+        """Handle the front-page."""
+        return dict(page='Indice',subtitulo='Indice')
+
+    @expose(template='gestionitem.templates.proyectoList')
+    def proyectoList(self, **named):
+        proyectos=DBSession.query(Proyecto).order_by( Proyecto.id )
+        from webhelpers import paginate
+        count = proyectos.count()
+        page =int( named.get( 'page', '1' ))
+        currentPage = paginate.Page(
+            proyectos, page, item_count=count,
+            items_per_page=3,
+        )
+        proyectos = currentPage.items
+        return dict(page='proyecto',
+                    proyectos=proyectos, 
+                    subtitulo='Proyectos',currentPage = currentPage)
+    @expose(template="gestionitem.templates.proyectoDef")
+    def proyectoDef(self,id):
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        return dict(page='Definir Proyecto',
+                    id=id,proyecto=proyecto,subtitulo='Definicion de Proyectos')
+    @expose(template="gestionitem.templates.faseList")
+    def faseList(self,id):
+        fases = DBSession.query(Fase).order_by(Fase.id)
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        return dict(page='Lista de Fases',
+                    id=id,fases=fases,proyecto=proyecto,subtitulo='Lista de Fases')
+    
    
+    
+
     @expose(template='gestionitem.templates.recurso')
     def recurso(self, **named):
         recursos=DBSession.query(Recurso).order_by( Recurso.id )

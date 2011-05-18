@@ -20,17 +20,16 @@
 
 <body class="tundra">
 
-<!--div py:replace="aux.descripcion">Page text goes here.</div-->
 <div>
    <h2>Tipo de Item: ${tipoItem.descripcion}</h2>
-   <h3>Lista de Atributos</h3>
- <a href="/agregar_Atributo/${tipoItem.id}">Agregar Nuevo Atributo</a>
+   <a  class="" title="Lista Todos los atributos" href="/tipoItems/atributosDef/${tipoItem.id}"><h2>Lista de Atributos</h2></a>
+ <a class="add_link" href="/tipoItems/agregar_Atributo/${tipoItem.id}">Agregar Nuevo Atributo</a>
     <div class="crud_table" style="height:50%; width:90%">
     <div>
      
     <table class="grid">
         <thead>
-            <tr><th></th><th>Identificador</th><th >Nombre de Atributo</th><th>Tipo de Dato</th><th></th></tr>
+            <tr><th></th><th>Identificador</th><th >Nombre de Atributo</th><th>Tipo de Dato</th></tr>
         </thead>
         <tbody >
         	<tr class="navigation" py:if="currentPage.page_count > 1">
@@ -40,28 +39,30 @@
     			<td colspan="4" class="pager">No existen datos</td>
 			</tr>
         
-            <tr class="even" py:for="atributo in atributos">
+            <tr py:for="i, atributo in enumerate(atributos)" class="${i%2 and 'odd' or 'even'}">
             <td class="col_0">
-                <div><div><a class="edit_link" href="/recurso_editar/${atributo.id}" style="text-decoration:none">edit</a></div><div>
+                <div><div><a class="edit_link" href="/tipoItems/atributo_editar/${tipoItem.id}/${atributo.id}" style="text-decoration:none">edit</a></div><div>
                 
-                <form method="POST" action="/eliminar_recurso/${atributo.id}" class="button-to">
-                	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con id ${tipoItem.id}?');" 
+                <form method="POST" action="/tipoItems/eliminar_atributo/${tipoItem.id}/${atributo.id}" class="button-to">
+                	<!--input type="hidden" name="tipo_item_id" value="${tipoItem.id}"/--> 
+                	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con id ${atributo.id}?');" 
                 	value="eliminar"  type="submit" style="background-color: transparent; float:left; border:0; color: #286571; display: inline; margin: 0; padding: 0;"/>
                 </form>
                 </div></div>
             
             </td>
             	<td class="col_0">${atributo.id}</td>
-                <td class="col_1">${atributo.descripcion}</td>
-                <td class="col_1"><a href="/atributosList/${atributo.id}">Lista Atributos</a></td>
-                <td class="col_1"><a href="/atributosDef/${atributo.id}">Def. Atributos</a></td>
+                <td class="col_1">${atributo.nombre_atributo}</td>
+                <td class="col_1">${atributo.tipo.descripcion}</td>
         </tr>
         </tbody>
     </table>
   </div>
       </div>
+  <br/><br/>
+<a  href="/tipoItems/tipoItemUsuario/${tipoItem.proyecto_id}/lista">Def. Tipo Item</a>
   
-  
+ 
   
 </div>
 

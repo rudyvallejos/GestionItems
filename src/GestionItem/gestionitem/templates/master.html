@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
+
 	xmlns:py="http://genshi.edgewall.org/"
 	xmlns:xi="http://www.w3.org/2001/XInclude" py:strip="">
 <xi:include href="header.html" />
@@ -23,7 +24,7 @@
 		<li class="first"><a href="${tg.url('/')}"
 			class="${('', 'active')[defined('page') and page=='index']}">Bienvenido</a>
 		</li>
-		<li py:if="request.identity"><a href="${tg.url('/proyecto')}"
+		<li py:if="request.identity"><a href="${tg.url('/proyectoList')}"
 			class="${('', 'active')[defined('page') and page=='proyecto']}">Proyecto</a>
 		</li>
 		<li py:if="request.identity"><a href="${tg.url('/recurso')}"
