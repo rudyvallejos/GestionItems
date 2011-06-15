@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:py="http://genshi.edgewall.org/"
+	xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+
+<head>
+<link rel="stylesheet" type="text/css"
+	href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+<title>Lista de usuarios de fases</title>
+<style type="">
+#menu_items {
+	padding: 0px 12px 0px 2px;
+	list-style-type: None
+}
+</style>
+<link rel="stylesheet" type="text/css" media="screen"
+	href="/css/style.css" />
+<link rel="stylesheet" type="text/css" media="screen"
+	href="/css/admin.css" />
+</head>
+<body class="tundra">
+	<h2>Usuarios de fase ${descripcion}</h2>
+	<a href="/proyecto/definir_fase/${proyecto_id}">Lista de fases</a> <br/><br/>
+	<a class="add_link" href="/proyecto/agregar_usuario_fase/${fase_id}">Agregar
+		Usuario</a>
+	<br />
+	<br />
+	<div class="crud_table" style="height: 50%; width: 90%">
+		<div>
+			<table class="grid">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Nombre de Usuario</th>
+						<th>Rol</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+				
+					<tr class="navigation" py:if="currentPage.page_count > 1">
+						<td colspan="4" class="pager">${currentPage.pager()}</td>
+					</tr>
+
+					<tr class="navigation" py:if="currentPage.item_count == 0">
+						<td colspan="4" class="pager">No existen datos</td>
+					</tr>
+					 
+					<tr class="even" py:for="ufr in usuariofaserol">
+						<td class="col_0">
+							<div>
+								<div>
+									<a class="edit_link" href="/proyecto/editar_usuario_fase/${ufr.id}"
+										style="text-decoration: none" >edit</a>
+										
+								</div>
+								<div>
+
+									<form method="POST" action="/proyecto/eliminar_usuario_fase/${ufr.id}"
+										class="button-to">
+										<input class="delete-button"
+											onclick="return confirm('Esta seguro que desea eliminar el registro ?');"
+											value="eliminar" type="submit"
+											style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
+									</form>
+								</div>
+							</div></td>
+						<td class="col_1">${ufr.usuario.user_name}</td>
+						<td class="col_1">${ufr.rol.group_name}</td>
+					</tr>
+
+
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+</body>
+
+</html>

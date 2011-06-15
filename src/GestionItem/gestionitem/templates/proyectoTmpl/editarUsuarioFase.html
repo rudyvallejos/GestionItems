@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+    <xi:include href="master.html" />
+
+    <head>
+        <title>Editar Usuario de fase</title>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type"
+              py:replace="''" />
+
+    </head>
+    <body>
+        <h2>Editar Usuario de fase ${fase.descripcion}</h2>
+        <a href="/proyecto/usuario_faseList/${fase.proyecto_id}">Lista de usuarios de fase</a> <br/><br/>
+        <div>
+            <form action="/proyecto/actualizar_usuario_fase" method="post">
+                <table border="0" cellpadding="5" cellspacing="0">
+                    <tr>
+                        <td><input type="hidden" name="fase" value="${fase.id}" /></td>
+                        <td><input type="hidden" name="ufr" value="${ufr.id}" /></td>
+                    </tr>
+                    <tr>
+                        <td align="left"><label>User </label></td>
+
+                        <td><input type="text" value="${usuario.user_name}" readonly="true"/>
+                        </td>
+
+
+                    </tr>
+                    <tr><td></td></tr>
+                    <tr>
+                        <td align="left"><label>Rol</label></td>
+                        <td align="right">
+                            <py:for each="rol1 in roles">
+                                <py:if test="rol1.group_id == rol.group_id">
+                                    <input type="radio" name="rol" value="${rol1.group_id}" checked="true" >${rol1.group_name}</input>
+                                </py:if>
+                                <py:if test="rol1.group_id != rol.group_id">
+                                    <input type="radio" name="rol" value="${rol1.group_id}" >${rol1.group_name}</input>
+                                </py:if>
+
+                            </py:for>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="submit" name="submit" value="Guardar" /></td>
+                    </tr>
+                </table>
+
+            </form>
+
+        </div>
+    </body>
+
+
+
+
+</html>

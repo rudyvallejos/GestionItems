@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:py="http://genshi.edgewall.org/"
+	xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+
+<head>
+<link rel="stylesheet" type="text/css"
+	href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+<title>Lista de fases</title>
+<style type="">
+#menu_items {
+	padding: 0px 12px 0px 2px;
+	list-style-type: None
+}
+</style>
+<link rel="stylesheet" type="text/css" media="screen"
+	href="/css/style.css" />
+<link rel="stylesheet" type="text/css" media="screen"
+	href="/css/admin.css" />
+</head>
+<body class="tundra">
+	<h2>Lista de Fases</h2>
+	<a href="/proyecto/lista">Lista de Proyectos</a> <br/><br/><br/>
+	<a py:if ="tg.predicates.has_permission('crear fase')" class="add_link" href="/proyecto/agregar_fase/${proyecto_id}">Nueva
+		Fase</a>
+	<br />
+	<br />
+	<div class="crud_table" style="height: 50%; width: 90%">
+		<div>
+			<table class="grid">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Identificador</th>
+						<th>Nombre de fase</th>
+						<th>Numero de fase</th>
+						<th>Estado</th>
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="navigation" py:if="currentPage.page_count > 1">
+						<td colspan="4" class="pager">${currentPage.pager()}</td>
+					</tr>
+
+					<tr class="navigation" py:if="currentPage.item_count == 0">
+						<td colspan="4" class="pager">No existen datos</td>
+					</tr>
+
+					<tr class="even" py:for="fase in fases">
+						<td class="col_0">
+							<div>
+								<div>
+									<a py:if ="tg.predicates.has_permission('editar fase')" class="edit_link" href="/proyecto/editar_fase/${fase.id}"
+										style="text-decoration: none">edit</a>
+								</div>
+								<div py:if ="tg.predicates.has_permission('eliminar fase')">
+
+									<form method="POST" action="/proyecto/eliminar_fase/${fase.id}"
+										class="button-to">
+										<input class="delete-button"
+											onclick="return confirm('Esta seguro que desea eliminar el registro con id ${fase.id}?');"
+											value="eliminar" type="submit"
+											style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
+									</form>
+								</div>
+							</div></td>
+						<td class="col_1">${fase.id}</td>
+						<td class="col_2">${fase.descripcion}</td>
+						<td class="col_3">${fase.numero_fase}</td>
+						<td class="col_4">${fase.estadoObj.descripcion}</td>
+						<py:if test="fase.estado_id == 1">
+							<td><a py:if ="tg.predicates.has_permission('asignar desarrollador')" href="/proyecto/usuario_faseList/${fase.id}">Asignar
+									Usuarios</a></td>
+							<td><a href="/tipoItems/tipoItemUsuario/${proyecto_id}">Tipo
+									de Items</a>
+							</td>
+						</py:if>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:py="http://genshi.edgewall.org/"
+	xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+
+<head>
+<title>Editar fase</title>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type"
+	py:replace="''" />
+
+</head>
+
+<body>
+
+	<h2>Editar fase</h2>
+	<a href="/proyecto/definir_fase/${fase.proyecto_id}">Lista de fases</a> <br/><br/>
+	<div>
+		<form action="/proyecto/actualizar_fase" method="post">
+			<table border="0" cellspacing="0" cellpadding="2">
+				<tr>
+					<td><input type="hidden" name="id" value="${fase.id}" /></td>
+				</tr>
+
+				<tr>
+					<td><label>Proyecto</label></td>
+					<td><input type="text" name="descripcion_proyecto"
+						value="${fase.proyectoObj.descripcion}" readonly="true"></input></td>
+				</tr>
+				<tr>
+					<td><label>Nombre de fase</label></td>
+					<td><input type="text" name="nombre_fase"
+						value="${fase.descripcion}"></input></td>
+				</tr>
+				<tr>
+					<td><label>Numero de fase</label></td>
+					<td><input type="text" name="numero_fase"
+						value="${fase.numero_fase}"></input></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="submit" name="submit" value="Guardar" /></td>
+				</tr>
+
+			</table>
+		</form>
+	</div>
+
+
+</body>
+</html>
+

@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<script> 
+var fechas=[];
+var codRepetido
+var valorNoNumerico=[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+var formatoNoValido=[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+boton=""
+cont_fechas=0;
+var enteros=[];
+
+cont_enteros=0;
+function validarCamposObligatorios(form){
+if (boton=="Cancelar")
+		{  
+   				
+    				
+    				document.form.action="/item/itemList/${fase.id}/lista"
+			  		
+			  		return true;	
+				
+       	}
+      	
+for(j=0; ele=valorNoNumerico[j]; j++){
+
+	if(true==ele){
+		alert("El campo debe ser numerico");		
+            return false;  
+	} 
+}
+
+
+
+
+
+for(j=0; ele=formatoNoValido[j]; j++){
+
+	if(true==ele){
+		alert("Formato o Valor de fecha no valido");		
+            return false;  
+	} 
+}
+if (codRepetido)
+{ 
+	alert('El codigo del item ya esta en uso en esta fase'); 
+	return false
+	
+}
+campo= document.form.codItem.value;
+campo2= document.form.descripcion.value;
+if (campo=='')
+{
+	alert('Debe completar todos los campos obligatorios marcados con *');
+    return false;
+}    
+if (campo2=='')
+{
+	alert('Debe completar todos los campos obligatorios marcados con *');
+    return false;
+}
+
+}
+
+function botonPresionado(botonP){
+
+boton=botonP
+}  
+
+
+function validarEntero(form,i){
+     enteros[cont_enteros]=i;
+	 cont_enteros=cont_enteros+1; 
+     valor = parseInt(form.lista[i].value)
+	  if (isNaN(form.lista[i].value)) {
+	            alert("El valor debe ser numerico")
+	            valorNoNumerico[i]=true
+	            return false
+      }else{
+      		valorNoNumerico[i]=false
+            return valor
+            
+      }
+} 
+function validarCodigos(form,lista){
+//alert(lista);
+codigos=lista.split(',');
+//alert(codigos[0])
+codItem=document.form.codItem.value;
+
+for(j=0; ele=codigos[j]; j++){
+	if(ele==codItem){
+		alert("El codigo del item ya esta en uso en esta fase");
+			codRepetido=true		
+            return false;  
+	} 
+	
+}
+codRepetido=false 
+}
+function validaFecha(form,i)
+{	fechas[cont_fechas]=i
+	cont_fechas=cont_fechas+1;
+	
+	var validformat=/^\d{2}\/\d{2}\/\d{4}$/ //Basic check for format validity
+	var returnval=false
+if(form.lista[i].value!="")
+{	
+  	var fecha = new String(form.lista[i].value)   // Crea un string  
+  	if (fecha != undefined)
+  	{ 
+  		if (fecha.value != "" )
+  		{
+        	if (!/^\d{2}\/\d{2}\/\d{4}$/.test(fecha))
+        	{
+            	alert("formato de fecha no valido (dd/mm/aaaa)");
+            	focus(form.lista[i].value)
+            	formatoNoValido[i]=true
+            	return false;
+            }
+		}
+	}    			 
+ 	var dia  =  parseInt(fecha.substring(0,2),10);
+    var mes  =  parseInt(fecha.substring(3,5),10);
+    var anio =  parseInt(fecha.substring(6),10);
+ 	switch(mes)
+ 	{
+        		case 1:numDias=31;break;
+    		    case 3:numDias=31;break;
+        		case 5:numDias=31;break;
+        		case 7:numDias=31;break;
+        		case 8:numDias=31;break;
+        		case 10:numDias=31;break;
+        		case 12:
+            	numDias=31;
+            break;
+        	case 4: case 6: case 9: case 11: case 2:
+            numDias=30;
+            break;
+        	
+        default:
+            alert("Fecha introducida errÃ³nea");
+            formatoNoValido[i]=true
+            return false;
+    }
+}
+
+formatoNoValido[i]=false			
+    				
+}
+
+
+
+
+</script> 
+
+
+
+
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+</head>
+
+<body>
+
+<!--div onclick="comprueba(this)">Otro comentario</div-->
+<div><h3>Editar Item</h3></div>
+<div id="CargaAtributos">
+ 	<form  display="none"  name="form" onsubmit="return validarCamposObligatorios(this)" action="/item/saveItemLB" method="get">
+     <input type="hidden" name="idFase" value="${fase.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <input type="hidden" name="idItem" value="${item.id}"/>
+    <input type="hidden" name="tipoItem" value="${item.tipo_item_id}"/>
+    <input type="hidden" name="numCod" value="${item.numero_cod}"/>
+    <table border="0">
+	<tr>
+		<td><b>Proyecto:</b></td>
+		<td>${proyecto.descripcion}</td>
+		<td><b>Fase:</b></td>
+		<td>${fase.descripcion}</td>
+	</tr>
+	<tr>
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<td><b>Tipo de Item:</b></td><td>${tipo.descripcion}</td>
+		
+	</tr>
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<tr>
+		<td><label><b>Cod.Item:</b></label></td>
+		<td><input  size="7" readOnly="true"  name="codItem"  value="${item.cod_item}"/><b>*</b></td>
+		
+		<td><b>Complejidad:</b></td>
+		<td><SELECT name="complejidad">
+		<OPTION  selected="true" disable ="false">${item.prioridad}</OPTION>
+		<OPTION py:for="complejidad in compleLista">${complejidad}</OPTION>
+		</SELECT></td>
+	</tr>
+	<tr>
+		<td><label><b>Descripcion:</b></label></td>
+		<td><textarea name="descripcion" py:content="item.descripcion" rows="7" cols="38"/><b>*</b></td>
+		<td><label><b>Adjuntar archivo:</b></label></td>
+		<td>
+		<input type="file" />
+		</td>
+	</tr>
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	
+	<py:for each="i, atributo in enumerate(atributos)" >
+	<py:for each="j, atributoValor in enumerate(atributosValor)" >
+	<py:if test="atributo.id==atributoValor.atributo_id">
+		<tr>
+			<td><b>${atributo.nombre_atributo}:</b></td>
+			<td><py:if test="atributo.tipo_id==1"><input size="35" value="${atributoValor.valor}" name="lista" /></py:if>
+			<py:if test="atributo.tipo_id==2"><input   onBlur="validarEntero(this.form,'$i')" value="${atributoValor.valor}" size="8" name="lista" /></py:if>
+			<py:if test="atributo.tipo_id==3">
+			<input type="TEXT" size="8" onBlur="validaFecha(this.form,'$i')"    value="${atributoValor.valor}" name="lista" /><b>Formato Valido:</b> mm/dd/yyyy<br /></py:if></td>	
+			<input type="hidden" name="idAtributos" value="${atributo.id}"/>
+		</tr>
+	</py:if>
+	</py:for>	
+	</py:for>
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<tr>
+		
+	
+		<td> 
+		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" /></td>
+		<td><input type="submit"  name="submit" title="Modificar Item" value="Modificar Item"/>
+		<input type="submit"  name="submit"  title="Relacionar el item con otro" value="Modificar Relaciones"/></td>	
+		
+		
+	</tr>
+	</table>
+    
+  </form>
+  <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
+  <!--<h2>Nuevo Recurso</h2>
+	${tmpl_context.add_movie_form( action='add_movie') }!-->
+  
+
+  
+  
+</div>
+
+<br/><br/>
+</body>
+</html>

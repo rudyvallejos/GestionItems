@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+<SCRIPT LANGUAGE="JavaScript">
+function cargarVector(atributos)
+{
+  var f;
+  py:for each="i, atributo in enumerate(atributos)"
+  	obj = document.form.(i);	
+  	obj.value="prueba"
+  
+}
+function cambiaPalabra() {
+
+document.form.1.value="Adios";
+}
+
+</SCRIPT>
+
+
+<script> 
+var numero = 2 
+function verificar()
+{
+
+              
+              for(i=0; ele=document.formulario.fases[i]; i++){
+    				if (ele.checked==true){
+    					
+    					return true;
+    					
+    				}
+    				}
+    				
+    			
+	
+    					 alert("Debe seleccionar al menos una fase");
+    					 return false;
+    					
+    				
+}
+function verificarItems()
+{	
+			  
+			  
+              for(j=0; ele=document.formulario2.itemselect[j]; j++){ 
+              		
+    				if (ele.checked==true){
+    					
+    					return true;
+    					
+    				}
+    				}
+    				
+    			if(document.formulario2.itemselect.checked==true)
+			  		return true;	
+	
+    					 alert("Debe seleccionar al menos un item");
+    					 return false;
+    					
+    				
+}
+        
+</script>
+
+
+
+<head>
+<style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+  
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <!--title>Editing: ${aux.descripcion}</title-->
+</head>
+
+<body>
+<!--div onclick="comprueba(this)">Otro comentario</div-->
+<div><h3>Informacion del Item</h3></div>
+<div id="CargaAtributos">
+ 	<input type="hidden" name="idFase" value="${fase.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <table border="0">
+	<tr>
+		<td><u><b>Proyecto</b></u></td>
+		<td><label>${proyecto.descripcion}</label></td>
+		<!-- td><input  size="35" disable="TRUE" readonly="TRUE" value="${proyecto.descripcion}"/>
+		</td-->
+		<td><u><b>Fase</b></u></td>
+		<td><label>${fase.descripcion}</label></td>
+		<!--  td><input  size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
+		</td-->
+	</tr>
+
+	<tr>
+		<td><label><u><b>Cod.Item</b></u></label></td>
+		<td><label>${item.cod_item}</label></td>
+		<!-- td><input name="codItem" disable="TRUE" readonly="TRUE" value="${item.cod_item}"/></td-->		
+		<td><label><u><b>Descripcion</b></u></label></td>
+		<td><label>${item.descripcion}</label></td>
+		<!--  td><textarea name="descripcion" disable="TRUE" readonly="TRUE" py:content="item.descripcion" rows="0" cols="38"/></td-->
+	</tr>
+	<tr>
+		
+		
+	</tr>
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<!--  form  display="none"   action="/item/relacionar_item/${item.id}/${fase.id}" name="formulario" onSubmit="return verificar(this);" method="get">
+	<tr><td><h3>Seleccione las Fases: </h3></td></tr>
+	<tr>
+		<py:for each="f in fases">
+      		<py:if test="str(f.id) in fases_selec">
+    			<tr><td/><td><input TYPE="CHECKBOX"  checked="true" name="fases" value="${f.id}" >${f.descripcion}</input></td></tr>
+    		</py:if>
+    		<py:if test="str(f.id) not in fases_selec">
+    		
+    			<tr><td/><td><input TYPE="CHECKBOX"  name="fases" value="${f.id}" >${f.descripcion}</input></td></tr>
+    		</py:if>
+    	
+    	</py:for>  		  
+	</tr>
+		<tr/><tr/><tr/><tr/><tr/><tr/>
+	
+	<tr/><tr/><tr/><tr/>
+	<tr>
+		<td/>
+	
+		<td> 
+		<input type="button" name="submit" value="Cancelar" />
+		<py:if test="fase.numero_fase==1"><input type="submit"  name="submit" title="Guardar el item sin relacionar con otro" value="Guardar Sin Relacionar"/>
+		<input type="submit"  name="submit" title="Lista los items de las fases seleccionadas" value="Listar Items"/>	
+		</td>
+		
+	</tr>
+	<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>
+	 </form-->
+	</table>
+    <form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get">
+    <div><h3>Lista de Items Relacionados: </h3></div>
+    <div class="crud_table" style="height:80%; width:100%">
+    <div>
+	 <tr py:for="i, fase in enumerate(fasesRelacionados)" class="${i%2 and 'odd' or 'even'}">   
+		<div><h3>Fase: ${fase.descripcion}</h3></div>	  
+		  <table class="grid">
+	        <thead>
+	            <tr><th></th><th>Cod. Item</th><th >Descripcion</th></tr>
+	        </thead>
+	        <tbody >
+	        	<!--tr class="navigation" py:if="currentPage.page_count > 1">
+	    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+				</tr>
+				<tr class="navigation" py:if="currentPage.item_count == 0">
+	    			<td colspan="4" class="pager">No existen datos</td>
+				</tr-->
+	        
+	            <tr py:for="i, item in enumerate(itemsRelacionados)" class="${i%2 and 'odd' or 'even'}">
+	            <py:if test="fase.id==item.fase_id">
+	            <td class="col_0">
+	                <div><div><input TYPE="CHECKBOX"  readonly="true" disable="true" checked="true" name="itemselect" value="${item.id}" /></div><div>
+	                
+	                </div></div>
+	            
+	            </td>
+	            	<td class="col_0">${item.cod_item}</td>
+	                <td class="col_1">${item.descripcion}</td>
+	        	</py:if>
+	        	</tr>
+	    
+	        </tbody>
+	    </table>
+     </tr> 
+    </div>
+      </div>
+      	<br/><br/><br/><br/>
+		<!--input type="button" name="submit" value="Cancelar" /-->
+		
+		
+	 </form>
+ 
+  
+  
+  
+  
+</div>
+
+<br/><br/>
+<a href="/item/itemList/${fase.id}/lista">Lista Item</a>
+  
+</body>
+</html>
