@@ -7,7 +7,7 @@
   <xi:include href="master.html" />
 
 <head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
-    <title>Turbogears Admin System - Group Listing</title><style>
+    <title>SGP - Lista Items</title><style>
 #menu_items {
   padding:0px 12px 0px 2px;
   list-style-type:None
@@ -18,6 +18,13 @@
     <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
 <SCRIPT TYPE="text/javascript">
 <!--
+function enviarA(seleccion) {  
+          
+        alert(seleccion)
+        document.formulario.action="/item/itemList/3"
+		document.formulario.submit()	  		
+			  		return true;	
+}  
 function vacio(q) {  
         for ( i = 0; i < q.length; i++ ) {  
                 if ( q.charAt(i) != " " ) {  
@@ -60,71 +67,169 @@ function mostrar(param) {
 
 
 <body class="tundra" onload="mostrar(${muestraBoton});  return true">
-
-
-     
-   <h2 class="">${proyecto.descripcion}</h2>
-   <h3 class="">Fase Nro.: ${fase.numero_fase} - ${fase.descripcion}</h3>
-   <h3 class="">Estado: ${fase.estado.descripcion}</h3>
-  <div>
-   <a  class="" title="Lista Todos los Items" href="/item/itemList/${fase.id}/lista"><h2>Lista de Items</h2></a>
- 
-  <!--BUSCADOR-->
-  <div id="Buscador">
-  	<form  class="izquierda" display="none" action="/tipoItems/tipoItemUsuario/${proyecto.id}" method="post" onSubmit="return valida(this);">
-    	<div><h3><label>Buscar:</label>
-    		<input  class="label" size="15" name="expresion" value=""/><input   type="submit" name="submit" value="Buscar"/></h3>
- 		</div>    
-  	</form>
-  </div>
-  <div style="display:none" id="ListaTodos">
-  	<form   class="izquierda" display="none" action="/tipoItems/tipoItemUsuario/${proyecto.id}/lista" method="post">
-    	<input  type="submit" name="submit" value="Listar Todos"/>
- 	</form>
- 	<!--a  class="izquierda" title="Lista Todos los Tipos de Items" href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista">Listar Todos</a-->
-  </div>
-  <!--FIN-BUSCADOR-->
-   <a class="add_link" href="/item/agregar_item/${fase.id}/0">Agregar Nuevo Item</a>
-    <div class="crud_table" style="height:50%; width:90%">
-    <div>
-     
-    <table class="grid"  >
+  				
+  <div><h3>Lista de Items</h3></div>  
+    <table border="0">
+		<tr>
+		<td><u><b>Proyecto</b></u></td>
+		<td colspan="3"><label>${proyecto.descripcion}</label></td>
+		<td><td/><td/><u><b>Opciones: </b></u></td>
+		<td colspan="3">
+			<SELECT ONCHANGE="location.href = '/item/'+this.options[this.selectedIndex].value;">
+			
+			<!--  SELECT ONCHANGE="enviarA(this.options[this.selectedIndex].value)"-->
+				<OPTION  selected="true" value="itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
+				<OPTION value="aprobarItems/${fase.id}">Aprobar Items</OPTION>
+				<OPTION ><a href="/">Generar Linea Base</a></OPTION>
+				<py:if test="existeLB==1">
+					<OPTION ><a href="/">Listar Linea Base</a></OPTION>
+				
+				<OPTION ><a href="/">Abrir LB</a></OPTION>
+				<OPTION ><a href="/">Solicitar Apertura LB</a></OPTION>
+				</py:if>	
+			</SELECT>
+		</td>
+		</tr>
+		<tr>
+		<td><u><b>Fase Nro.</b></u></td>
+		<td><label>${fase.numero_fase}</label></td>
+		</tr>
+		<tr>
+		<td><u><b>Fase</b></u></td>
+		<td><label>${fase.descripcion}</label></td>
+		<!--  td><input  size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
+		</td-->
+		</tr>
+  		<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>		
+  		<tr>
+  		 <td colspan="5"><a class="add_link" href="/item/agregar_item/${fase.id}/0">Agregar Nuevo Item</a></td>
+  			<div id="Buscador">
+  				<form  class="izquierda" display="none" onSubmit="return valida(this);" action="/item/itemList/${fase.id}"> 
+  					<div>
+  						<td/><td/><td/><td/><td>
+  							<label>
+  								<b>Buscar:</b>
+  							</label>
+    					</td>
+    					<td colspan="3">
+    						<input  class="label" size="15" name="expresion" value=""/>
+    					</td>
+    					<td>
+    						<input   type="submit" name="submit" value="Buscar"/>
+    					</td>
+ 					</div>    
+  				</form>
+  			</div>
+  				
+  			<td>
+	  			<div style="display:none" id="ListaTodos">
+	  				<form   class="izquierda" display="none" action="/item/itemList/${fase.id}" method="post">
+	    				<input  type="submit" name="submit" value="Listar Todos"/>
+	 				</form>
+	 				<!--a  class="izquierda" title="Lista Todos los Tipos de Items" href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista">Listar Todos</a-->
+	  			</div>
+	  		</td>
+  			<!--FIN-BUSCADOR-->
+    
+   		
+    </tr>	
+   	
+   </table> 
+<div class="crud_table" style="height:50%; width:90%">
+    <div> 
+    <table class="grid" rules="all">
         <thead>
-            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Estado</th><th>Relaciones</th></tr>
+            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Estado</th><th>Complejidad</th><th>Version</th><th>Impacto</th><th>Historial</th></tr>
         </thead>
         <tbody >
         	<tr class="navigation" py:if="currentPage.page_count > 1">
     			<td colspan="4" class="pager">${currentPage.pager()}</td>
 			</tr>
 			<tr class="navigation" py:if="currentPage.item_count == 0">
-    			<td colspan="4" class="pager">No existen datos</td>
+    			<td colspan="4" class="pager">No existen items en esta fase</td>
 			</tr>
         
             <tr py:for="i, item in enumerate(items)" class="${i%2 and 'odd' or 'even'}">
+            <py:if test="item.estado_id!=6">
+            <!-- py:if test="item.estado_id!=5"-->
             <td class="col_0">
-                <div><div><a class="edit_link" href="/tipoItems/tipoItem_editar/${item.id}/${proyecto.id}" style="text-decoration:none">edit</a></div><div>
-                
-                <form method="POST" action="/tipoItems/eliminar_tipoItem/${proyecto.id}/${item.id}" class="button-to">
-                	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con id ${item.id}?');" 
+                <div><div><py:if test="item.estado.id!=3"> <py:if test="item.estado.id!=4">
+                <a class="edit_link" href="/item/editar_item/${fase.id}/${item.id}" style="text-decoration:none">edit</a>   
+                </py:if></py:if></div><div>
+             
+                <py:if test="item.estado.id!=3">
+                 <py:if test="item.estado.id!=4">
+                <form method="POST" action="/item/eliminar_item/${fase.id}/${item.id}" class="button-to">
+                	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con codigo ${item.cod_item}?');" 
                 	value="eliminar"  type="submit" style="background-color: transparent; float:left; border:0; color: #286571; display: inline; margin: 0; padding: 0;"/>
                 </form>
+                </py:if></py:if>
                 </div></div>
             
             </td>
-            	<td class="col_0">${item.cod_item}</td>
-                <td class="col_1">${item.descripcion}</td>
-                <td class="col_1">${item.estado.descripcion}</td>
-                <td class="col_1">${item.relaciones}</td>
+            <py:if test="item.estado_id!=3">
+            	<py:if test="item.estado_id!=4">
+            
+            	<td class="col_0"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.cod_item}</a></td>
+                <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.descripcion}</a></td>
+             
+                <td  class="col_1">${item.estado.descripcion}</td> 
+                <td class="col_1">${item.prioridad}</td>
+                 <td class="col_1">V-${item.version}</td>
+                <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+        			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+        			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
+        		<td class="col_1"><py:if test="item.version>1 "><a  href="/item/calculoImpacto/${item.id}">Historial</a></py:if></td> 
+           </py:if>
+           </py:if>
+            <py:if test="item.estado.id==3">
+            	<td class="col_0"><a  href="/item/itemInfo/${item.id}"><b>${item.cod_item}</b></a></td>
+                <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><b>${item.descripcion}</b></a></td>
+                <td  class="col_1"><b>${item.estado.descripcion}</b></td> 
+                <td class="col_1"><b>${item.prioridad}</b></td>
+                <td class="col_1"><b>${item.version}</b></td>
+                <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+        			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+        			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
+        		<td class="col_1"><py:if test="item.version>1 "><a  href="/item/calculoImpacto/${item.id}">Historial</a></py:if></td>
+     	
+           </py:if>
+           
+             <py:if test="item.estado.id==4">
+            	<td class="col_0"><a  href="/item/itemInfo/${item.id}"><b><i>${item.cod_item}</i></b></a></td>
+                <td class="col_1"><b><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><i>${item.descripcion}</i></a></b></td>
+                <td  class="col_1"><b><i>${item.estado.descripcion}</i></b></td> 
+                <td class="col_1"><b><i>${item.prioridad}</i></b></td>
+                 <td class="col_1"><b><i>V-${item.version}</i></b></td>
+     
+              <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+        			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+        			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
+        		<td class="col_1"><py:if test="item.version>1 "><a  href="/item/calculoImpacto/${item.id}">Historial</a></py:if></td>
+
+     	
+           </py:if>
+           </py:if>
+           <!-- /py:if-->     
         </tr>
-        </tbody>
+        </tbody> 
     </table>
   </div>
-      </div>
+  <tr/><br/>
+ 	<py:if test="existeLB==1">
+ 		<tr>
+ 			<i>
+ 				<b>*<u>OBS: </u>
+ 				</b>Para modificar o eliminar un item que se encuentre dentro de una Linea Base, debe solicitar primero la apertura de la LB.
+ 			</i>
+ 		</tr>
+ 	</py:if>
+ </div>
 <br/><br/>
 <a href="/faseList/${proyecto.id}">Lista de Fases</a>   
   
   
-</div>
+
 
  <div style="clear:both;"/>
 

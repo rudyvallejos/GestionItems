@@ -60,8 +60,6 @@ def init_model(engine):
 
 
 # Import your model modules here.
-from gestionitem.model.auth import User, Group, Permission
-from recurso import *
-from gestionitem.model.proyecto import *
-from gestionitem.model.tipoItemUsuario import *
+from gestionitem.model.auth import User, Rol, Permission
+
 

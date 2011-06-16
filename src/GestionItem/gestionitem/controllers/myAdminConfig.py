@@ -8,14 +8,15 @@ from sprox.formbase import AddRecordForm, EditableForm
 from formencode import Schema
 from formencode.validators import FieldsMatch
 from tw.forms import PasswordField, TextField, TextArea
-from gestionitem.model.auth import User, Group, Permission
+from gestionitem.model.auth import User, Rol, Permission
 
 #from repoze.what.predicates import in_group
 from sprox.tablebase import TableBase
 from sprox.fillerbase import TableFiller, EditFormFiller
 from sprox.fillerbase import RecordFiller
 from repoze.what import authorize
-
+from tw.forms.fields import MultipleSelectField
+from tgext.admin.tgadminconfig import TGAdminConfig
 
 
 
@@ -34,13 +35,15 @@ class UserForm(AddRecordForm):
     __limit_fields__       = ['user_name']
     __base_validator__     = form_validator
     email_address          = TextField
-    display_name           = TextField
+    display_name           = TextField('descripcion')
     verify_password        = PasswordField('verify_password')
     
+     
     
 class User_table_type(TableBase):
     __entity__ = User
     __limit_fields__ = ['user_name', 'email_address','groups', 'created']
+    __headers__ ={'user_name':'usuario','groups':'Rol', 'created':'Fecha de creacion','email_address':'email'}
     __url__ = '../user.json' #this just tidies up the URL a bit
 
 class User_table_filler_type(TableFiller):
@@ -55,7 +58,6 @@ class User_EditForm(EditableForm):
     __limit_fields__       = ['user_name']
     __base_validator__     = form_validator
     email_address          = TextField
-    display_name           = TextField
     verify_password        = PasswordField('verify_password')
     
     
@@ -78,28 +80,36 @@ class UserCrudConfig(CrudRestControllerConfig):
 
 
 class GroupTable(TableBase):
-    __entity__ = Group 
+    __entity__ = Rol 
     __limit_fields__ = ['group_name', 'permissions', 'created']
+    __headers__ ={'group_name':'nombre','permissions':'permisos', 'created':'Fecha de creacion'} 
+    
+    
     __url__ = '../groups.json'
     
 class GroupTableFiller(TableFiller):
-    __entity__ = Group
+    __entity__ = Rol
     __limit_fields__ = ['group_id', 'group_name' , 'permissions','created']
     
+    
+    
 class GroupNewForm(AddRecordForm):
-    __entity__ = Group
+    __entity__ = Rol
     __limit_fields__ = ['group_name', 'permissions']
+    __omit_fields__        = ['created', 'town_id']
+#    group_name = TextField("Nombre")
 
     
 class GroupEditForm(EditableForm):
-    __entity__ = Group
+    __entity__ = Rol
     __omit_fields__        = ['group_id',  'created']
-    __limit_fields__ = ['group_id', 'group_name', 'permissions']
+    __limit_fields__ = ['group_id', 'group_name', 'permissions','users']
     __field_order__ = ['group_name', 'permissions']
+#    group_name = TextField("Nombre")
 
     
 class Group_EditFormFiller(EditFormFiller):
-    __entity__ = Group
+    __entity__ = Rol
     def get_value(self, *args, **kw):
         v = super(Group_EditFormFiller, self).get_value(*args, **kw)
         return v
@@ -150,12 +160,12 @@ class PermissionControllerConfig(CrudRestControllerConfig):
 
 
 
-class MyAdminConfig(AdminConfig):
+class MyAdminConfig(AdminConfig):#AdminConfig
     allow_only = authorize.in_group('Administrador')
     default_index_template = "genshi:gestionitem.templates.adminTmpl.index"
     
     user = UserCrudConfig
-    group = GroupControllerConfig
+    rol = GroupControllerConfig
     permission = PermissionControllerConfig
 
 

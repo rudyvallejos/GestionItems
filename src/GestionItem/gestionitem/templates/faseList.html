@@ -38,9 +38,10 @@
 			</tr-->
         
             <tr py:for="i, fase in enumerate(fases)" class="${i%2 and 'odd' or 'even'}">
-            	<td class="col_0"><a href="/item/itemList/${fase.id}/lista">${fase.numero_fase}</a></td>
-                <td class="col_1"><a href="/item/itemList/${fase.id}/lista">${fase.descripcion}</a></td>
+            	<td class="col_0"><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td>
+                <td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
                 <td class="col_1">${fase.estado.descripcion}</td>
+                <td class="col_1"><a href="/lb/generar_linea_base/${fase.id}">Generar Linea Base</a></td>
         </tr>
         </tbody>
     </table>

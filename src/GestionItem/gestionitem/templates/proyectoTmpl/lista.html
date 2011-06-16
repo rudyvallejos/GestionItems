@@ -26,7 +26,8 @@
 <body class="tundra">
 	<div>
 		<h2>Lista de Proyectos</h2>
-		<a class="add_link" href="${tg.url('/proyecto/nuevo')}">Nuevo
+		<a py:if="tg.predicates.has_permission('crear proyecto')"
+			class="add_link" href="${tg.url('/proyecto/nuevo')}">Nuevo
 			Proyecto</a> <br /> <br />
 		<div class="crud_table" style="height: 50%; width: 90%">
 			<div>
@@ -39,7 +40,13 @@
 							<th>Lider de Proyecto</th>
 							<th>Fecha de Creacion</th>
 							<th>Estado</th>
-							<th></th>
+							
+							<py:if test="tg.predicates.in_group('LiderProyecto')">
+								<th></th>
+							</py:if>
+							<py:if test="tg.predicates.in_group('Desarrollaror')">
+								<th></th>
+							</py:if>
 						</tr>
 					</thead>
 					<tbody>
@@ -54,11 +61,11 @@
 						<tr class="even" py:for="proyecto in proyectos">
 							<td class="col_0">
 								<div>
-									<div>
+									<div py:if="tg.predicates.has_permission('editar proyecto')">
 										<a class="edit_link" href="/proyecto/editar/${proyecto.id}"
 											style="text-decoration: none">edit</a>
 									</div>
-									<div>
+									<div py:if="tg.predicates.has_permission('eliminar proyecto')">
 
 										<form method="POST" action="/proyecto/eliminar/${proyecto.id}"
 											class="button-to">
@@ -68,21 +75,24 @@
 												style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
 										</form>
 									</div>
-								</div>
+								</div></td>
+							<td class="col_1">${proyecto.id}</td>
+							<td class="col_2">${proyecto.descripcion}</td>
+							<py:if test="proyecto.lider != None">
+								<td class="col_3">${proyecto.lider.user_name}</td>
+							</py:if>
+							<py:if test="proyecto.lider == None">
+								<td class="col_3">No posee lider !!!!</td>
+							</py:if>
+							<td class="col_4">${proyecto.fecha_creacion}</td>
+							<td class="col_5">${proyecto.estadoObj.descripcion}</td>
+							<td py:if="proyecto.estadoObj.descripcion == 'Creado'"><a
+								py:if="proyecto.getDefinir() and tg.predicates.has_permission('definir proyecto')"
+								href="/proyecto/proyectoDef/${proyecto.id}">definir</a>
 							</td>
-							<td class="col_1"><a href="/proyecto/proyectoDef/${proyecto.id}">${proyecto.id}</a>
+							<td py:if="proyecto.getmostrarFases()"><a
+								href="/proyecto/definir_fase/${proyecto.id}">Fases</a>
 							</td>
-							<td class="col_2"><a href="/proyecto/proyectoDef/${proyecto.id}">${proyecto.descripcion}</a>
-							</td>
-							<td class="col_3"><a href="/proyecto/proyectoDef/${proyecto.id}">${proyecto.lider.user_name}</a>
-							</td>
-							<td class="col_4"><a href="/proyecto/proyectoDef/${proyecto.id}">${proyecto.fecha_creacion}</a>
-							</td>
-							<td class="col_5"><a href="/proyecto/proyectoDef/${proyecto.id}">${proyecto.estadoObj.descripcion}</a>
-							</td>
-							<td py:if="proyecto.estadoObj.descripcion == 'Creado'" >
-								<a href="/proyecto/proyectoDef/${proyecto.id}">definir</a></td>
-
 						</tr>
 					</tbody>
 				</table>

@@ -24,7 +24,7 @@
 		<li class="first"><a href="${tg.url('/')}"
 			class="${('', 'active')[defined('page') and page=='index']}">Bienvenido</a>
 		</li>
-		<li py:if="request.identity"><a href="${tg.url('/proyectoList')}"
+		<li py:if="request.identity"><a href="${tg.url('/proyecto')}"
 			class="${('', 'active')[defined('page') and page=='proyecto']}">Proyecto</a>
 		</li>
 		<li py:if="request.identity"><a href="${tg.url('/recurso')}"
@@ -42,6 +42,12 @@
 		</li> </span>
 	</ul>
 	<div id="content">
+		<py:if test="defined('user')">
+			<div align="right" class="currentpage">
+				<a>Usuario Logueado: <span py:replace="user.user_name" /></a>
+			</div>
+		</py:if>
+		
 		<py:if test="defined('page')">
 			<div class="currentpage">
 				Ahora esta viendo: <span py:replace="page" />

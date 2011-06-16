@@ -62,18 +62,18 @@ function mostrar(param) {
 <body class="tundra" onload="mostrar(${muestraBoton});  return true">
  
    <h2 class="">${proyecto.descripcion}</h2>
-   
+   <h3 class="">${fase.descripcion}</h3>
   <!--Buscador-->
 	<div>
    		<div id="Buscador">
-  			<form  class="izquierda" display="none" action="/tipoItems/tipoItemUsuario/${proyecto.id}" method="post" onSubmit="return valida(this);">
+  			<form  class="izquierda" display="none" action="/tipoItems/tipoItemUsuario/${fase.id}" method="get" onSubmit="return valida(this);">
     			<div><h3><label>Buscar:</label>
     				<input  class="label" name="expresion" value=""/><input  type="submit" name="submit" value="Buscar"/></h3>
  				</div>    
   			</form>
  		</div>
   		<div style="display:none" id="ListaTodos">
-  			<form   class="izquierda" display="none" action="/tipoItems/tipoItemUsuario/${proyecto.id}/lista" method="post">
+  			<form   class="izquierda" display="none" action="/tipoItems/tipoItemUsuario/${fase.id}/lista" method="post">
     			<input  type="submit" name="submit" value="Listar Todos"/>
  			</form>
  			<!--a  class="izquierda" title="Lista Todos los Tipos de Items" href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista">Listar Todos</a-->
@@ -81,13 +81,13 @@ function mostrar(param) {
 <!--FIN-Buscador--> 
  
     <a  class="centrado" title="Lista Todos los Tipos de Items" href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista"><h2>Lista de Tipos de Items</h2></a>
- <a class="add_link" href="/tipoItems/agregar_tipoItem/${proyecto.id}">Agregar Nuevo Tipo de Item</a>
+ <a class="add_link" href="/tipoItems/agregar_tipoItem/${fase.id}">Agregar Nuevo Tipo de Item</a>
     <div class="crud_table" style="height:50%; width:90%">
     <div>
      
     <table class="grid"  >
         <thead>
-            <tr><th></th><th>Identificador</th><th >Descripcion</th><th>Atributos</th><th></th></tr>
+            <tr><th></th><th>Identificador</th><th >Cod.Tipo Item</th><th >Descripcion</th><th>Atributos</th><th></th></tr>
         </thead>
         <tbody >
         	<tr class="navigation" py:if="currentPage.page_count > 1">
@@ -99,9 +99,9 @@ function mostrar(param) {
         
             <tr py:for="i, tipoItem in enumerate(tiposItemUs)" class="${i%2 and 'odd' or 'even'}">
             <td class="col_0">
-                <div><div><a class="edit_link" href="/tipoItems/tipoItem_editar/${tipoItem.id}/${proyecto.id}" style="text-decoration:none">edit</a></div><div>
+                <div><div><a class="edit_link" href="/tipoItems/tipoItem_editar/${tipoItem.id}/${fase.id}" style="text-decoration:none">edit</a></div><div>
                 
-                <form method="POST" action="/tipoItems/eliminar_tipoItem/${proyecto.id}/${tipoItem.id}" class="button-to">
+                <form method="POST" action="/tipoItems/eliminar_tipoItem/${fase.id}/${tipoItem.id}" class="button-to">
                 	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con id ${tipoItem.id}?');" 
                 	value="eliminar"  type="submit" style="background-color: transparent; float:left; border:0; color: #286571; display: inline; margin: 0; padding: 0;"/>
                 </form>
@@ -109,6 +109,7 @@ function mostrar(param) {
             
             </td>
             	<td class="col_0">${tipoItem.id}</td>
+                <td class="col_1">${tipoItem.codigo}</td>
                 <td class="col_1">${tipoItem.descripcion}</td>
                 <!--td class="col_1"><a href="/tipoItems/atributosList/${tipoItem.atributos}">${tipoItem.atributos}</a></td-->
                 <td>
@@ -127,7 +128,7 @@ function mostrar(param) {
   </div>
       </div>
 <br/><br/>
-<a href="/proyectoDef/${proyecto.id}">Def. Proyecto</a>
+<a href="/faseDef/${proyecto.id}">Def. Fase</a>
     
   
   

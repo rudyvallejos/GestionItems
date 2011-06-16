@@ -34,7 +34,7 @@ class TipoItemUsuarioAtributos(DeclarativeBase):
     tipo_item_id = Column("tipo_item_id", Integer, ForeignKey('tipo_item_usuario.id'), nullable=False)
     tipo_id = Column("tipo_id", Integer, ForeignKey('tipo.id'), nullable=False)
     tipo = relationship(Tipo, order_by=Tipo.id, backref="tipo_item_usuario_atributos")
-    valor = relationship(TipoItemUsuarioAtributosValor, order_by=TipoItemUsuarioAtributosValor.id, backref="tipo_item_usuario_valor")
+    valor = relationship(TipoItemUsuarioAtributosValor, order_by=TipoItemUsuarioAtributosValor.atributo_id, backref="tipo_item_usuario_valor")
 
 
 class TipoItemUsuario(DeclarativeBase):
@@ -45,7 +45,10 @@ class TipoItemUsuario(DeclarativeBase):
 
     descripcion = Column("descripcion", String(100), unique=True, nullable=False)
 
-    proyecto_id = Column("proyecto_id", Integer, ForeignKey('proyecto.id'), nullable=False)
+    fase_id = Column("fase_id", Integer, ForeignKey('fase.id'), nullable=False)
+    
+    codigo = Column("codigo", String(5), unique=True, nullable=False)
+
     
     atributos = relationship(TipoItemUsuarioAtributos, order_by=TipoItemUsuarioAtributos.id, backref="tipo_item_usuario_atributos")
     

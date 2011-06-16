@@ -7,6 +7,7 @@
   <xi:include href="master.html" />
 
 <head>
+
   <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
   <title>Modulo de Administracion</title>
 </head>
@@ -18,7 +19,8 @@
 
     <table class="admin_grid">
       <tr py:for="model in models">
-        <td><a href='${model.lower()}s/'>${model}s</a></td>
+        <td py:if="model == 'Rol'"><a href='${model.lower()}s/'>${model}es</a></td>
+        <td py:if="model != 'Rol'"><a href='${model.lower()}s/'>${model}s</a></td>
       </tr>
       
       </table>

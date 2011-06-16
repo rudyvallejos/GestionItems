@@ -3,34 +3,30 @@
 
 from tg import expose, flash, require, url, request, redirect
 from pylons.i18n import ugettext as _, lazy_ugettext as l_
-from tgext.admin.tgadminconfig import TGAdminConfig
-from tgext.admin.controller import AdminController
 from repoze.what import predicates
-from tgext.admin import AdminController, AdminConfig
-
 
 from gestionitem.lib.base import BaseController
-from gestionitem.model import DBSession, metadata, Recurso, TipoItemUsuario, Proyecto,TipoItemUsuarioAtributos, Fase
-from gestionitem import model 
 from gestionitem.controllers.secure import SecureController
 from gestionitem.controllers.error import ErrorController
-from sprox.formbase import AddRecordForm
-from tw.forms import TextField,CalendarDatePicker
-from tg import tmpl_context
-from tg import validate
 from sqlalchemy.orm import sessionmaker
-from gestionitem.model.auth import Group, User, Permission
-from gestionitem.controllers.rest import TipoRestController
+from gestionitem.model.auth import Rol, User, Permission
 
 
 from gestionitem.controllers.proyectoController import ProyectoController
 from gestionitem.controllers.tipoItemControler import TipoItemControler
 
 from gestionitem.controllers.itemControler import ItemControler
-from gestionitem.controllers.myAdminConfig import MyAdminConfig
-from tg import config
-from repoze.what.predicates import in_group  
-    
+
+from repoze.what.predicates import in_group
+from gestionitem.model import DBSession  
+from gestionitem.controllers.lbcontroller import LineaBaseController
+
+from gestionitem.controllers.tgadminconfig import TGAdminConfig  
+
+from gestionitem.model.proyecto import Proyecto,Fase
+from tgext.admin.controller import AdminController
+
+  
 
 
 
@@ -64,17 +60,22 @@ class RootController(BaseController):
     tipoItems = TipoItemControler()
     
     secc = SecureController()
-    tipoItemUsuario = TipoRestController()
+    
+    lb= LineaBaseController()
+  
 
 
    
-    admin = AdminController([User, Group, Permission], DBSession, config_type = MyAdminConfig)
+    admin = AdminController([User, Rol, Permission], DBSession, config_type = TGAdminConfig)
+    admin.allow_only=in_group('Administrador')
 
     error = ErrorController()
     dict(subtitulo='')
     
     @expose('gestionitem.templates.index')
     def index(self):
+        identity = request.environ.get('repoze.who.identity')
+       
         """Handle the front-page."""
         return dict(page='Indice',subtitulo='Indice')
 
@@ -109,78 +110,15 @@ class RootController(BaseController):
         return dict(page='Lista de Fases',
                     id=id,fases=fases,proyecto=proyecto,subtitulo='Lista de Fases')
     
+    @expose(template="gestionitem.templates.faseDef")
+    def faseDef(self,id):
+        fases = DBSession.query(Fase).order_by(Fase.id)
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        return dict(page='Lista de Fases',
+                    id=id,fases=fases,proyecto=proyecto,subtitulo='Lista de Fases')
+    
    
-    
-
-    @expose(template='gestionitem.templates.recurso')
-    def recurso(self, **named):
-        recursos=DBSession.query(Recurso).order_by( Recurso.id )
-        from webhelpers import paginate
-        count = recursos.count()
-        page =int( named.get( 'page', '1' ))
-        currentPage = paginate.Page(
-            recursos, page, item_count=count,
-            items_per_page=3,
-        )
-        recursos = currentPage.items
-
-        return dict(page='recurso',
-                    recursos=recursos, 
-                    subtitulo='ABM-Recurso',currentPage = currentPage)
- 
-    @expose('gestionitem.templates.agregar_recurso')
-    def agregar_recurso(self):
-        #recurso=DBSession.query(Recurso).filter_by(id=6).one()
-        recurso=Recurso
-        recurso.descripcion=''
-        recursos=DBSession.query(Recurso)
-        return dict(page='Nuevo recurso',
-                    recursos=recursos, 
-                    recurso=recurso,subtitulo='ABM-Recurso')
-    @expose()
-    def save( self, id, data, submit ):
-        """Create a new movie record"""
-        new = Recurso(
-            descripcion = data,
-        )
-        DBSession.add( new )
-        redirect( './recurso' )    
-        flash( '''Recurso Agregado! %s''')
-    @expose()
-    def actualizar( self, id, data, submit ):
-        """Create a new movie record"""
-       
-        Session = sessionmaker(bind=Recurso)
-        session = Session()
-        recurso = DBSession.query(Recurso).filter_by(id=id).one()
-        #recurso=q.filter_by(id=id).one()
-
-        #session = create_session(bind=Recurso, autocommit=True, autoflush=False)
-        #recurso = session.query(Recurso)
-        recurso.descripcion=data
-        #DBSession.update( new )
-        #DBSession.commit()
-        #setattr(recurso, id, data)
-        #recurso.data=data
-        #session.merge(data)
-        #DBSession.execute("update recurso set descripcion=:data where id=:id", {'data':data,'id':id})
-        DBSession.flush()
-        #recurso.update(recurso,synchronize_session='expire')
-        redirect( './recurso' )
-    
-    @expose()
-    def eliminar_recurso(self,id):
-        #recurso = DBSession.query(Recurso).filter_by(id=id).delete()
-        recurso=DBSession.query(Recurso).filter_by(id=id).one()
-        DBSession.delete(DBSession.query(Recurso).filter_by(id=id).one())
-        redirect( '../recurso' )        
-          
-    @expose(template="gestionitem.templates.recurso_editar")
-    def recurso_editar(self,id):
-        recurso = DBSession.query(Recurso).filter_by(id=id).one()
-        return dict(page='Editar recurso',
-                    id=id,recurso=recurso,subtitulo='ABM-Recurso')
-
+  
 
 
     @expose(template='gestionitem.templates.permiso')
@@ -257,8 +195,8 @@ class RootController(BaseController):
     def about(self):
         """Handle the 'about' page."""
         #aux=Recurso()
-        aux=DBSession.query(Recurso).filter_by(id=1).one()
-        return dict(page='about',aux=aux,subtitulo='About')
+ 
+        return dict(page='about',aux= 'hola' ,subtitulo='About')
 
     @expose('gestionitem.templates.environ')
     def environ(self):

@@ -49,11 +49,15 @@ base_config.sa_auth.dbsession = model.DBSession
 # what is the class you want to use to search for users in the database
 base_config.sa_auth.user_class = model.User
 # what is the class you want to use to search for groups in the database
-base_config.sa_auth.group_class = model.Group
+base_config.sa_auth.group_class = model.Rol
 # what is the class you want to use to search for permissions in the database
 base_config.sa_auth.permission_class = model.Permission
 # override this if you would like to provide a different who plugin for
 # managing login and logout of your application
+base_config.sa_auth.translations = {'Grpup':'Rol',}
+
+
+
 
 base_config.sa_auth.form_plugin = None
 

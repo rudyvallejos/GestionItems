@@ -12,6 +12,7 @@ though.
 import os
 from datetime import datetime
 import sys
+from Tkconstants import CASCADE
 try:
     from hashlib import sha1
 except ImportError:
@@ -25,7 +26,7 @@ from sqlalchemy.orm import relation, synonym
 
 from gestionitem.model import DeclarativeBase, metadata, DBSession
 
-__all__ = ['User', 'Group', 'Permission']
+__all__ = ['User', 'Rol', 'Permission']
 
 
 #{ Association tables
@@ -35,7 +36,7 @@ __all__ = ['User', 'Group', 'Permission']
 # groups and permissions. This is required by repoze.what.
 group_permission_table = Table('tg_group_permission', metadata,
     Column('group_id', Integer, ForeignKey('tg_group.group_id',
-        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
+        onupdate="CASCADE", ondelete="CASCADE"  ), primary_key=True),
     Column('permission_id', Integer, ForeignKey('tg_permission.permission_id',
         onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
 )
@@ -46,14 +47,13 @@ user_group_table = Table('tg_user_group', metadata,
     Column('user_id', Integer, ForeignKey('tg_user.user_id',
         onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
     Column('group_id', Integer, ForeignKey('tg_group.group_id',
-        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+        onupdate="CASCADE", ondelete="CASCADE" ), primary_key=True)
 )
-
 
 #{ The auth* model itself
 
 
-class Group(DeclarativeBase):
+class Rol(DeclarativeBase):
     """
     Group definition for :mod:`repoze.what`.
 
@@ -67,7 +67,7 @@ class Group(DeclarativeBase):
 
     group_id = Column(Integer, autoincrement=True, primary_key=True)
 
-    group_name = Column(Unicode(16), unique=True, nullable=False)
+    group_name = Column( Unicode(16), unique=True, nullable=False)
 
     display_name = Column(Unicode(255))
 
@@ -210,7 +210,7 @@ class Permission(DeclarativeBase):
 
     #{ Relations
 
-    groups = relation(Group, secondary=group_permission_table,
+    groups = relation(Rol, secondary=group_permission_table,
                       backref='permissions')
 
     #{ Special methods

@@ -1,8 +1,9 @@
 from gestionitem.lib.base import BaseController
-from tg import redirect
-from sqlalchemy import or_ 
-from tg import expose, flash, require, url, request, redirect
-from gestionitem.model import DBSession, metadata, Recurso, TipoItemUsuario, Proyecto,Tipo,TipoItemUsuarioAtributos
+#from sqlalchemy import or_ 
+from tg import expose, flash,redirect
+from gestionitem.model import DBSession
+from gestionitem.model.proyecto import Fase,Proyecto
+from gestionitem.model.tipoItemUsuario import TipoItemUsuario,TipoItemUsuarioAtributos, Tipo
 
 
 class TipoItemControler(BaseController):
@@ -11,16 +12,19 @@ class TipoItemControler(BaseController):
     def tipoItemUsuario(self,id,expresion,**named):
         if expresion=="lista":
             muestraBoton="false"    
-            proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
-            tiposItemUs=DBSession.query(TipoItemUsuario).order_by( TipoItemUsuario.id )
+            fase = DBSession.query(Fase).filter_by(id=id).one()
+            proyecto = DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
+            tiposItemUs=DBSession.query(TipoItemUsuario).filter_by(fase_id=fase.id).order_by( TipoItemUsuario.id )
         else :
             muestraBoton="true"  
             if expresion.isdigit():
-                proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
-                tiposItemUs=DBSession.query(TipoItemUsuario).filter_by(id=expresion)     
-            else:    
-                proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
-                tiposItemUs=DBSession.query(TipoItemUsuario).filter((TipoItemUsuario.descripcion.like('%'+expresion+'%'))).order_by( TipoItemUsuario.id )
+                fase = DBSession.query(Fase).filter_by(id=id).one()
+                proyecto = DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
+                tiposItemUs=DBSession.query(TipoItemUsuario).filter_by(fase_id=fase.id).filter_by(id=expresion)     
+            else:
+                fase = DBSession.query(Fase).filter_by(id=id).one()    
+                proyecto = DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
+                tiposItemUs=DBSession.query(TipoItemUsuario).filter_by(fase_id=fase.id).filter((TipoItemUsuario.descripcion.like('%'+expresion+'%'))).order_by(TipoItemUsuario.id)
                 
         from webhelpers import paginate
         count = tiposItemUs.count()
@@ -31,46 +35,68 @@ class TipoItemControler(BaseController):
         )
         tiposItemUs = currentPage.items
 
-        return dict(muestraBoton=muestraBoton,page='tipoItemUsuario',
+        return dict(muestraBoton=muestraBoton,page='tipoItemUsuario',fase=fase,
                     tiposItemUs=tiposItemUs, proyecto=proyecto,
                     subtitulo='ABM-TipoItemUsuario',currentPage = currentPage)
     @expose(template="gestionitem.templates.tipoItem.tipoItem_editar")
-    def tipoItem_editar(self,id,idProy):
-        proyecto = DBSession.query(Proyecto).filter_by(id=idProy).one()
+    def tipoItem_editar(self,id,idFase):
+        fase=DBSession.query(Fase).filter_by(id=idFase).one()
+        proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
         tipoItem=DBSession.query(TipoItemUsuario).filter_by(id=id).one()
-        return dict(page='Editar Atributo',
-                    id=id,proyecto=proyecto,tipoItem=tipoItem,subtitulo='TipoItem-Editar')
+        todosItems=DBSession.query(TipoItemUsuario).filter_by(fase_id=fase.id)
+        codigos=[]
+        for i, itemUser in enumerate(todosItems):
+            codigos.append(itemUser.codigo)
+            codigos.append(",")
+        
+        
+        return dict(page='Editar Tipo de Item',codigos=codigos,
+                    id=id,proyecto=proyecto,fase=fase,tipoItem=tipoItem,subtitulo='TipoItem-Editar')
     @expose()
-    def actualizar_tipoItem( self,id,idProy,nombre, submit ):
+    def actualizar_tipoItem( self,id,idProy, idFase,codItem,nombre, submit ):
         """Create a new movie record"""
         tipoItem = DBSession.query(TipoItemUsuario).filter_by(id=id).one()
         tipoItem.descripcion=nombre,
+        tipoItem.codigo=codItem,
         DBSession.flush()
-        redirect( '/tipoItems/tipoItemUsuario/'+ idProy+'/lista')
+        redirect( '/tipoItems/tipoItemUsuario/'+ idFase+'/lista')
  
     @expose('gestionitem.templates.tipoItem.agregar_tipoItem')
     def agregar_tipoItem(self,id):
-        proyecto=DBSession.query(Proyecto).filter_by(id=id).one()
-        tipoItem=TipoItemUsuario
+        fase=DBSession.query(Fase).filter_by(id=id).one()
+        proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
+        todosItems=DBSession.query(TipoItemUsuario).filter_by(fase_id=fase.id)
+        codigos=[]
+        for i, itemUser in enumerate(todosItems):
+            codigos.append(itemUser.codigo)
+            codigos.append(",")
+        
+        tipoItem=TipoItemUsuario()
         tipoItem.descripcion=''
-        #recursos=DBSession.query(Recurso)
-        return dict(page='Nuevo recurso',
+        tipoItem.codigo=''
+        #fases=DBSession.query(Fase).filter_by(proyecto_id=id)
+        return dict(page='Nuevo recurso',codigos=codigos,fase=fase,
                     proyecto=proyecto, 
                     tipoItem=tipoItem,subtitulo='ABM-Recurso')
     @expose()
-    def saveItem( self, id,idProy, descripcion,submit ):
+    def saveItem( self, idProy, idFase, codItem, descripcion,submit ):
         """Create a new movie record"""
         new = TipoItemUsuario(
             descripcion = descripcion,
-            proyecto_id = idProy
+            fase_id = idFase,
+            codigo = codItem
         )
         DBSession.add( new )
-        redirect( './tipoItemUsuario/'+idProy+'/lista' )    
+        redirect( './tipoItemUsuario/'+idFase+'/lista' )    
         flash( '''Tipo Item Agregado! %s''')
     @expose()
-    def eliminar_tipoItem(self,idProy,id):
+    def eliminar_tipoItem(self,idFase,id):
+  
+        tipoAtrib=DBSession.query(TipoItemUsuarioAtributos).filter(TipoItemUsuarioAtributos.tipo_item_id==id)
+        for i, atri in enumerate(tipoAtrib):
+            DBSession.delete(atri) 
         DBSession.delete(DBSession.query(TipoItemUsuario).filter_by(id=id).one())
-        redirect( '/tipoItems/tipoItemUsuario/'+ idProy+'/lista') 
+        redirect( '/tipoItems/tipoItemUsuario/'+ idFase+'/lista') 
 
     
        
@@ -95,7 +121,7 @@ class TipoItemControler(BaseController):
     def agregar_Atributo(self,id):
         tipoItem=DBSession.query(TipoItemUsuario).filter_by(id=id).one()
         tipos=DBSession.query(Tipo).order_by(Tipo.id)
-        atributo=TipoItemUsuarioAtributos
+        atributo=TipoItemUsuarioAtributos()
         atributo.descripcion=''
         return dict(page='Nuevo Atributo',
                     atributo=atributo, 

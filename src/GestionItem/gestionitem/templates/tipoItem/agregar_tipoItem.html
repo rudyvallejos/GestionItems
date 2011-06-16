@@ -8,14 +8,87 @@
 
 
 
-<script type="text/javascript">
+<script> 
+var fechas=[];
+var codRepetido
+var valorNoNumerico=[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+var formatoNoValido=[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
 
-function comprueba(objOrigen) {
+cont_fechas=0;
+var enteros=[];
 
-    document.getElementById("CargaAtributos").style.display = "none";
+cont_enteros=0;
+function validarCamposObligatorios(form){
+
+/*for(j=0; ele=valorNoNumerico[j]; j++){
+
+	if(true==ele){
+		alert("El campo debe ser numerico");		
+            return false;  
+	} 
+}
+for(j=0; ele=formatoNoValido[j]; j++){
+
+	if(true==ele){
+		alert("Formato o Valor de fecha no valido");		
+            return false;  
+	} 
+}*/
+if (codRepetido)
+{ 
+	alert('El codigo del item ya esta en uso en esta fase'); 
+	return false
+	
+}
+campo= document.form.codItem.value;
+campo2= document.form.descripcion.value;
+if (campo=='')
+{
+	alert('Debe completar todos los campos obligatorios marcados con *');
+    return false;
+}    
+if (campo2=='')
+{
+	alert('Debe completar todos los campos obligatorios marcados con *');
+    return false;
+}
 
 }
 
+
+
+
+function validarEntero(form,i){
+     enteros[cont_enteros]=i;
+	 cont_enteros=cont_enteros+1; 
+     valor = parseInt(form.lista[i].value)
+	  if (isNaN(form.lista[i].value)) {
+	            alert("El valor debe ser numerico")
+	            valorNoNumerico[i]=true
+	            return false
+      }else{
+      		valorNoNumerico[i]=false
+            return valor
+            
+      }
+} 
+
+function validarCodigos(form,lista){
+//alert(lista);
+codigos=lista.split(',');
+//alert(codigos[0])
+codItem=document.form.codItem.value;
+
+for(j=0; ele=codigos[j]; j++){
+	if(ele==codItem){
+		alert("El codigo del item ya esta en uso en esta fase");
+			codRepetido=true		
+            return false;  
+	} 
+	
+}
+codRepetido=false 
+}
 
 </script>
 
@@ -32,21 +105,41 @@ function comprueba(objOrigen) {
 <body>
 <!--div onclick="comprueba(this)">Otro comentario</div-->
 <div><h3>Agregar Nuevo tipo de Item</h3></div>
+
 <div id="CargaAtributos">
-  <form  display="none" action="/tipoItems/saveItem" method="post">
-    <input type="hidden" name="id" value="${tipoItem.id}"/>
+  <form  name="form" display="none" onsubmit="return validarCamposObligatorios(this)" action="/tipoItems/saveItem" method="get">
+ <table border="0"> 
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
-    <div><label>Nombre:</label>
-    <input name="descripcion" value="${tipoItem.descripcion}"/>
+    <input type="hidden" name="idFase" value="${fase.id}"/>
     
+    <tr><td><u><b>Proyecto:</b></u></td>
+		<td colspan="2"><label><b>${proyecto.descripcion}</b></label></td>
+    </tr>
+    <tr><td><u><b>Fase:</b></u></td>
+		<td colspan="2"><label><b>${fase.descripcion}</b></label></td>
+    </tr>
+    <tr/><tr/><tr/><tr/><tr/><tr/><tr/>
+    
+	<tr><td colspan="2">Codigo del Tipo de Item:</td>
+    <td><input size="5" maxlength="7" onBlur="validarCodigos(this,'${codigos}');" name="codItem" onkeyup="form.codItem.value=form.codItem.value.toUpperCase();" value="${tipoItem.codigo}"/><b>*</b></td>
+    </tr>
+    
+    <!-- td><label>Cod.Item:</label></td>
+		<td><input  onkeyup="form.codItem.value=form.codItem.value.toUpperCase();" onBlur="validarCodigos(this,'${codigos}');" name="codItem"  value="${item.cod_item}"/><b>*</b></td-->
+		
+    
+    
+    <tr><td colspan="2">Nombre del Tipo de Item:</td>
+    <td><input name="descripcion" value="${tipoItem.descripcion}"/><b>*</b></td>
+    </tr>
     <!--textarea name="data" py:content="recurso.descripcion" rows="10" cols="60"/-->
-    <P>Proyecto:
-		<SELECT  disable="TRUE" readonly="TRUE">
-		<OPTION disable ="true">${proyecto.descripcion}</OPTION>
-		</SELECT>
-	</P>
-    </div>
-    <input type="submit" name="submit" value="Guardar"/>
+    	
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/><tr/>
+	<tr>
+    	<td><input type="submit" name="submit" value="Guardar"/></td>
+    </tr>
+ </table>
   </form>
   <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
   <!--<h2>Nuevo Recurso</h2>
@@ -59,7 +152,7 @@ function comprueba(objOrigen) {
 </div>
 
 <br/><br/>
-<a href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista">Def. Tipo Item</a>
+<a href="/tipoItems/tipoItemUsuario/${fase.id}/lista">Def. Tipo Item</a>
   
 </body>
 </html>
