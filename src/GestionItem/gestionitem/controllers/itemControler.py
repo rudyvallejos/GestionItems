@@ -15,6 +15,7 @@ from sqlalchemy import types as sqltypes
 from webhelpers import paginate
 from sets import Set
 from tw.api import WidgetsList
+#Libreria para graficar
 import pygraphviz as pgv
 
 
