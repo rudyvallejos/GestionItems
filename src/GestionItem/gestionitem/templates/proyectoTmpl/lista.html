@@ -88,10 +88,10 @@
 							<td class="col_5">${proyecto.estadoObj.descripcion}</td>
 							<td py:if="proyecto.estadoObj.descripcion == 'Creado'"><a
 								py:if="proyecto.getDefinir() and tg.predicates.has_permission('definir proyecto')"
-								href="/proyecto/proyectoDef/${proyecto.id}">definir</a>
+								href="/proyecto/definir_fase/${proyecto.id}">definir</a>
 							</td>
 							<td py:if="proyecto.getmostrarFases()"><a
-								href="/proyecto/definir_fase/${proyecto.id}">Fases</a>
+								href="/faseList/${proyecto.id}">Fases</a>
 							</td>
 						</tr>
 					</tbody>

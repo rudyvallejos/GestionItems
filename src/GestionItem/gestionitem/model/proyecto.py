@@ -75,16 +75,16 @@ class TipoRelacion(DeclarativeBase):
   
 class Fase(DeclarativeBase):
     __tablename__ = 'fase'
-    id = Column("id",Integer, autoincrement=True, primary_key=True)
-    numero_fase = Column("numero_fase",Integer)
-    descripcion = Column("descripcion", String(100), unique=False, nullable=False)
-    codigo_fase = Column("codigo_fase", String(100), unique=False, nullable=False)
-    estado_id = Column("estado_id", Integer, ForeignKey('estado_fase.id'), nullable=False)
-    usuarios    = relation('User', secondary=usuario_fase_tabla, backref='fase')
-    proyecto_id = Column("proyecto_id", Integer, ForeignKey('proyecto.id'), nullable=False)
-    estado = relationship(EstadoFase, order_by=EstadoFase.id, backref="estado_fase")
-    proyecto = relationship(Proyecto, order_by=Proyecto.id, backref="proyecto") 
-
+    id = Column(Integer, autoincrement=True, primary_key=True)
+    descripcion = Column(Unicode(100), unique=True, nullable=False)
+    numero_fase = Column(Integer, nullable=False)
+    estado_id = Column(Integer, ForeignKey('estado_fase.id'), nullable=False)
+    estadoObj = relation('EstadoFase', foreign_keys=estado_id)
+    usuarios = relation('User', secondary=usuario_fase_tabla, backref='fase')
+    proyecto_id = Column(Integer, ForeignKey('proyecto.id'), nullable=False)
+    proyectoObj = relation('Proyecto', foreign_keys=proyecto_id)
+    codigo_fase = Column("codigo_fase", String(10), unique=False, nullable=False)
+    
 class EstadoItem(DeclarativeBase):
     __tablename__ = 'estado_item'
     id = Column("id",Integer, autoincrement=True, primary_key=True)

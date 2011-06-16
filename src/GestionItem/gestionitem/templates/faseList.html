@@ -27,7 +27,7 @@
 
    <table class="grid">
         <thead>
-            <tr><th>Nro. Fase</th><th >Descripcion</th><th>Estado</th></tr>
+            <tr><th>Nro. Fase</th><th >Descripcion</th><th>Estado</th><th/></tr>
         </thead>
         <tbody >
         	<!--tr class="navigation" py:if="currentPage.page_count > 1">
@@ -40,7 +40,7 @@
             <tr py:for="i, fase in enumerate(fases)" class="${i%2 and 'odd' or 'even'}">
             	<td class="col_0"><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td>
                 <td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
-                <td class="col_1">${fase.estado.descripcion}</td>
+                <td class="col_1">${fase.estadoObj.descripcion}</td>
                 <td class="col_1"><a href="/lb/generar_linea_base/${fase.id}">Generar Linea Base</a></td>
         </tr>
         </tbody>
@@ -50,7 +50,7 @@
   
 </div>
 <br/><br/>
-<a href="/proyectoList">Lista de Proyectos</a>
+<a href="/proyecto/lista">Lista de Proyectos</a>
  <div style="clear:both;"/>
 
 </body>

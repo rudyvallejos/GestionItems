@@ -248,22 +248,31 @@ class ProyectoController(BaseController):
     @require(All(in_group('LiderProyecto'), has_permission('crear fase'),
                  msg='Debe poseer Rol "LiderProyecto" para agregar fases'))
     def agregar_fase(self, id):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         proyecto =  DBSession.query(Proyecto).filter(Proyecto.id == id).one()
+        fase =  DBSession.query(Fase).filter(Fase.proyecto_id== proyecto.id).all()
+        codigos=[]
+        for i, cod in enumerate(fase):
+            codigos.append(cod.codigo_fase)
+            codigos.append(",")
         return dict(page='Nueva Fase',
-                    proyecto = proyecto)
+                    proyecto = proyecto,user=user ,codigos=codigos)
         
     
     @expose()
     @require(All(in_group('LiderProyecto'), has_permission('crear fase'),
                  msg='Debe poseer Rol "LiderProyecto" para agregar fases'))
-    def save_fase(self, id, descripcion_proyecto, nombre_fase, submit):
+    def save_fase(self, id, descripcion_proyecto, nombre_fase,codFase, submit):
         fases = DBSession.query(Fase).filter(Fase.proyecto_id == id)
         num = fases.count() + 1
         
         new = Fase(descripcion = nombre_fase,
                    proyecto_id = id,
                    numero_fase = num,
-                   estado_id   = 1)
+                   estado_id   = 1,
+                   codigo_fase = codFase
+                   )
         DBSession.add( new )
         flash( '''Fase Registrada: %s'''%( nombre_fase, ))
         redirect( '/proyecto/definir_fase/'+id )

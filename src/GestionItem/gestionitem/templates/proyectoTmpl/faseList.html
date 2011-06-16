@@ -76,7 +76,7 @@
 						<py:if test="fase.estado_id == 1">
 							<td><a py:if ="tg.predicates.has_permission('asignar desarrollador')" href="/proyecto/usuario_faseList/${fase.id}">Asignar
 									Usuarios</a></td>
-							<td><a href="/tipoItems/tipoItemUsuario/${proyecto_id}">Tipo
+							<td><a href="/tipoItems/tipoItemUsuario/${fase.id}/lista">Tipo
 									de Items</a>
 							</td>
 						</py:if>

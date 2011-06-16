@@ -1,12 +1,78 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
-    <xi:include href="master.html" />
+  <xi:include href="master.html" />
+
+<script> 
+var codRepetido
+var boton
+function botonPresionado(botonP){
+
+boton=botonP
+} 
+
+function validarCamposObligatorios(form){
+
+ 
+if (boton=="Cancelar")
+		{  
+   				
+    				
+    				document.form.action="/proyecto/definir_fase/${proyecto.id}"
+			  		
+			  		return true;	
+				
+       	}
+
+campo= document.form.codFase.value;
+campo2= document.form.nombre_fase.value;
+if (campo=='')
+{
+	alert('Debe completar todos los campos obligatorios marcados con *');
+    return false;
+}    
+if (campo2=='')
+{
+	alert('Debe completar todos los campos obligatorios marcados con *');
+    return false;
+}
+
+if (codRepetido)
+{ 
+	alert('El codigo de fase ya esta en uso en este proyecto'); 
+	return false
+	
+}
+
+}
+
+
+
+
+
+function validarCodigos(form,lista){
+
+codigos=lista.split(',');
+codFase=document.form.codFase.value;
+
+for(j=0; ele=codigos[j]; j++){
+	if(ele==codFase){
+		alert("El codigo de fase ya esta en uso en este proyecto");
+			codRepetido=true		
+            return false;  
+	} 
+	
+}
+codRepetido=false 
+}
+</script>
 
     <head>
+   
+    
         <title>Nueva fase</title>
         <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
 
@@ -15,9 +81,8 @@
     <body>
 
         <h2>Nueva fase</h2>
-        <a href="/proyecto/definir_fase/${proyecto.id}">Lista de fases</a> <br/><br/>
-        <div>
-            <form action="/proyecto/save_fase" method="post">
+       	<div>
+            <form name="form" action="/proyecto/save_fase" onsubmit="return validarCamposObligatorios(this)" method="GET">
                 <table border="0" cellspacing="0" cellpadding="2">
                     <tr>
                         <td>
@@ -40,14 +105,23 @@
                             <label>Nombre de fase</label>
                         </td>
                         <td>
-                            <input type="text" name="nombre_fase" ></input>
+                            <input type="text" name="nombre_fase" ></input><b>*</b>
 
                         </td>
                     </tr>
                     <tr>
+						<td><label>Cod.Fase:</label></td>
+						<td><input  size="7"  onkeyup="form.codFase.value=form.codFase.value.toUpperCase();" onBlur="validarCodigos(this,'${codigos}');" name="codFase"  /><b>*</b></td>	
+		
+					</tr>
+                    
+                    <tr>
                         <td></td>
                         <td>
-                            <input type="submit" name="submit" value="Guardar"/>
+                            <input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+							<input type="submit" name="submit" value="Guardar"/>
+                            
+                            
                         </td>
                     </tr>
 
