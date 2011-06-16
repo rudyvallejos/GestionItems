@@ -142,18 +142,15 @@ class ItemControler(BaseController):
                     item=item,subtitulo='ABM-Item')
     @expose()
     def updateItemConTipo( self,idFase,idProy,idItem,TipoItem ,numCod,codItem,complejidad,descripcion, lista,idAtributos, submit):                
-        cont=0
-        for i, valor in enumerate(idAtributos):
-            cont=1+cont
-        if(cont!=1):
+        try:
             for i, valor in enumerate(lista):
                 atributo = DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=idItem).filter_by(atributo_id=idAtributos[i]).one()
                 atributo.valor=valor
                 DBSession.flush()
-        elif (cont==1):
-                atributo = DBSession.query(TipoItemUsuarioAtributosValor).filter_by(atributo_id=idAtributos).one()
-                atributo.valor=lista
-                DBSession.flush() 
+        except:        
+            atributo = DBSession.query(TipoItemUsuarioAtributosValor).filter_by(atributo_id=idAtributos).filter_by(item_usuario_id=idItem).one()
+            atributo.valor=lista
+            DBSession.flush() 
         item = DBSession.query(ItemUsuario).filter_by(id=idItem).one()
         item.prioridad=complejidad
         item.descripcion=descripcion
@@ -315,10 +312,7 @@ class ItemControler(BaseController):
                 new.estado_id=2
             DBSession.add( new )
             DBSession.flush()
-            cont=0
-            for i, valor in enumerate(idAtributos):
-                cont=1+cont
-            if (cont!=2):
+            try:
                 for i, valor in enumerate(lista):
                     new2 = TipoItemUsuarioAtributosValor(
                     item_usuario_id = id,
@@ -326,12 +320,12 @@ class ItemControler(BaseController):
                     valor=valor
                     )
                     DBSession.add( new2 )
-            elif (cont==2):
+            except :
                 new2 = TipoItemUsuarioAtributosValor(
-                    item_usuario_id = id,
-                    atributo_id = idAtributos,
-                    valor=lista
-                    )
+                item_usuario_id = id,
+                atributo_id = idAtributos,
+                valor=lista
+                )
                 DBSession.add( new2 )
         elif(tipoItem=="0"):
             new = ItemUsuario()
@@ -535,14 +529,15 @@ class ItemControler(BaseController):
             tipo=1
             tipoRelacion="Padre/hijo(*)"
             observacion="Una relacion Padre/Hijo indica una relacion entre  2 items pertenecienes a la misma fase"
-            items=DBSession.query(ItemUsuario).filter_by(fase_id=idFase).filter(ItemUsuario.id!=id).filter(~ItemUsuario.id.in_(itemCiclos)) 
+            #Relacionar solamente con items con LB
+            items=DBSession.query(ItemUsuario).filter_by(fase_id=idFase).filter(ItemUsuario.id!=id).filter(~ItemUsuario.id.in_(itemCiclos)).filter_by(estado_id=3)
             fasesRelacion=DBSession.query(Fase).filter_by(id=idFase).one()
             itemSelec=named.get( 'itemselect','0')
             if(submit=="Buscar"): 
                 expresion=named.get( 'filtros')
                 expre_cad=expresion
                 if (itemSelec!='1'):
-                    itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).order_by(ItemUsuario.id)
+                    itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).filter_by(estado_id=3).order_by(ItemUsuario.id)
                 items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).order_by(ItemUsuario.id)
         else:
             if (tipo_r=="2"):
@@ -553,14 +548,14 @@ class ItemControler(BaseController):
                 faseActual=DBSession.query(Fase).filter_by(id=idFase).one()
                 faseAnterior=DBSession.query(Fase).filter_by(numero_fase=faseActual.numero_fase-1).one()
                 fasesRelacion=faseAnterior
-                items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.id!=id)
+                items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
                 itemSelec=named.get( 'itemselect','0')
                 if(submit=="Buscar"): 
                     expresion=named.get( 'filtros')
                     expre_cad=expresion
                     if (itemSelec!='1'):
                         itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).order_by(ItemUsuario.id)
-                    items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==faseAnterior.id).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).order_by(ItemUsuario.id)                   
+                    items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==faseAnterior.id).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).filter_by(estado_id=3).order_by(ItemUsuario.id)                   
         lista=range(100)
         lista=""   
         fases=DBSession.query(Fase).filter(Fase.numero_fase<=fase.numero_fase).order_by(Fase.id)
@@ -641,12 +636,20 @@ class ItemControler(BaseController):
        
         itemselect_car = named.get('itemselect','')
         if (itemselect_car!=""):
-            itemselect=int(itemselect_car)
-            ListaSeleccionada=[itemselect]
-            for i,itemSelecAprobado in enumerate(ListaSeleccionada):
-                item=DBSession.query(ItemUsuario).filter_by(id=itemSelecAprobado).one()
-                item.estado_id=8
-                DBSession.flush()
+            try:
+                itemselect=int(itemselect_car)
+                ListaSeleccionada=[itemselect]
+                for i,itemSelecAprobado in enumerate(ListaSeleccionada):
+                    item=DBSession.query(ItemUsuario).filter_by(id=itemSelecAprobado).one()
+                    item.estado_id=8
+                    DBSession.flush()
+            except :
+                itemselect=itemselect_car
+                for itemSelecAprobado in itemselect_car:
+                    item=DBSession.query(ItemUsuario).filter_by(id=itemSelecAprobado).one()
+                    item.estado_id=8
+                    DBSession.flush()
+            
         redirect( '/item/itemList/'+idFase )    
         flash( '''Item Aprobado! %s''')
     @expose('gestionitem.templates.item.relacionar_item')
@@ -666,7 +669,7 @@ class ItemControler(BaseController):
             tipo=1
             tipoRelacion="Padre/hijo(*)"
             observacion="Una relacion Padre/Hijo indica una relacion entre  2 items pertenecienes a la misma fase"
-            items=DBSession.query(ItemUsuario).filter_by(fase_id=idFase).filter(ItemUsuario.estado_id==8).filter(ItemUsuario.id!=id)
+            items=DBSession.query(ItemUsuario).filter_by(fase_id=idFase).filter(ItemUsuario.estado_id==8).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
             fasesRelacion=DBSession.query(Fase).filter_by(id=idFase).one()
             itemSelec=named.get( 'itemselect','0')
             if(submit=="Buscar"): 
@@ -674,7 +677,7 @@ class ItemControler(BaseController):
                 expre_cad=expresion
                 if (itemSelec!='0'):
                     itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).order_by(ItemUsuario.id)
-                items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).order_by(ItemUsuario.id)
+                items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).filter_by(estado_id=3).order_by(ItemUsuario.id)
         else:
             if (tipo_r=="2"):
                 muestraBoton="false"
@@ -684,14 +687,14 @@ class ItemControler(BaseController):
                 faseActual=DBSession.query(Fase).filter_by(id=idFase).one()
                 faseAnterior=DBSession.query(Fase).filter_by(numero_fase=faseActual.numero_fase-1).one()
                 fasesRelacion=faseAnterior
-                items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.estado_id==8).filter(ItemUsuario.id!=id)
+                items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.estado_id==8).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
                 itemSelec=named.get( 'itemselect','0')
                 if(submit=="Buscar"): 
                     expresion=named.get( 'filtros')
                     expre_cad=expresion
                     if (itemSelec!='0'):
                         itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).order_by(ItemUsuario.id)
-                    items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==faseAnterior.id).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).order_by(ItemUsuario.id)                   
+                    items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==faseAnterior.id).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).filter_by(estado_id=3).order_by(ItemUsuario.id)                   
         lista=range(100)
         lista=""   
         fases=DBSession.query(Fase).filter(Fase.numero_fase<=fase.numero_fase).order_by(Fase.id)

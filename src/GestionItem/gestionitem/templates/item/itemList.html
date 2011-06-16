@@ -67,20 +67,23 @@ function mostrar(param) {
 
 
 <body class="tundra" onload="mostrar(${muestraBoton});  return true">
-  				
+   
+    
   <div><h3>Lista de Items</h3></div>  
-    <table border="0">
+   <table border="0">
 		<tr>
+		<td><a href="/faseList/${proyecto.id}" ><IMG title="Def fase" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 		</td>	
 		<td><u><b>Proyecto</b></u></td>
 		<td colspan="3"><label>${proyecto.descripcion}</label></td>
 		<td><td/><td/><u><b>Opciones: </b></u></td>
 		<td colspan="3">
-			<SELECT ONCHANGE="location.href = '/item/'+this.options[this.selectedIndex].value;">
+			<SELECT ONCHANGE="location.href = this.options[this.selectedIndex].value;">
 			
 			<!--  SELECT ONCHANGE="enviarA(this.options[this.selectedIndex].value)"-->
-				<OPTION  selected="true" value="itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
-				<OPTION value="aprobarItems/${fase.id}">Aprobar Items</OPTION>
-				<OPTION ><a href="/">Generar Linea Base</a></OPTION>
+				<OPTION  selected="true" value="/item/itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
+				<OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION>
+				<OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION>
 				<py:if test="existeLB==1">
 					<OPTION ><a href="/">Listar Linea Base</a></OPTION>
 				
@@ -90,11 +93,11 @@ function mostrar(param) {
 			</SELECT>
 		</td>
 		</tr>
-		<tr>
+		<tr><td/>
 		<td><u><b>Fase Nro.</b></u></td>
 		<td><label>${fase.numero_fase}</label></td>
 		</tr>
-		<tr>
+		<tr><td/>
 		<td><u><b>Fase</b></u></td>
 		<td><label>${fase.descripcion}</label></td>
 		<!--  td><input  size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
@@ -187,7 +190,7 @@ function mostrar(param) {
                 <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><b>${item.descripcion}</b></a></td>
                 <td  class="col_1"><b>${item.estado.descripcion}</b></td> 
                 <td class="col_1"><b>${item.prioridad}</b></td>
-                <td class="col_1"><b>${item.version}</b></td>
+                <td class="col_1"><b>V-${item.version}</b></td>
                 <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>

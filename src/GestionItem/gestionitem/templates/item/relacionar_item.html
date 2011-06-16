@@ -234,7 +234,7 @@ function verificarItems()
 	
     <!-- form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get"-->
     
-    <div><h3>Lista de Items Aprobados: </h3></div>
+    <div><h3>Lista de Items con LB: </h3></div>
 	<div class="crud_table" style="height:80%; width:100%">
 		<div>
 			<table class="grid"  >
@@ -252,7 +252,7 @@ function verificarItems()
     			<td colspan="4" class="pager">${currentPage.pager()}</td>
 				</tr-->
 					<tr class="navigation" py:if="currentPage.item_count == 0">
-    			<td colspan="4" class="pager">No existen items aprobados</td>
+    			<td colspan="4" class="pager">No existen items con LB</td>
 				</tr> 
         		<tr py:for="i, item in enumerate(items)" class="${i%2 and 'odd' or 'even'}">
       			  <py:if test="item not in itemSeleccionado">

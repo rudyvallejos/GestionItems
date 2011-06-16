@@ -105,7 +105,7 @@ class RootController(BaseController):
                     id=id,proyecto=proyecto,subtitulo='Definicion de Proyectos')
     @expose(template="gestionitem.templates.faseList")
     def faseList(self,id):
-        fases = DBSession.query(Fase).order_by(Fase.id)
+        fases = DBSession.query(Fase).filter_by(proyecto_id=id).order_by(Fase.id).all()
         proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
         return dict(page='Lista de Fases',
                     id=id,fases=fases,proyecto=proyecto,subtitulo='Lista de Fases')

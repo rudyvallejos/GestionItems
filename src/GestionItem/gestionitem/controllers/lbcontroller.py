@@ -28,9 +28,9 @@ class LineaBaseController(BaseController):
         if(submit=="Buscar"): 
             expresion=named.get( 'filtros')
             expre_cad=expresion
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==2).filter(ItemUsuario.fase_id==idfase).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).order_by(ItemUsuario.id)
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==8).filter(ItemUsuario.fase_id==idfase).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).order_by(ItemUsuario.id)
         else:
-            items = DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idfase).filter(ItemUsuario.estado_id==2).all()
+            items = DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idfase).filter(ItemUsuario.estado_id==8).all()
             
         
         return dict(items=items,fase=fase,filtro=filtro, itemSeleccionado=itemSeleccionado)
@@ -64,5 +64,5 @@ class LineaBaseController(BaseController):
             DBSession.flush()
         
         
-        redirect('/item/editar_relacion')
+        redirect('/item/itemList/'+faseid)
     

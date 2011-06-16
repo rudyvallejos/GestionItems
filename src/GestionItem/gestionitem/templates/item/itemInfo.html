@@ -88,15 +88,18 @@ function verificarItems()
 </head>
 
 <body>
-<!--div onclick="comprueba(this)">Otro comentario</div-->
-<div><h3>Informacion del Item</h3></div>
+
+ 	<div><h3>Informacion del Item</h3></div>
 
 <div id="CargaAtributos">
 <fieldset>
  	<input type="hidden" name="idFase" value="${fase.id}"/>
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <table border="0">
+	
 	<tr>
+		<td>
+ 	</td>
 		<td><u><b>Proyecto</b></u></td>
 		<td><label>${proyecto.descripcion}</label></td>
 		<!-- td><input  size="35" disable="TRUE" readonly="TRUE" value="${proyecto.descripcion}"/>
@@ -108,13 +111,13 @@ function verificarItems()
 	</tr>
 
 	<tr>
-		<td><label><u><b>Cod.Item</b></u></label></td>
+		<td/><td><label><u><b>Cod.Item</b></u></label></td>
 		<td><label>${item.cod_item}</label></td>
 		<td><label><u><b>Complejidad</b></u></label></td>
 		<td><label>${item.prioridad}</label></td></tr>
 	<tr>
-		<td><label><u><b>Descripcion</b></u></label></td>
-		<td><label>${item.descripcion}</label></td>
+		<td/><td><label><u><b>Descripcion</b></u></label></td>
+		<td colspan="4"><label>${item.descripcion}</label></td>
 			
 		
 	</tr>
@@ -209,6 +212,7 @@ function verificarItems()
 </div>
 
 <br/><br/>
+<a href="/item/itemList/${fase.id}" ><IMG title="Def fase" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
 <a href="/item/itemList/${fase.id}">Lista Item</a>
   
 </body>

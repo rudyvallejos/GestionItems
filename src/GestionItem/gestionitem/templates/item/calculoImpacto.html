@@ -95,6 +95,8 @@ function verificarItems()
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <table border="0">
 	<tr>
+		<td><a href="/item/itemList/${fase.id}" ><IMG title="Def fase" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+		</td>
 		<td><u><b>Proyecto</b></u></td>
 		<td><label>${proyecto.descripcion}</label></td>
 		<!-- td><input  size="35" disable="TRUE" readonly="TRUE" value="${proyecto.descripcion}"/>
@@ -105,7 +107,7 @@ function verificarItems()
 		</td-->
 	</tr>
 
-	<tr>
+	<tr><td/>
 		<td><label><u><b>Cod.Item</b></u></label></td>
 		<td><label>${item.cod_item}</label></td>
 		<!-- td><input name="codItem" disable="TRUE" readonly="TRUE" value="${item.cod_item}"/></td-->		
@@ -165,6 +167,7 @@ function verificarItems()
 </div>
 
 <br/><br/>
+
 <a href="/item/itemList/${fase.id}">Lista Item</a>
   
 </body>
