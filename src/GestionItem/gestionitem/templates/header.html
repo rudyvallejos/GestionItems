@@ -5,6 +5,9 @@
   <div id="header">
   	<h1>
   		Sistema de Gestion de Proyectos
+  		<py:if test="defined('subtitulo')">
+			<span class="subtitle">${subtitulo}</span>
+		</py:if>
 		<!--span class="subtitle">${subtitulo}</span-->
 	</h1>
   </div>

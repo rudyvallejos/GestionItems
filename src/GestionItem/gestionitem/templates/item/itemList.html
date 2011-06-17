@@ -72,7 +72,7 @@ function mostrar(param) {
   <div><h3>Lista de Items</h3></div>  
    <table border="0">
 		<tr>
-		<td><a href="/faseList/${proyecto.id}" ><IMG title="Def fase" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+		<td><a href="/item/faseList/${proyecto.id}" ><IMG title="Lista fase" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
  		</td>	
 		<td><u><b>Proyecto</b></u></td>
 		<td colspan="3"><label>${proyecto.descripcion}</label></td>
@@ -88,7 +88,7 @@ function mostrar(param) {
 					<OPTION ><a href="/">Listar Linea Base</a></OPTION>
 				
 				<OPTION ><a href="/">Abrir LB</a></OPTION>
-				<OPTION ><a href="/">Solicitar Apertura LB</a></OPTION>
+				<OPTION value="/item/solicitudAperturaLB/${fase.id}">Solicitar Apertura LB</OPTION>
 				</py:if>	
 			</SELECT>
 		</td>
@@ -142,7 +142,7 @@ function mostrar(param) {
     <div> 
     <table class="grid" rules="all">
         <thead>
-            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Estado</th><th>Complejidad</th><th>Version</th><th>Impacto</th><th>Historial</th></tr>
+            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Estado</th><th>Complejidad</th><th>Version</th><th>Impacto</th><th>Historial</th><th>Opcion</th></tr>
         </thead>
         <tbody >
         	<tr class="navigation" py:if="currentPage.page_count > 1">
@@ -172,11 +172,11 @@ function mostrar(param) {
             </td>
             <py:if test="item.estado_id!=3">
             	<py:if test="item.estado_id!=4">
-            
-            	<td class="col_0"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.cod_item}</a></td>
+            	<py:if test="item.estado_id==5"><td  class="col_1"><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.cod_item}</a></td></py:if>
+            	<py:if test="item.estado_id!=5"><td  class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.cod_item}</a></td></py:if>
+            	
                 <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.descripcion}</a></td>
-             
-                <td  class="col_1">${item.estado.descripcion}</td> 
+             	<td  class="col_1">${item.estado.descripcion}</td> 
                 <td class="col_1">${item.prioridad}</td>
                  <td class="col_1">V-${item.version}</td>
                 <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
@@ -188,14 +188,15 @@ function mostrar(param) {
             <py:if test="item.estado.id==3">
             	<td class="col_0"><a  href="/item/itemInfo/${item.id}"><b>${item.cod_item}</b></a></td>
                 <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><b>${item.descripcion}</b></a></td>
-                <td  class="col_1"><b>${item.estado.descripcion}</b></td> 
+                <td  class="col_1"><b>${item.estado.descripcion}-IdLB: ${item.linea_base.id}</b></td> 
                 <td class="col_1"><b>${item.prioridad}</b></td>
                 <td class="col_1"><b>V-${item.version}</b></td>
                 <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
         		<td class="col_1"><py:if test="item.version>1 "><a  href="/item/calculoImpacto/${item.id}">Historial</a></py:if></td>
-     	
+     			<!-- td class="col_0"><py:if test="item.linea_base.apertura=='1'"><a href="/item/solicitudAperturaLB/${fase.id}">Apertura LB Solicitada</a></py:if></td-->
+                <td class="col_0"><py:if test="item.linea_base.apertura=='1'"><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/info.png')}" />Apertura LB Solicitada</py:if></td>
            </py:if>
            
              <py:if test="item.estado.id==4">

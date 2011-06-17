@@ -48,11 +48,11 @@
 			</div>
 		</py:if>
 		
-		<py:if test="defined('page')">
+		<!-- py:if test="defined('page')">
 			<div class="currentpage">
 				Ahora esta viendo: <span py:replace="page" />
 			</div>
-		</py:if>
+		</py:if-->
 		<py:with vars="flash=tg.flash_obj.render('flash', use_js=False)">
 			<div py:if="flash" py:content="XML(flash)" />
 		</py:with>

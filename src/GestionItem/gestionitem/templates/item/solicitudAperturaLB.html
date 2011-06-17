@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+<SCRIPT LANGUAGE="JavaScript">
+function cargarVector(atributos)
+{
+  var f;
+  py:for each="i, atributo in enumerate(atributos)"
+  	obj = document.form.(i);	
+  	obj.value="prueba"
+  
+}
+function cambiaPalabra() {
+
+document.form.1.value="Adios";
+}
+
+</SCRIPT>
+
+
+<script> 
+var numero = 2 
+function verificar()
+{
+	if(document.formulario.itemselect.checked==true)
+	{
+		return true;
+	}
+              
+              for(i=0; ele=document.formulario.itemselect[i]; i++){
+    				if (ele.checked==true){
+    					
+    					return true;
+    					
+    				}
+    				}
+    				
+    			
+						 alert("Debe seleccionar al menos una fase");
+    					 return false;
+    					
+    				
+}
+function mostrar(param) {
+ 
+  obj = document.getElementById('ListaTodos');
+
+  if (param)
+  {
+  	obj.style.display = (obj.style.display=='none') ? 'block' : 'none';
+  }
+ // document.getElementById('enla').innerHTML = (obj.style.display=='none') ? 'Ocultar' : 'Mostrar';
+}
+boton=""
+function valida(F) {
+	
+	if (boton=="Cancelar")
+		{  
+   				
+    				
+    				document.formulario.action="/item/itemList/${fase.id}/"
+			  		
+			  		return true;	
+				
+       	}
+		
+		if (boton=="Solicitar"){
+		for(j=0; ele=document.formulario.itemselect[j]; j++){ 
+              		
+    				if (ele.checked==true){
+    					document.formulario.action="/item/saveSolicitud/${fase.id}"
+        			return true			
+    					
+    				}
+    				}
+    				
+    			
+    			if(document.formulario.itemselect.checked==true){
+    			
+			  		document.formulario.action="/item/saveSolicitud/${fase.id}"
+			  		document.formulario.CantItem.value=1
+			  		return true;	
+				}
+    			document.formulario.action="/item/saveSolicitud/${fase.id}"
+    			return true;
+		
+		
+		
+		}
+       	
+       	if(boton=="Buscar"){
+        		if(F.filtros.value != "") {   
+                	return true 
+        		}
+        		else if (F.filtros.value == ""){
+        			return false
+        		}	 
+        }else if (boton=="ListarTodos"){
+       	 	F.filtros.value=""
+        		return true
+        }				
+}
+function botonPresionado(botonP){
+boton=botonP
+}  
+function verificarItems()
+{	
+			  
+			  
+              for(j=0; ele=document.formulario2.itemselect[j]; j++){ 
+              		
+    				if (ele.checked==true){
+    					
+    					return true;
+    					
+    				}
+    				}
+    				
+    			if(document.formulario2.itemselect.checked==true)
+			  		return true;	
+	
+    					 alert("Debe seleccionar al menos un item");
+    					 return false;
+    					
+    				
+}
+        
+</script>
+
+
+
+<head>
+<style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+  
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <!--title>Editing: ${aux.descripcion}</title-->
+</head>
+
+<body onload="mostrar(${muestraBoton});  return true">
+<!--div onclick="comprueba(this)">Otro comentario</div-->
+<div><h3>Solicitud de Apertura de LB</h3></div>
+<div id="CargaAtributos">
+	<input type="hidden" name="CantItem" value=""/>
+ 	<input type="hidden" name="idFase" value="${fase.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <form   name="formulario"  action="/item/solicitudAperturaLB/${fase.id}" method="get" onSubmit="return valida(this);">
+   
+    <table border="0">
+	<tr>
+		<td>Proyecto:</td>
+		<td><input  size="35" disable="TRUE"  readonly="TRUE" value="${proyecto.descripcion}"/>
+		</td>
+		<td>Fase:</td>
+		<td colspan="3"><input size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
+		</td>
+	</tr>
+
+	
+	<tr>
+		<!--td><label>Descripcion:</label></td>
+		<td><textarea name="descripcion" py:content="item.descripcion" rows="7" cols="38"/></td-->
+		
+	</tr>
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<!--form  display="none"   action="/item/relacionar_item/${item.id}/${fase.id}" name="formulario" onSubmit="return verificar(this);" method="get"-->
+	<tr>
+		
+		
+	</tr>
+	
+	
+		
+	
+		<td> 
+		<!--input type="button" name="submit" value="Cancelar" />
+		<py:if test="fase.numero_fase==1"><input type="submit"  name="submit" title="Guardar el item sin relacionar con otro" value="Guardar Sin Relacionar"/>
+		</py:if-->
+		<!--input type="submit"  name="submit" title="Lista los items de las fases seleccionadas" value="Listar Items"/-->	
+		</td>
+		
+	
+	
+	 <!-- /form--><td/>
+	<!--BUSCADOR-->
+  	
+  	
+  	<div id="Buscador">
+    	<div><td/><td/><td><label><b>Buscar:</b></label>
+    		</td><td><input   type="text" size="15" name="filtros" value="${filtro}"/></td><td><input   type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/></td>
+ 		<td><input   type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/></td>
+ 		</div>   
+  	
+  </div>
+
+  <!--FIN-BUSCADOR--> 
+  <tr/><tr/>
+	</table>
+	
+    <!-- form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/" method="get"-->
+    
+    <div><h3>Lista de Lineas Bases: </h3></div>
+	<div class="crud_table" style="height:80%; width:100%">
+		<div>
+			<table class="grid"  rules="all">
+    		<thead>
+     			<tr><th></th><th>ID LB</th><th >Items de la LB</th><th>Fase</th><th>Nro.Fase</th><th>Usuario Solicitante</th><th>Comentario</th></tr>
+    		</thead>
+     		<tbody >
+     			<!--p class="pagelist">
+        		<a class="navigation" href="?page=${currentPage.previous_page}">&lt;&lt;&lt;</a>
+        			${currentPage.pager(format='~3~', page_param='page', show_if_single_page=True)}
+       		 	<a class="navigation" href="?page=${currentPage.next_page}">&gt;&gt;&gt;</a>
+				</p-->
+        		<!--tr class="navigation" py:if="currentPage.page_count > 1">
+    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+				</tr-->
+					<tr class="navigation" py:if="currentPage.item_count == 0">
+    			<td colspan="4" class="pager">No existen Lineas Bases</td>
+				</tr> 
+        		<tr py:for="i, lb in enumerate(lineasBases)" class="${i%2 and 'odd' or 'even'}">
+      			  <py:if test="lb not in lbSolicitadas">
+	            	<td class="col_0">
+                		<div><div><input TYPE="CHECKBOX"  name="itemselect" value="${lb.id}" /></div><div>
+               			</div></div>
+            		</td>
+            		<td class="col_0">${lb.id}</td>
+                	<td class="col_1">${itemsLB[i]}</td>
+                	<td class="col_1">${lb.fase.descripcion}</td>
+                	<td class="col_1">${lb.fase.numero_fase}</td>
+                	<td class="col_1">${user.user_name}</td>
+                	<td class="col_1"><input size="30" name="${lb.id}"></input></td>
+        		 	
+        		 </py:if>
+  			</tr>
+  			<tr py:for="i, lbse in enumerate(lbSolicitadas)" class="${i%2 and 'odd' or 'even'}">
+      			
+	            	<td class="col_0">
+                		<input TYPE="CHECKBOX" checked="true" name="itemselect" value="${lbse.id}" />
+               			
+            		</td>
+            		<td class="col_0">${lbse.id}</td>
+                	<td class="col_1">${itemsLBSol[i]}</td>
+                	<td class="col_1">${lbse.fase.descripcion}</td>
+                	<td class="col_1">${lbse.fase.numero_fase}</td>
+                	<td class="col_1">${lbse.usuario_sol}</td>
+                	<td class="col_1"><input size="30" name="${lbse.id}" value="${lbse.comentario}"></input></td>
+   					
+  			</tr>
+    	  </tbody>
+    
+    </table>
+    		<br/><br/>
+    		
+    </div>
+    </div>
+    <br/><br/>
+		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+		<input type="submit"  name="submit" title="Relacionar Item" onClick="botonPresionado('Solicitar')" value="Solicitar"/>	
+		
+		
+	<!--  /form-->
+ </form>
+  
+  
+  
+  
+</div>
+<br/>
+<!-- py:if test= "tipo==1"><a href="/item/relacionar_item/${item.id}/${fase.id}/2">Relacion Antecesor/Sucesor</a></py:if-->
+
+<br/>
+
+  
+</body>
+</html>

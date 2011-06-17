@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey, Column, Table
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.types import Unicode, Integer, DateTime, String
+from sqlalchemy.types import Unicode, Integer, DateTime, String, CHAR
 from datetime import datetime
 from sqlalchemy.orm import relation
 
@@ -128,7 +128,10 @@ class LineaBase(DeclarativeBase):
     estado = relationship(EstadoLineaBase, order_by=EstadoLineaBase.id, backref="estado_linea_base")
     fase_id = Column("fase_id", Integer, ForeignKey('fase.id'), nullable=False)
     fase = relationship(Fase, order_by=Fase.id, backref="faseid")
-
+    descripcion = Column("descripcion", String(200), unique=False, nullable=False)
+    comentario = Column("comentario", String(100), unique=False, nullable=False)
+    apertura = Column("apertura", CHAR, unique=False, nullable=False)
+    usuario_sol = Column("usuario_sol", String(100), unique=False, nullable=False)
 class ItemUsuario(DeclarativeBase):
     __tablename__ = 'item_usuario'
     

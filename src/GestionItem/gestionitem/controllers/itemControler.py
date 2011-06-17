@@ -23,7 +23,26 @@ import pygraphviz as pgv
  
 class ItemControler(BaseController):
 
-              
+    @expose(template="gestionitem.templates.item.faseList")
+    def faseList(self,id, **named):
+        fases = DBSession.query(Fase).filter_by(proyecto_id=id).order_by(Fase.id).all()
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        mensajes=[]
+        for i, fase in enumerate(fases):
+            lbs = DBSession.query(LineaBase).filter_by(fase_id=fase.id).order_by(LineaBase.id).all()
+            existe_sol=0
+            for lb in lbs:
+                if (lb.apertura=="1"):
+                    existe_sol=1
+            if existe_sol:
+                mensajes.append("Solicitud de Apertura de LB")
+            else:
+                mensajes.append("")
+        return dict(page='Lista de Fases',user=user,mensajes=mensajes,
+                    id=id,fases=fases,proyecto=proyecto,subtitulo='Lista de Fases')
+          
     @expose('gestionitem.templates.item.itemList')
     def itemList(self,id,**named):
         
@@ -65,7 +84,7 @@ class ItemControler(BaseController):
 
         return dict(muestraBoton=muestraBoton,page='Lista de Items',user=user,existeLB=existeLB,
                     tiposItemUs=tiposItemUs, fase=fase,items=items, proyecto=proyecto,
-                    subtitulo='ABM-TipoItemUsuario',currentPage = currentPage)
+                    subtitulo='Lista de Items',currentPage = currentPage)
     @expose(template="gestionitem.templates.tipoItem.tipoItem_editar")
     def tipoItem_editar(self,id,idProy):
         identity = request.environ.get('repoze.who.identity')
@@ -606,8 +625,11 @@ class ItemControler(BaseController):
         itemSelec=named.get( 'itemselect','0')
         filtro=named.get( 'filtros','')
         if (itemSelec!="0" ):
-            ListaSeleccionada=[itemSelec]
-            itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ListaSeleccionada)).order_by(ItemUsuario.id)
+            listaFiltros=[]
+            for fil in itemSelec:
+                car=str(fil)
+                listaFiltros.append(int(car))
+            itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(listaFiltros)).order_by(ItemUsuario.id)
         if (filtro!=""):
             items=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(or_(ItemUsuario.descripcion.like('%'+str(filtro)+'%'),(ItemUsuario.cod_item.like('%'+str(filtro)+'%')))).order_by(ItemUsuario.id).all()
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
@@ -652,6 +674,195 @@ class ItemControler(BaseController):
             
         redirect( '/item/itemList/'+idFase )    
         flash( '''Item Aprobado! %s''')
+    
+    
+    @expose('gestionitem.templates.item.verSolicitudAperturaLB')
+    def verSolicitudAperturaLB(self,idFase, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user'] 
+        #CONSULTA ALA BD
+        lbSolicitadas=DBSession.query(LineaBase).filter_by(apertura="1").filter(LineaBase.fase_id==idFase).all()
+        itemsLBSol=[]
+        for idLB in lbSolicitadas:
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            codigosItemsSol=""
+            for item in items:
+                codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
+            itemsLBSol.append(codigosItemsSol)
+
+        fase=DBSession.query(Fase).filter_by(id=idFase).one()
+                # SI EXISTE FILTROS DE BUSQUEDAS
+        itemSelec=named.get( 'itemselect','0')
+        filtro=named.get( 'filtros','')
+        if (filtro!=""):
+            if filtro.isdigit():
+                lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.fase_id==idFase).filter_by(id=filtro).order_by(LineaBase.id).all()
+            else:
+                lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.fase_id==idFase).filter(LineaBase.comentario.like('%'+str(filtro)+'%')).order_by(LineaBase.id).all()
+            lbIds=[]
+            itemsLB=[]
+            for idLB in lbSolicitadas:
+                lbIds.append(idLB.id)
+                items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+                codigosItems=""
+                for item in items:
+                    codigosItems=codigosItems+"|"+item.cod_item+" "
+                itemsLB.append(codigosItems)
+        proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
+        #from webhelpers import paginate
+        count = items.__len__()
+        page =int( named.get( 'page', '1'))
+        currentPage = paginate.Page(
+            items, page, item_count=count, 
+            items_per_page=3,
+        )
+        expresion=str(named.get( 'expresion'))
+        expre_cad=expresion
+        filtro=""
+        muestraBoton="false"
+        return dict(page='Solicitudes de Apertura',user=user,itemsLBSol=itemsLBSol,muestraBoton=muestraBoton,lbSolicitadas=lbSolicitadas,named=named,filtro=filtro,itemSelec=itemSelec,items=items,
+                    fase=fase,  
+                    proyecto=proyecto,currentPage = currentPage,subtitulo='Solicitudes de Apertura')
+    
+    @expose()  
+    def accionSolicitud( self, idFase, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        lbs=DBSession.query(LineaBase).filter_by(fase_id=idFase).filter_by(apertura="1").all()
+        for lb in lbs:
+            accion=named.get(str(lb.id),'')
+            if (accion!="") and (accion=="Rechazado"):
+                lb.apertura=""
+                lb.comentario=""
+                lb.usuario_sol=""
+                DBSession.flush()
+            elif (accion!="") and (accion=="Aceptado"):
+                lb.apertura=""
+                lb.comentario=""
+                lb.usuario_sol=""
+                lb.estado_id=2
+                DBSession.flush()
+                ###Cambia Estado del Item
+                items=DBSession.query(ItemUsuario).filter_by(linea_base_id=lb.id).all()
+                for item in items:
+                    item.estado_id=5
+                    DBSession.flush
+        fase=DBSession.query(Fase).filter_by(id=idFase).one()
+                  
+        redirect( '/item/faseList/'+str(fase.proyecto_id) )    
+        flash( '''Item Aprobado! %s''')
+    
+    @expose('gestionitem.templates.item.solicitudAperturaLB')
+    def solicitudAperturaLB(self,idFase, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user'] 
+        #CONSULTA ALA BD
+        lbSolicitadas=DBSession.query(LineaBase).filter_by(apertura="1").filter(LineaBase.fase_id==idFase).all()
+        itemsLBSol=[]
+        for idLB in lbSolicitadas:
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            codigosItemsSol=""
+            for item in items:
+                codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
+            itemsLBSol.append(codigosItemsSol)
+
+        fase=DBSession.query(Fase).filter_by(id=idFase).one()
+        lineasBases=DBSession.query(LineaBase).filter(LineaBase.fase_id==fase.id).order_by(LineaBase.id).all()
+        lbIds=[]
+        itemsLB=[]
+        for idLB in lineasBases:
+            lbIds.append(idLB.id)
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            codigosItems=""
+            for item in items:
+                codigosItems=codigosItems+"|"+item.cod_item+" "
+            itemsLB.append(codigosItems)
+        # SI EXISTE FILTROS DE BUSQUEDAS
+        itemSelec=named.get( 'itemselect','0')
+        filtro=named.get( 'filtros','')
+        if (itemSelec!="0"):
+            listaFiltros=[]
+            for fil in itemSelec:
+                car=str(fil)
+                listaFiltros.append(int(car))
+            lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.id.in_(listaFiltros)).filter(LineaBase.fase_id==fase.id).order_by(LineaBase.id).all()
+            itemsLBSol=[]
+            for idLB in lbSolicitadas:
+                items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+                codigosItemsSol=""
+                for item in items:
+                    codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
+                itemsLBSol.append(codigosItemsSol)
+
+        if (filtro!=""):
+            if filtro.isdigit():
+                lineasBases=DBSession.query(LineaBase).filter(LineaBase.fase_id==idFase).filter_by(id=filtro).order_by(LineaBase.id).all()
+            else:
+                lineasBases=DBSession.query(LineaBase).filter(LineaBase.fase_id==idFase).filter(LineaBase.comentario.like('%'+str(filtro)+'%')).order_by(LineaBase.id).all()
+            lbIds=[]
+            itemsLB=[]
+            for idLB in lineasBases:
+                lbIds.append(idLB.id)
+                items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+                codigosItems=""
+                for item in items:
+                    codigosItems=codigosItems+"|"+item.cod_item+" "
+                itemsLB.append(codigosItems)
+        proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
+        #from webhelpers import paginate
+        count = items.__len__()
+        page =int( named.get( 'page', '1'))
+        currentPage = paginate.Page(
+            items, page, item_count=count, 
+            items_per_page=3,
+        )
+        expresion=str(named.get( 'expresion'))
+        expre_cad=expresion
+        filtro=""
+        muestraBoton="false"
+        return dict(page='Aprobar-Item',user=user,lineasBases=lineasBases,itemsLB=itemsLB,itemsLBSol=itemsLBSol,muestraBoton=muestraBoton,lbSolicitadas=lbSolicitadas,named=named,filtro=filtro,itemSelec=itemSelec,items=items,
+                    fase=fase,  
+                    proyecto=proyecto,currentPage = currentPage,subtitulo='Aprobar-Item')
+    
+    @expose()  
+    def saveSolicitud( self, idFase, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        lbs=DBSession.query(LineaBase).filter_by(fase_id=idFase).all()
+        for lb in lbs:
+            lb.apertura=""
+            lb.comentario=""
+            lb.usuario_sol=""
+            DBSession.flush()
+        itemselect_car = named.get('itemselect','')
+        if (itemselect_car!=""):
+            itemselect=itemselect_car
+            listaFiltros=[]
+            for fil in itemselect:
+                car=str(fil)
+                listaFiltros.append(int(car))
+            for baseSol in listaFiltros:
+                lb=DBSession.query(LineaBase).filter_by(id=baseSol).one()
+                param=str(baseSol)
+                comentario=named.get(param,'')
+                if comentario!="":
+                    lb.comentario=comentario 
+                    ###IMPORTANTE CAMBIAR LUEGO POR EL ESTADO CORRECTO
+                lb.apertura="1"
+                lb.usuario_sol=user.user_name
+                DBSession.flush()
+                    ###ESTO NO SE HACE, CAMBIEAR LUEGO
+                items=DBSession.query(ItemUsuario).filter_by(linea_base_id=lb.id).all()
+                for item in items:
+                    # item.estado_id=5
+                    DBSession.flush
+                    
+        redirect( '/item/itemList/'+idFase )    
+        flash( '''Item Aprobado! %s''')
+ 
+    
+    
+    
     @expose('gestionitem.templates.item.relacionar_item')
     def relacionar_item(self,id,idFase,tipo_r, **named):
         identity = request.environ.get('repoze.who.identity')
@@ -669,7 +880,7 @@ class ItemControler(BaseController):
             tipo=1
             tipoRelacion="Padre/hijo(*)"
             observacion="Una relacion Padre/Hijo indica una relacion entre  2 items pertenecienes a la misma fase"
-            items=DBSession.query(ItemUsuario).filter_by(fase_id=idFase).filter(ItemUsuario.estado_id==8).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
+            items=DBSession.query(ItemUsuario).filter_by(fase_id=idFase).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
             fasesRelacion=DBSession.query(Fase).filter_by(id=idFase).one()
             itemSelec=named.get( 'itemselect','0')
             if(submit=="Buscar"): 
@@ -687,7 +898,7 @@ class ItemControler(BaseController):
                 faseActual=DBSession.query(Fase).filter_by(id=idFase).one()
                 faseAnterior=DBSession.query(Fase).filter_by(numero_fase=faseActual.numero_fase-1).one()
                 fasesRelacion=faseAnterior
-                items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.estado_id==8).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
+                items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
                 itemSelec=named.get( 'itemselect','0')
                 if(submit=="Buscar"): 
                     expresion=named.get( 'filtros')
