@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+    <title>Turbogears Admin System - Group Listing</title><style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+</head>
+
+
+<body class="tundra">
+
+<!--div py:replace="aux.descripcion">Page text goes here.</div-->
+ <h2>${proyecto.descripcion}</h2>
+ <table>
+ <tr>
+ 		<td><a href="/proyecto/lista" ><IMG title="Lista Proyectos" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 		</td>
+ 		<td><b><u>Lider de Proyecto:</u> ${proyecto.lider.user_name}</b>
+ 		</td>
+ 		
+ </tr>
+ </table>			
+ <a class="centrado" href=""><h2>Lista de Fases</h2></a>
+
+ <div class="crud_table" style="height:50%; width:90%">
+
+   <table class="grid">
+        <thead>
+            <tr><th>Nro. Fase</th><th >Descripcion</th><th>Estado</th><th>Opciones</th><th>Mensajes</th></tr>
+        </thead>
+        <tbody >
+        	<!--tr class="navigation" py:if="currentPage.page_count > 1">
+    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+			</tr>
+			<tr class="navigation" py:if="currentPage.item_count == 0">
+    			<td colspan="4" class="pager">No existen datos</td>
+			</tr-->
+        
+            <tr py:for="i, fase in enumerate(fases)" class="${i%2 and 'odd' or 'even'}">
+            	<td class="col_0"><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td>
+                <td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
+                <td class="col_1">${fase.estadoObj.descripcion}</td>
+                <td class="col_1"><a href="/lb/generar_linea_base/${fase.id}">Generar Linea Base</a></td>
+        		<td class="col_1"><py:if test="mensajes[i]!=''"><a href="/proyecto/lista" ><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /></a>
+        		<a href="/item/verSolicitudAperturaLB/${fase.id}">${mensajes[i]}</a>
+        		</py:if></td>
+        </tr>
+        </tbody>
+    </table>
+  
+  
+  
+</div>
+<br/><br/>
+<a href="/proyecto/lista">Lista de Proyectos</a>
+ <div style="clear:both;"/>
+
+</body>
+</html>

@@ -99,6 +99,8 @@ function verificarItems()
 	
 	<tr>
 		<td>
+ 		<a href="/item/itemList/${fase.id}" ><IMG title="Def fase" border="0" height="25" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 		
  	</td>
 		<td><u><b>Proyecto</b></u></td>
 		<td><label>${proyecto.descripcion}</label></td>
@@ -196,7 +198,11 @@ function verificarItems()
       </div>
       <tr>
 	    		<td/><td>
-	    			<img src="${tg.url('/images/relaciones.png')}" align="center" width="140" height="210" border="3" alt="Un bebe"/>
+	    			<div class="centrado">
+	    				<h1><u>Grafo</u></h1>
+	    				<img  src="${tg.url('/images/relaciones.png')}" align="center" width="140" height="210" border="0" alt="Relaciones"/>
+	    			</div>
+	    			
 	    		</td>
 	    	</tr>
       	<br/><br/><br/><br/>
@@ -212,8 +218,6 @@ function verificarItems()
 </div>
 
 <br/><br/>
-<a href="/item/itemList/${fase.id}" ><IMG title="Def fase" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
-<a href="/item/itemList/${fase.id}">Lista Item</a>
   
 </body>
 </html>

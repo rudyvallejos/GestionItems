@@ -445,7 +445,7 @@ class ItemControler(BaseController):
         return dict(page='Aviso Editar Item',user=user,
                     fase=fase,itemsCalculados=itemsCalculados,currentPage=currentPage,
                     proyecto=proyecto, calculoImpacto=calculoImpacto,
-                    item=item,subtitulo='ABM-Item')
+                    item=item,subtitulo='Aviso')
 
     @expose()
     def eliminar_item(self,idFase,id):
@@ -935,32 +935,35 @@ class ItemControler(BaseController):
         itemUsuario=DBSession.query(ItemUsuario).filter_by(id=id).one()
         fase=DBSession.query(Fase).filter_by(id=itemUsuario.fase_id).one()
         relaciones=DBSession.query(RelacionItem).filter_by(antecesor_item_id=id).order_by(RelacionItem.id)
+        relacionesSucesores=DBSession.query(RelacionItem).filter_by(sucesor_item_id=id).order_by(RelacionItem.id)
         idrelaciones=[0]
+        idrelacionesSucesor=[0]
         idFaseRelacion=[0]
         contRelaciones=0
+        contRelacionesSucesores=0
         ##GRAFICA RELACIONES####
         A=pgv.AGraph(directed=True)
-        ##A.add_edge(itemUsuario.id,2)
-        ##A.add_edge(1,3)
-        ##A.add_edge(1,3)
-        ##print A.string() # print to screen
-        ##print "Wrote simple.dot"
-        ##A.write('/home/servidor/simple.png') # write to simple.dot
-        ##B=pgv.AGraph('/home/servidor/simple.png') # create a new graph from file
-        ##B.layout() # layout with default (neato)
-        ##B.draw('/home/servidor/simple.png') # draw png
-        ##print "Wrote simple.png"
-        
-        ### FIN GRAFICA
+       
         
      
         for i, relacion in enumerate(relaciones):
             contRelaciones=contRelaciones+1
             idrelaciones.append(relacion.sucesor_item_id)
+            
+        for i, relacionSucesor in enumerate(relacionesSucesores):
+            contRelacionesSucesores=contRelacionesSucesores+1
+            idrelacionesSucesor.append(relacionSucesor.antecesor_item_id)
+        
         itemsRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelaciones)).order_by(ItemUsuario.fase_id)
+        
+        itemsAntecesoresRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelacionesSucesor)).order_by(ItemUsuario.fase_id)
+        
         for i, item in enumerate(itemsRelacionados):
-            A.add_edge(itemUsuario.id,item.id)    
+            A.add_edge(itemUsuario.cod_item,item.cod_item)    
             idFaseRelacion.append(item.fase_id)
+        for i, item in enumerate(itemsAntecesoresRelacionados):
+            A.add_edge(item.cod_item,itemUsuario.cod_item)    
+    
         print A.string()
         A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/relaciones.png')
         A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/relaciones.png')
@@ -974,9 +977,9 @@ class ItemControler(BaseController):
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
         item=itemUsuario
         return dict(page='Nuevo Item',user=user,
-                    fase=fase,contRelaciones=contRelaciones,itemsRelacionados=itemsRelacionados,fasesRelacionados=fasesRelacionados,
+                    fase=fase,contRelaciones=contRelaciones,itemsAntecesoresRelacionados=itemsAntecesoresRelacionados,contRelacionesSucesores=contRelacionesSucesores,itemsRelacionados=itemsRelacionados,fasesRelacionados=fasesRelacionados,
                     proyecto=proyecto,lista=lista, 
-                    item=item,subtitulo='ABM-Item')
+                    item=item,subtitulo='Informacion-Item')
 
     
     def calcularImpacto(self, idItemActual, ItemsCalculados, CalcImpacto):
