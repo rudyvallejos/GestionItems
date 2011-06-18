@@ -155,56 +155,117 @@ function verificarItems()
 	<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>
 	 </form-->
 	</table>
-	</fieldset>
+	 	</fieldset>
+	 <tr>
+	    		<td/><td>
+	    			<div class="centrado">
+	    				<h1><u>Grafo de Relaciones</u></h1>
+	    				<img  src="${tg.url('/images/relaciones.png')}" align="center" width="140" height="210" border="0" alt="Relaciones"/>
+	    			</div>
+	    			
+	    		</td>
+	    	</tr>
+
     <form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get">
    
-    <div><h3><u>Lista de Items Relacionados</u></h3></div>
+    <div class="centrado"><h1><u>Lista de Items Relacionados</u></h1></div>
    
- 	
+ 	<div><h3><IMG title="Def fase" border="0" height="20" src="${tg.url('/images/ok.png')}"/>
+ 		<i><u>Este item se relaciona con: </u></i>
+ 	</h3></div>
+ 	<fieldset>
  	<py:if test="contRelaciones==0"><b><i>No Posee Relacion</i></b></py:if>    
  	<div class="crud_table" style="height:80%; width:100%">
     <div>
 	 <tr py:for="i, fase in enumerate(fasesRelacionados)" class="${i%2 and 'odd' or 'even'}">   
 		<div><h3><u>Fase:</u> ${fase.descripcion} <u>Tipo Relacion:</u><py:if test="item.fase_id==fase.id"> Padre/hijo</py:if><py:if test="item.fase_id!=fase.id"> Antecesor/Sucesor</py:if></h3></div>	  
 		  <table class="grid">
-	        <thead>
-	            <tr><th></th><th>Cod. Item</th><th >Descripcion</th></tr>
-	        </thead>
-	        <tbody >
+	        	<thead>
+	            	<tr><th></th><th>Cod. Item</th><th>Descripcion</th></tr>
+	        	</thead>
+	        	<tbody >
+		            <tr py:for="i, item in enumerate(itemsRelacionados)" class="${i%2 and 'odd' or 'even'}">
+		            	<py:if test="fase.id==item.fase_id">
+		            		<td class="col_0">
+		                		<div><div><input TYPE="CHECKBOX"  readonly="true" disable="true" checked="true" name="itemselect" value="${item.id}" /></div><div>
+		               	 		</div></div>
+		            		</td>
+		            		<td class="col_0">${item.cod_item}</td>
+		                	<td class="col_1">${item.descripcion}</td>
+		        		</py:if>
+		 			</tr>
+	        	</tbody>
+	    </table>
+     </tr>
+     </div>
+</div>
+<br/><br/>
+</fieldset>
+<!-- Quitar esto si confunde!!! -->
+<div>
+	<h3><IMG title="Def fase" border="0" height="20" src="${tg.url('/images/ok.png')}"/>
+		<i><u>Items que se relaciona con este Item: </u></i>
+	</h3>
+</div>
+<fieldset>
+<py:if test="contRelacionesSucesores==0">
+	<b>
+		<i>Ningun Item se relaciona con este</i>
+	</b>
+</py:if>
+<div class="crud_table" style="height:80%; width:100%">
+	<div>
+		<tr py:for="i, faseS in enumerate(fasesRelacionadosSucesoras)" class="${i%2 and 'odd' or 'even'}">
+			<div>
+				<h3>
+					<u>Fase:</u> ${faseS.descripcion} <u>Tipo Relacion:</u>
+					<py:if test="item.fase_id==faseS.id"> Hijo/Padre</py:if>
+					<py:if test="item.fase_id!=faseS.id"> Sucesor/Antecesor</py:if>
+				</h3>
+			</div>
+			<table class="grid">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Cod. Item</th>
+						<th>Descripcion</th>
+					</tr>
+				</thead>
+				<tbody>
 	        	<!--tr class="navigation" py:if="currentPage.page_count > 1">
 	    			<td colspan="4" class="pager">${currentPage.pager()}</td>
 				</tr>
 				<tr class="navigation" py:if="currentPage.item_count == 0">
 	    			<td colspan="4" class="pager">No existen datos</td>
 				</tr-->
-	        
-	            <tr py:for="i, item in enumerate(itemsRelacionados)" class="${i%2 and 'odd' or 'even'}">
-	            <py:if test="fase.id==item.fase_id">
-	            <td class="col_0">
-	                <div><div><input TYPE="CHECKBOX"  readonly="true" disable="true" checked="true" name="itemselect" value="${item.id}" /></div><div>
-	                
-	                </div></div>
-	            
-	            </td>
-	            	<td class="col_0">${item.cod_item}</td>
-	                <td class="col_1">${item.descripcion}</td>
-	        	</py:if>
-	        	</tr>
-	    	
-	        </tbody>
-	    </table>
-     </tr> 
-    </div>
-      </div>
-      <tr>
-	    		<td/><td>
-	    			<div class="centrado">
-	    				<h1><u>Grafo</u></h1>
-	    				<img  src="${tg.url('/images/relaciones.png')}" align="center" width="140" height="210" border="0" alt="Relaciones"/>
-	    			</div>
-	    			
-	    		</td>
-	    	</tr>
+	
+					<tr py:for="i, itemS in enumerate(itemsAntecesoresRelacionados)" class="${i%2 and 'odd' or 'even'}">
+						<py:if test="faseS.id==itemS.fase_id">
+							<td class="col_0">
+								<div>
+									<div>
+										<input TYPE="CHECKBOX" readonly="true" disable="true" checked="true" name="itemselect" value="${itemS.id}" />
+									</div>
+									<div>
+	
+									</div>
+								</div>
+	
+							</td>
+							<td class="col_0">${itemS.cod_item}</td>
+							<td class="col_1">${itemS.descripcion}</td>
+						</py:if>
+					</tr>
+					
+	
+				</tbody>
+			</table>
+		</tr>
+	</div>
+</div>
+</fieldset>
+<!-- hasta aca quitar!!! -->
+     
       	<br/><br/><br/><br/>
 		<!--input type="button" name="submit" value="Cancelar" /-->
 		

@@ -140,9 +140,9 @@ function mostrar(param) {
    </table> 
 <div class="crud_table" style="height:50%; width:90%">
     <div> 
-    <table class="grid" rules="all">
+    <table class="grid" >
         <thead>
-            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Estado</th><th>Complejidad</th><th>Version</th><th>Impacto</th><th>Historial</th><th>Opcion</th></tr>
+            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Estado</th><th>Complejidad</th><th>Version</th><th>Impacto</th><th>Historial</th><th>Mensajes</th></tr>
         </thead>
         <tbody >
         	<tr class="navigation" py:if="currentPage.page_count > 1">
@@ -153,13 +153,17 @@ function mostrar(param) {
 			</tr>
         
             <tr py:for="i, item in enumerate(items)" class="${i%2 and 'odd' or 'even'}">
+            <!-- Pregunta si no es inactivo-->
+                
             <py:if test="item.estado_id!=6">
-            <!-- py:if test="item.estado_id!=5"-->
+            
             <td class="col_0">
                 <div><div><py:if test="item.estado.id!=3"> <py:if test="item.estado.id!=4">
                 <a class="edit_link" href="/item/editar_item/${fase.id}/${item.id}" style="text-decoration:none">edit</a>   
                 </py:if></py:if></div><div>
-             
+             	<!-- Pregunta si no es con linea base o Pendiente de Revision-->
+             	<py:if test="item.estado.id==4"><IMG title="Atencion" height="20" border="0" src="${tg.url('/images/warning.png')}"/></py:if>
+                <py:if test="item.estado.id==3"><IMG title="Con Linea Base" height="20" border="0" src="${tg.url('/images/ok.png')}" /></py:if>
                 <py:if test="item.estado.id!=3">
                  <py:if test="item.estado.id!=4">
                 <form method="POST" action="/item/eliminar_item/${fase.id}/${item.id}" class="button-to">
@@ -172,7 +176,10 @@ function mostrar(param) {
             </td>
             <py:if test="item.estado_id!=3">
             	<py:if test="item.estado_id!=4">
-            	<py:if test="item.estado_id==5"><td  class="col_1"><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.cod_item}</a></td></py:if>
+            	<!--Si es con linea base Abierta -->
+            	<py:if test="item.estado_id==5"><td  class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.cod_item}</a></td></py:if>
+            	<!-- Pregunta si no es con linea base Abierta-->
+                
             	<py:if test="item.estado_id!=5"><td  class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.cod_item}</a></td></py:if>
             	
                 <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.descripcion}</a></td>
@@ -183,14 +190,17 @@ function mostrar(param) {
         			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
         		<td class="col_1"><py:if test="item.version>1 "><a  href="/item/calculoImpacto/${item.id}">Historial</a></py:if></td> 
+           		 <td  class="col_1"><py:if test="item.estado_id==5"><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" />Linea Base Abierta</py:if></td>
            </py:if>
            </py:if>
+           <!-- Pregunta si es con linea base -->
+                
             <py:if test="item.estado.id==3">
-            	<td class="col_0"><a  href="/item/itemInfo/${item.id}"><b>${item.cod_item}</b></a></td>
-                <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><b>${item.descripcion}</b></a></td>
-                <td  class="col_1"><b>${item.estado.descripcion}-IdLB: ${item.linea_base.id}</b></td> 
-                <td class="col_1"><b>${item.prioridad}</b></td>
-                <td class="col_1"><b>V-${item.version}</b></td>
+            	<td class="col_0"><a  href="/item/itemInfo/${item.id}">${item.cod_item}</a></td>
+                <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.descripcion}</a></td>
+                <td  class="col_1">${item.estado.descripcion}-IdLB: ${item.linea_base.id}</td> 
+                <td class="col_1">${item.prioridad}</td>
+                <td class="col_1">V-${item.version}</td>
                 <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
@@ -198,13 +208,13 @@ function mostrar(param) {
      			<!-- td class="col_0"><py:if test="item.linea_base.apertura=='1'"><a href="/item/solicitudAperturaLB/${fase.id}">Apertura LB Solicitada</a></py:if></td-->
                 <td class="col_0"><py:if test="item.linea_base.apertura=='1'"><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/info.png')}" />Apertura LB Solicitada</py:if></td>
            </py:if>
-           
+           <!--Pregunta si es pendiente de revision  -->
              <py:if test="item.estado.id==4">
-            	<td class="col_0"><a  href="/item/itemInfo/${item.id}"><b><i>${item.cod_item}</i></b></a></td>
-                <td class="col_1"><b><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><i>${item.descripcion}</i></a></b></td>
-                <td  class="col_1"><b><i>${item.estado.descripcion}</i></b></td> 
-                <td class="col_1"><b><i>${item.prioridad}</i></b></td>
-                 <td class="col_1"><b><i>V-${item.version}</i></b></td>
+            	<td class="col_0"><a  href="/item/itemInfo/${item.id}"><i>${item.cod_item}</i></a></td>
+                <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><i>${item.descripcion}</i></a></td>
+                <td  class="col_1"><i>${item.estado.descripcion}</i></td> 
+                <td class="col_1"><i>${item.prioridad}</i></td>
+                 <td class="col_1"><i>V-${item.version}</i></td>
      
               <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>

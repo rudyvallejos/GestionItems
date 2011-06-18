@@ -177,6 +177,8 @@ function verificarItems()
    
     <table border="0">
 	<tr>
+	<py:if test= "tipo==1"><py:if test= "fase.numero_fase!=1"><a href="/item/relacionar_item/${item.id}/${fase.id}/2" ><IMG title="Relacionar Antecesor/Sucesor" border="0" height="25" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 	</py:if></py:if>
 		<td>Proyecto:</td>
 		<td><input  size="35" disable="TRUE"  readonly="TRUE" value="${proyecto.descripcion}"/>
 		</td>

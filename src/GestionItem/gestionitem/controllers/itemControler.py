@@ -217,7 +217,7 @@ class ItemControler(BaseController):
         itemsRelacionados = DBSession.query(ItemUsuario).filter(or_(ItemUsuario.id.in_(relaciones_antecesores),ItemUsuario.id.in_(relaciones_sucesores))).all()
         for i, itemActual in enumerate(itemsRelacionados):
             
-            if (itemActual.estado_id==3):
+            if (itemActual.estado_id==3) or (itemActual.estado_id==5):
                 itemActual.estado_id=4
                 DBSession.flush()
                 lineaBase=DBSession.query(LineaBase).filter_by(id=itemActual.linea_base_id)
@@ -926,7 +926,7 @@ class ItemControler(BaseController):
         return dict(page='Nuevo Item',user=user,itemSeleccionado=itemSeleccionado,named=named,filtro=filtro,itemSelec=itemSelec,parametro=submit, muestraBoton=muestraBoton,tipo=tipo,observacion=observacion,fasesRelacion=fasesRelacion,tipoRelacion=tipoRelacion,items=items,
                     fase=fase,fases=fases, tipoItems=tipoItems,fases_selec=fases_selec,  
                     proyecto=proyecto,lista=lista,currentPage = currentPage, 
-                    item=item,subtitulo='ABM-Item')
+                    item=item,subtitulo='Relacionar-Item')
         
     @expose('gestionitem.templates.item.itemInfo')
     def itemInfo(self,id,**named):
@@ -939,6 +939,7 @@ class ItemControler(BaseController):
         idrelaciones=[0]
         idrelacionesSucesor=[0]
         idFaseRelacion=[0]
+        idFaseRelacionSucesor=[0]
         contRelaciones=0
         contRelacionesSucesores=0
         ##GRAFICA RELACIONES####
@@ -962,7 +963,8 @@ class ItemControler(BaseController):
             A.add_edge(itemUsuario.cod_item,item.cod_item)    
             idFaseRelacion.append(item.fase_id)
         for i, item in enumerate(itemsAntecesoresRelacionados):
-            A.add_edge(item.cod_item,itemUsuario.cod_item)    
+            A.add_edge(item.cod_item,itemUsuario.cod_item)
+            idFaseRelacionSucesor.append(item.fase_id)    
     
         print A.string()
         A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/relaciones.png')
@@ -970,6 +972,7 @@ class ItemControler(BaseController):
         B=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/relaciones.png')
         B.layout() # layout with default (neato)
         B.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/relaciones.png') # draw png
+        fasesRelacionadosSucesoras=DBSession.query(Fase).filter(Fase.id.in_(idFaseRelacionSucesor)).order_by(Fase.id)
         
         fasesRelacionados=DBSession.query(Fase).filter(Fase.id.in_(idFaseRelacion)).order_by(Fase.id)
         lista=range(100)
@@ -978,7 +981,7 @@ class ItemControler(BaseController):
         item=itemUsuario
         return dict(page='Nuevo Item',user=user,
                     fase=fase,contRelaciones=contRelaciones,itemsAntecesoresRelacionados=itemsAntecesoresRelacionados,contRelacionesSucesores=contRelacionesSucesores,itemsRelacionados=itemsRelacionados,fasesRelacionados=fasesRelacionados,
-                    proyecto=proyecto,lista=lista, 
+                    proyecto=proyecto,lista=lista,fasesRelacionadosSucesoras=fasesRelacionadosSucesoras, 
                     item=item,subtitulo='Informacion-Item')
 
     
