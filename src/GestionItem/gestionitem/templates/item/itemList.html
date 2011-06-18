@@ -210,17 +210,17 @@ function mostrar(param) {
            </py:if>
            <!--Pregunta si es pendiente de revision  -->
              <py:if test="item.estado.id==4">
-            	<td class="col_0"><a  href="/item/itemInfo/${item.id}"><i>${item.cod_item}</i></a></td>
-                <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}"><i>${item.descripcion}</i></a></td>
-                <td  class="col_1"><i>${item.estado.descripcion}</i></td> 
-                <td class="col_1"><i>${item.prioridad}</i></td>
-                 <td class="col_1"><i>V-${item.version}</i></td>
+            	<td class="col_0"><a  href="/item/itemInfo/${item.id}">${item.cod_item}</a></td>
+                <td class="col_1"><a  title="Ver Info. del Item" href="/item/itemInfo/${item.id}">${item.descripcion}</a></td>
+                <td  class="col_1">${item.estado.descripcion}</td> 
+                <td class="col_1">${item.prioridad}</td>
+                 <td class="col_1">V-${item.version}</td>
      
-              <td class="col_1"><py:if test="item.estado_id==3 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
-        			<py:if test="item.estado_id==4 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+              <td class="col_1"><py:if test="item.estado_id==3 "><a title="Calcular Impacto" href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
+        			<py:if test="item.estado_id==4 "><a title="Calcular Impacto" href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
         		<td class="col_1"><py:if test="item.version>1 "><a  href="/item/calculoImpacto/${item.id}">Historial</a></py:if></td>
-
+				<td class="col_1"><IMG title="Atencion" height="20" border="0" src="${tg.url('/images/warning.png')}"/><a  title="Revisar Item" href="/item/verificarItem/${item.id}">Revisar el item</a></td>
      	
            </py:if>
            </py:if>

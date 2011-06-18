@@ -89,7 +89,7 @@ function verificarItems()
 
 <body>
 
- 	<div><h3>Informacion del Item</h3></div>
+ 	<div><h3>Revision del Item</h3></div>
 
 <div id="CargaAtributos">
 <fieldset>
@@ -172,7 +172,7 @@ function verificarItems()
 
     <form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get">
    
-    <div class="centrado"><h1><u>Lista de Items Relacionados</u></h1></div>
+    <div class="centrado"><h2><u>Lista de Items Relacionados con estado Pendiente de Aprobacion</u></h2></div>
    
  	<div><h3><IMG title="Def fase" border="0" height="20" src="${tg.url('/images/ok.png')}"/>
  		<i><u>Este item se relaciona con: </u></i>
@@ -185,7 +185,7 @@ function verificarItems()
 		<div><h3><u>Fase:</u> ${fase.descripcion} <u>Tipo Relacion:</u><py:if test="item.fase_id==fase.id"> Padre/hijo</py:if><py:if test="item.fase_id!=fase.id"> Antecesor/Sucesor</py:if></h3></div>	  
 		  <table class="grid">
 	        	<thead>
-	            	<tr><th></th><th>Cod. Item</th><th>Descripcion</th></tr>
+	            	<tr><th></th><th>Cod. Item</th><th>Descripcion</th><th>Version</th><th>Estado</th></tr>
 	        	</thead>
 	        	<tbody >
 		            <tr py:for="i, item in enumerate(itemsRelacionados)" class="${i%2 and 'odd' or 'even'}">
@@ -196,6 +196,8 @@ function verificarItems()
 		            		</td>
 		            		<td class="col_0">${item.cod_item}</td>
 		                	<td class="col_1">${item.descripcion}</td>
+		                	<td class="col_1">${item.version}</td>
+		                	<td class="col_1">${item.estado.descripcion}</td>
 		        		</py:if>
 		 			</tr>
 	        	</tbody>
@@ -233,6 +235,8 @@ function verificarItems()
 						<th></th>
 						<th>Cod. Item</th>
 						<th>Descripcion</th>
+						<th>Version</th>
+						<th>Estado</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -258,6 +262,8 @@ function verificarItems()
 							</td>
 							<td class="col_0">${itemS.cod_item}</td>
 							<td class="col_1">${itemS.descripcion}</td>
+							<td class="col_1">${itemS.version}</td>
+		                	<td class="col_1">${itemS.estado.descripcion}</td>
 						</py:if>
 					</tr>
 					
