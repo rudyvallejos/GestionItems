@@ -120,9 +120,22 @@ function verificarItems()
 	<tr>
 		<td/><td><label><u><b>Descripcion</b></u></label></td>
 		<td colspan="4"><label>${item.descripcion}</label></td>
-			
-		
 	</tr>
+		<tr>
+			<td/><td><u><b>Version</b></u></td>
+			<td><label>${item.version}</label></td>
+			<td><u><b>Tipo</b></u></td>
+			<td><label>${tipoItem}</label></td>
+		</tr>
+		<py:if test="conTipo!=0">
+			<tr><td/><td colspan="3"><b>Atributos Especificos del Tipo de Item</b></td>
+			</tr>
+			<tr py:for="i, atributo in enumerate(atributos)">
+				<td/><td><u><b>${atributo.nombre_atributo}</b></u></td>
+				<td colspan="5"><label>${atributoValor[i].valor}</label></td>
+			</tr>
+		
+		</py:if>
 	
 	<tr/><tr/><tr/><tr/><tr/><tr/>
 	<!--  form  display="none"   action="/item/relacionar_item/${item.id}/${fase.id}" name="formulario" onSubmit="return verificar(this);" method="get">

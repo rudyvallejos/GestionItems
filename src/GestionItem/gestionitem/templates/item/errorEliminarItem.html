@@ -9,66 +9,35 @@
 
 
 <SCRIPT LANGUAGE="JavaScript">
-function cargarVector(atributos)
-{
-  var f;
-  py:for each="i, atributo in enumerate(atributos)"
-  	obj = document.form.(i);	
-  	obj.value="prueba"
-  
-}
-function cambiaPalabra() {
+boton=""
+function botonPresionado(botonP){
 
-document.form.1.value="Adios";
-}
+boton=botonP
+}  
 
-</SCRIPT>
+function validarCampos(form){
 
-
-<script> 
-var numero = 2 
-function verificar()
-{
-
-              
-              for(i=0; ele=document.formulario.fases[i]; i++){
-    				if (ele.checked==true){
-    					
-    					return true;
-    					
-    				}
-    				}
-    				
+if (boton=="Cancelar")
+		{  
+   				
     			
-	
-    					 alert("Debe seleccionar al menos una fase");
-    					 return false;
-    					
-    				
-}
-function verificarItems()
-{	
-			  
-			  
-              for(j=0; ele=document.formulario2.itemselect[j]; j++){ 
-              		
-    				if (ele.checked==true){
-    					
-    					return true;
-    					
-    				}
-    				}
-    				
-    			if(document.formulario2.itemselect.checked==true)
+    				document.form.action="/item/itemList/${fase.id}"
+			  		
 			  		return true;	
-	
-    					 alert("Debe seleccionar al menos un item");
-    					 return false;
-    					
+				
+       	}
+if (boton!="Cancelar")
+		{  
+   				
     				
+    				document.form.action="/item/eliminarItemLB/${fase.id}/${item.id}/"
+			  		
+			  		return true;	
+				
+       	}       	
+
 }
-        
-</script>
+</SCRIPT>
 
 
 
@@ -84,30 +53,36 @@ function verificarItems()
     <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
 
   <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
-  <!--title>Editing: ${aux.descripcion}</title-->
+  <title>SGP - Aviso</title>
 </head>
 
 <body>
 <!--div onclick="comprueba(this)">Otro comentario</div-->
+<div class="centrado"><IMG title="Mensaje" height="50" border="0" src="${tg.url('/images/error.png')}" /></div>
+<div class="centrado"><h1><u>Error al intentar Eliminar</u></h1></div>
+<fieldset>
+<div><h3><i><p>No es posible eliminar este item por que existe otros items, listados mas abajo, que 
+se encuentran dentro de una linea base y que se relacionan con el item actual, por favor elimine primeramente estas relaciones y 
+luego intentelo de nuevo.</p></i></h3></div></fieldset>
 <div><h3>Informacion del Item</h3></div>
 <div id="CargaAtributos">
  	<input type="hidden" name="idFase" value="${fase.id}"/>
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <table border="0">
 	<tr>
-		<td><a href="/item/itemList/${fase.id}" ><IMG title="Lista de Items" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
-		</td>
+	
 		<td><u><b>Proyecto</b></u></td>
 		<td><label>${proyecto.descripcion}</label></td>
 		<!-- td><input  size="35" disable="TRUE" readonly="TRUE" value="${proyecto.descripcion}"/>
 		</td-->
 		<td><u><b>Fase</b></u></td>
 		<td><label>${fase.descripcion}</label></td>
+		
 		<!--  td><input  size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
 		</td-->
 	</tr>
 
-	<tr><td/>
+	<tr>
 		<td><label><u><b>Cod.Item</b></u></label></td>
 		<td><label>${item.cod_item}</label></td>
 		<!-- td><input name="codItem" disable="TRUE" readonly="TRUE" value="${item.cod_item}"/></td-->		
@@ -116,31 +91,21 @@ function verificarItems()
 		<!--  td><textarea name="descripcion" disable="TRUE" readonly="TRUE" py:content="item.descripcion" rows="0" cols="38"/></td-->
 	</tr>
 	<tr>
-			<td/><td><u><b>Version</b></u></td>
-			<td><label>${item.version}</label></td>
-			<td><u><b>Tipo</b></u></td>
-			<td><label>${tipoItem}</label></td>
-		</tr>
-		<py:if test="conTipo!=0">
-			<tr><td/><td colspan="3"><b>Atributos Especificos del Tipo de Item</b></td>
-			</tr>
-			<tr py:for="i, atributo in enumerate(atributos)">
-				<td/><td><u><b>${atributo.nombre_atributo}</b></u></td>
-				<td colspan="5"><label>${atributoValor[i].valor}</label></td>
-			</tr>
+		<td><u><b>Complejidad</b></u></td>
+		<td><label>${item.prioridad}</label></td>
+	
 		
-		</py:if>
+	</tr>
 	
 	<tr/><tr/><tr/><tr/><tr/><tr/>
 </table>
-    <form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get">
-    <div><h3><u>Calculo de Impacto:</u> ${calculoImpacto}</h3></div>
-    <tr><td><h3><u>Items Calculados:</u></h3></td></tr>
+    <form  display="none"  name="form" onSubmit="return validarCampos(this);"  action="/item/saveRelacion/${item.id}" method="get">
+    
     <div class="crud_table"  style="height:80%; width:100%">
     <div>
 	 	  <table  class="grid">
 	        <thead>
-	            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Complejidad</th><th>Fase</th></tr>
+	            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Complejidad</th><th>Version</th><th>Fase</th></tr>
 	        </thead>
 	        <tbody >
 	        	<tr class="navigation" py:if="currentPage.page_count > 1">
@@ -157,6 +122,7 @@ function verificarItems()
 	            	<td class="col_0">${item.cod_item}</td>
 	                <td class="col_1">${item.descripcion}</td>
 	        		<td class="col_1">${item.prioridad}</td>
+	        		<td class="col_1">${item.version}</td>
 	        		<td class="col_1">Nro-${item.fase.numero_fase}/${item.fase.descripcion}</td>
 	        	
 	        	</tr>
@@ -167,6 +133,8 @@ function verificarItems()
       </div>
       	<br/><br/><br/><br/>
 		<!--input type="button" name="submit" value="Cancelar" /-->
+			<td> 
+		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" /></td>
 		
 		
 	 </form>
@@ -179,7 +147,6 @@ function verificarItems()
 
 <br/><br/>
 
-<a href="/item/itemList/${fase.id}">Lista Item</a>
   
 </body>
 </html>

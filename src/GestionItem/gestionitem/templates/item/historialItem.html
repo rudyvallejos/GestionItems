@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+<SCRIPT LANGUAGE="JavaScript">
+function cargarVector(atributos)
+{
+  var f;ea
+  py:for each="i, atributo in enumerate(atributos)"
+  	obj = document.form.(i);	
+  	obj.value="prueba"
+  
+}
+function cambiaPalabra() {
+
+document.form.1.value="Adios";
+}
+
+</SCRIPT>
+
+
+<script> 
+
+function mostrar(param) {
+ 
+  obj = document.getElementById('ListaTodos');
+
+  if (param)
+  {
+  	obj.style.display = (obj.style.display=='none') ? 'block' : 'none';
+  }
+ // document.getElementById('enla').innerHTML = (obj.style.display=='none') ? 'Ocultar' : 'Mostrar';
+}
+boton=""
+function valida(F) {
+	
+	if (boton=="Cancelar")
+		{  
+   				
+    				
+    				document.formulario.action="/item/itemList/${fase.id}/"
+			  		
+			  		return true;	
+				
+       	}
+		
+		if (boton=="Solicitar"){
+		for(j=0; ele=document.formulario.itemselect[j]; j++){ 
+              		
+    				if (ele.checked==true){
+    					document.formulario.action="/item/saveSolicitud/${fase.id}"
+        			return true			
+    					
+    				}
+    				}
+    				
+    			
+    			if(document.formulario.itemselect.checked==true){
+    			
+			  		document.formulario.action="/item/saveSolicitud/${fase.id}"
+			  		document.formulario.CantItem.value=1
+			  		return true;	
+				}
+    			document.formulario.action="/item/saveSolicitud/${fase.id}"
+    			return true;
+		
+		
+		
+		}
+       	
+       	if(boton=="Buscar"){
+        		if(F.filtros.value != "") {   
+                	return true 
+        		}
+        		else if (F.filtros.value == ""){
+        			return false
+        		}	 
+        }else if (boton=="ListarTodos"){
+       	 	F.filtros.value=""
+        		return true
+        }				
+}
+function botonPresionado(botonP){
+boton=botonP
+}  
+function verificarItems()
+{	
+			  
+			  
+              for(j=0; ele=document.formulario2.itemselect[j]; j++){ 
+              		
+    				if (ele.checked==true){
+    					
+    					return true;
+    					
+    				}
+    				}
+    				
+    			if(document.formulario2.itemselect.checked==true)
+			  		return true;	
+	
+    					 alert("Debe seleccionar al menos un item");
+    					 return false;
+    					
+    				
+}
+        
+</script>
+
+
+
+<head>
+<style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+  
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <!--title>Editing: ${aux.descripcion}</title-->
+</head>
+
+<body onload="mostrar(${muestraBoton});  return true">
+<!--div onclick="comprueba(this)">Otro comentario</div-->
+<div><h3>Historial de Item</h3></div>
+<div id="CargaAtributos">
+	<input type="hidden" name="CantItem" value=""/>
+ 	<input type="hidden" name="idFase" value="${fase.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <form   name="formulario"   method="get">
+  
+ 	<input type="hidden" name="idFase" value="${fase.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <table border="0">
+	
+		<tr>
+			<td>
+ 				<a href="/item/itemList/${fase.id}" ><IMG title="Def fase" border="0" height="25" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 			</td>
+			<td><u><b>Proyecto</b></u></td>
+			<td><label>${proyecto.descripcion}</label></td>
+			<td><u><b>Fase</b></u></td>
+			<td><label>${fase.descripcion}</label></td>
+			
+		</tr>
+<tr><td colspan="3"><h3>Informacion del Item Actual</h3></td></tr>
+		<tr>
+			<td/><td><label><u><b>Cod.Item</b></u></label></td>
+			<td><label>${item.cod_item}</label></td>
+			<td><label><u><b>Complejidad</b></u></label></td>
+			<td><label>${item.prioridad}</label></td>
+		</tr>
+		<tr>
+			<td/><td><label><u><b>Descripcion</b></u></label></td>
+			<td colspan="6"><label>${item.descripcion}</label></td>
+		</tr>
+		<tr>
+			<td/><td><u><b>Version</b></u></td>
+			<td><label>${item.version}</label></td>
+			<td><u><b>Tipo</b></u></td>
+			<td><label>${tipoItem}</label></td>
+		</tr>
+		<py:if test="conTipo!=0">
+			<tr><td/><td colspan="3"><b>Atributos Especificos del Tipo de Item</b></td>
+			</tr>
+			<tr py:for="i, atributo in enumerate(atributos)">
+				<td/><td><u><b>${atributo.nombre_atributo}</b></u></td>
+				<td colspan="5"><label>${atributoValor[i].valor}</label></td>
+			</tr>
+		
+		</py:if>
+		<tr/><tr/><tr/><tr/><tr/><tr/>
+	
+	
+	 	
+	
+	<!--BUSCADOR-->
+  	<tr>
+  		<td colspan="5">
+  		<div id="Buscador">
+    		<div>
+    			<td/><td/><td/><td/>
+    			<td><label><b>Buscar:</b></label>
+    			</td>
+    			<td><input   type="text" size="15" name="filtros" value="${filtro}"/></td><td><input   type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/></td>
+ 				<td><input   type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/></td>
+ 			</div>   
+  		</div>
+  	</td></tr>
+  
+</table>
+  <!--FIN-BUSCADOR--> 
+      <!-- form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/" method="get"-->
+    
+    <div><h3>Versiones anteriores al Item</h3></div>
+	<div class="crud_table" style="height:50%; width:90%">
+		<div>
+			<table class="grid">
+    		<thead>
+     			<tr><th colspan="3">Cod. Item</th><th colspan="3">Descripcion</th><th colspan="3">Complejidad</th><th colspan="2">Version</th><th colspan="2">Nro.Fase</th><th colspan="2">Estado</th><th>Revertir</th></tr>
+    		</thead>
+     		<tbody >
+     		
+        		<tr class="navigation" py:if="currentPage.page_count > 1">
+    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+    			</tr>
+					<tr class="navigation" py:if="currentPage.item_count == 0">
+    			<td colspan="4" class="pager">No existen Versiones anteriores</td>
+				</tr> 
+        		<tr py:for="i, itemA in enumerate(itemsAnteriores)" class="${i%2 and 'odd' or 'even'}">
+      			 
+  					<td class="col_1" colspan="3">${itemA.cod_item}</td>
+                	<td class="col_1" colspan="3">${itemA.descripcion}</td>
+                	<td class="col_1" colspan="3">${itemA.prioridad}</td>
+                	<td class="col_1" colspan="2">V-${itemA.version}</td>
+                	<td class="col_1" colspan="2">${itemA.fase.numero_fase}</td>
+                	<td class="col_1">${itemA.estado.descripcion}</td><td/>
+                	<py:if test="item.estado.id!=3">
+                 		<py:if test="item.estado.id!=4">
+                 			<td><a href="/item/revertirItem/${item.id}/${itemA.id}" onclick="return confirm('Esta seguro que volver a la version ${itemA.version} del item  ${item.cod_item}?');">
+                 			<IMG title="Revertir Item" border="0" height="25" src="${tg.url('/images/reversion.png')}" /></a>
+                			</td>  		
+                		
+                		</py:if>
+                		</py:if>
+  			</tr>
+    	  </tbody>
+    
+    </table>
+    		<br/><br/>
+    		
+    </div>
+    </div>
+    <br/><br/>
+		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+		<input type="submit"  name="submit" title="Relacionar Item" onClick="botonPresionado('Solicitar')" value="Solicitar"/>	
+		
+		
+	<!--  /form-->
+ </form>
+  
+  
+  
+  
+</div>
+<br/>
+<!-- py:if test= "tipo==1"><a href="/item/relacionar_item/${item.id}/${fase.id}/2">Relacion Antecesor/Sucesor</a></py:if-->
+
+<br/>
+
+  
+</body>
+</html>
