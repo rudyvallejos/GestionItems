@@ -149,6 +149,58 @@ class LineaBase(DeclarativeBase):
     comentario = Column("comentario", String(100), unique=False, nullable=False)
     apertura = Column("apertura", CHAR, unique=False, nullable=False)
     usuario_sol = Column("usuario_sol", String(100), unique=False, nullable=False)
+
+
+class TipoItemUsuarioAtributosValor(DeclarativeBase):
+    __tablename__ = 'tipo_item_usuario_valor'
+    id = Column("id",Integer, autoincrement=True, primary_key=True)
+    valor = Column("valor", String(100), unique=True, nullable=False)
+    item_usuario_id = Column("item_usuario_id", Integer, ForeignKey('item_usuario.id'), nullable=False)
+    atributo_id = Column("atributo_id", Integer, ForeignKey('tipo_item_usuario_atributos.id'), nullable=False)
+    
+class Tipo(DeclarativeBase):
+    __tablename__ = 'tipo'
+    
+    
+    id = Column("id",Integer, autoincrement=True, primary_key=True)
+
+    descripcion = Column("descripcion", String(100), unique=True, nullable=False)
+    #tipoItemUsuarioAtributos = relationship(TipoItemUsuarioAtributos, backref=backref('tipo', order_by=id))
+
+
+class TipoItemUsuarioAtributos(DeclarativeBase):
+    __tablename__ = 'tipo_item_usuario_atributos'
+    id = Column("id",Integer, autoincrement=True, primary_key=True)
+
+    nombre_atributo = Column("nombre_atributo", String(100), unique=True, nullable=False)
+
+    tipo_item_id = Column("tipo_item_id", Integer, ForeignKey('tipo_item_usuario.id'), nullable=False)
+    tipo_id = Column("tipo_id", Integer, ForeignKey('tipo.id'), nullable=False)
+    tipo = relationship(Tipo, order_by=Tipo.id, backref="tipo_item_usuario_atributos")
+    valor = relationship(TipoItemUsuarioAtributosValor, order_by=TipoItemUsuarioAtributosValor.atributo_id, backref="tipo_item_usuario_valor")
+
+
+class TipoItemUsuario(DeclarativeBase):
+    __tablename__ = 'tipo_item_usuario'
+    
+    
+    id = Column("id",Integer, autoincrement=True, primary_key=True)
+
+    descripcion = Column("descripcion", String(100), unique=True, nullable=False)
+
+    fase_id = Column("fase_id", Integer, ForeignKey('fase.id'), nullable=False)
+    
+    codigo = Column("codigo", String(5), unique=True, nullable=False)
+
+    
+    atributos = relationship(TipoItemUsuarioAtributos, order_by=TipoItemUsuarioAtributos.id, backref="tipo_item_usuario_atributos")
+    
+
+
+
+
+
+
 class ItemUsuario(DeclarativeBase):
     __tablename__ = 'item_usuario'
     
@@ -167,3 +219,6 @@ class ItemUsuario(DeclarativeBase):
     fase = relationship(Fase, order_by=Fase.id, backref="fase")
     estado = relationship(EstadoItem, order_by=EstadoItem.id, backref="estado_item")
     linea_base = relationship(LineaBase, order_by=LineaBase.id, backref="linea_base")   
+    tipo = relationship(TipoItemUsuario, order_by=TipoItemUsuario.id, backref="tipo_item_usuario")
+    linea_base_ant = Column("linea_base_ant", Integer, nullable=False)
+    

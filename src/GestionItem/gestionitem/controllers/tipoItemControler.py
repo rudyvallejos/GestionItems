@@ -2,8 +2,7 @@ from gestionitem.lib.base import BaseController
 #from sqlalchemy import or_ 
 from tg import expose, flash,redirect
 from gestionitem.model import DBSession
-from gestionitem.model.proyecto import Fase,Proyecto
-from gestionitem.model.tipoItemUsuario import TipoItemUsuario,TipoItemUsuarioAtributos, Tipo
+from gestionitem.model.proyecto import Fase,Proyecto, TipoItemUsuario,TipoItemUsuarioAtributos, Tipo
 
 
 class TipoItemControler(BaseController):
