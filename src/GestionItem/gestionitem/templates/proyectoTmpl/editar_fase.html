@@ -6,6 +6,60 @@
 
 <xi:include href="master.html" />
 
+<script> 
+var codRepetido
+var boton
+
+function botonPresionado(botonP){
+	boton=botonP
+} 
+
+function validarCamposObligatorios(form){
+
+
+	if (boton=="Cancelar"){  
+		document.form.action="/proyecto/definir_fase/${fase.proyecto_id}"
+		return true;
+			
+    }
+    
+
+	
+	
+	campo2= document.form.nombre_fase.value;
+	
+	  
+	  
+	if (campo2==''){
+		alert('Debe completar todos los campos obligatorios marcados con *');
+    	return false;
+	}
+
+	if (codRepetido){ 
+		alert('El codigo de fase ya esta en uso en este proyecto'); 
+		return false
+	}
+
+}
+
+function validarCodigos(form,lista){
+
+	codigos=lista.split(',');
+	codFase=document.form.codFase.value;
+
+	for(j=0; ele=codigos[j]; j++){
+		if(ele==codFase){
+			alert("El codigo de fase ya esta en uso en este proyecto");
+			codRepetido=true		
+            return false;  
+		} 
+	
+	}
+	codRepetido=false 
+}
+</script>
+
+
 <head>
 <title>Editar fase</title>
 <meta content="text/html; charset=UTF-8" http-equiv="content-type"
@@ -16,32 +70,51 @@
 <body>
 
 	<h2>Editar fase</h2>
-	<a href="/proyecto/definir_fase/${fase.proyecto_id}">Lista de fases</a> <br/><br/>
+	
 	<div>
-		<form action="/proyecto/actualizar_fase" method="post">
+		<form name="form" action="/proyecto/actualizar_fase"
+			onsubmit="return validarCamposObligatorios(this)" method="post">
 			<table border="0" cellspacing="0" cellpadding="2">
 				<tr>
-					<td><input type="hidden" name="id" value="${fase.id}" /></td>
+					<td><input type="hidden" name="id" value="${fase.id}" />
+					</td>
 				</tr>
 
 				<tr>
-					<td><label>Proyecto</label></td>
+					<td><label>Proyecto</label>
+					</td>
 					<td><input type="text" name="descripcion_proyecto"
-						value="${fase.proyectoObj.descripcion}" readonly="true"></input></td>
+						value="${fase.proyectoObj.descripcion}" readonly="true"></input>
+					</td>
 				</tr>
 				<tr>
-					<td><label>Nombre de fase</label></td>
+					<td><label>Nombre de fase</label>
+					</td>
 					<td><input type="text" name="nombre_fase"
-						value="${fase.descripcion}"></input></td>
+						value="${fase.descripcion}"></input><b>*</b>
+					</td>
 				</tr>
 				<tr>
-					<td><label>Numero de fase</label></td>
+					<td><label>Numero de fase</label>
+					</td>
 					<td><input type="text" name="numero_fase"
-						value="${fase.numero_fase}"></input></td>
+						value="${fase.numero_fase}" readonly="true"></input>
+					</td>
 				</tr>
+				
+				<tr>
+					<td><label>Cod.Fase:</label>
+					</td>
+					<td><input size="7" value = "${fase.codigo_fase}" readonly="true"/>
+					</td>
+
+				</tr>
+				
 				<tr>
 					<td></td>
-					<td><input type="submit" name="submit" value="Guardar" /></td>
+					<td><input type="submit" name="submit"
+						onClick="botonPresionado('Cancelar')" value="Cancelar" /> <input
+						type="submit" name="submit" value="Guardar" /></td>
 				</tr>
 
 			</table>

@@ -5,6 +5,22 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
     <xi:include href="master.html" />
+<script>
+var boton
+
+function botonPresionado(botonP){
+	boton=botonP
+}
+function validarCamposObligatorios(form){
+	if (boton=="Cancelar"){
+		document.form.action="/proyecto/usuario_faseList/${proyecto_id}"
+		return true;
+	
+	}
+	
+}    
+</script>
+    
 
     <head>
         <title>Asignar Usuario a fase</title>
@@ -14,9 +30,10 @@
     </head>
     <body>
         <h2>Asignar Usuario a fase ${fase.descripcion}</h2>
-        <a href="/proyecto/usuario_faseList/${proyecto_id}">Lista de usuarios de fase</a> <br/><br/>
+        
         <div>
-            <form action="/proyecto/save_usuario_fase" method="post">
+            <form name="form" action="/proyecto/save_usuario_fase" method="post"
+            onsubmit="return validarCamposObligatorios(this)">
                 <table border="0" cellpadding="5" cellspacing="0">
                     <tr>
                         <td><input type="hidden" name="fase" value="${fase.id}" /></td>
@@ -39,7 +56,10 @@
                     </tr>
                     <tr>
                         <td></td>
-                        <td><input type="submit" name="submit" value="Guardar" /></td>
+                        <td>
+                        <input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+                        <input type="submit" name="submit" value="Guardar" />
+                        </td>
                     </tr>
                 </table>
 

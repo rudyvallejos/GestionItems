@@ -10,12 +10,12 @@ from gestionitem.model import DeclarativeBase, metadata
 __all__ = ['Proyecto', 'Fase']
 
 
-usuario_fase_tabla = Table('usarios_fase', metadata,
-    Column('user_id', Integer, ForeignKey('tg_user.user_id',
-        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
-    Column('fase_id', Integer, ForeignKey('fase.id',
-        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
-)
+#usuario_fase_tabla = Table('usarios_fase', metadata,
+#    Column('user_id', Integer, ForeignKey('tg_user.user_id',
+#        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
+#    Column('fase_id', Integer, ForeignKey('fase.id',
+#        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+#)
 
 
 class EstadoProyecto(DeclarativeBase):
@@ -61,6 +61,24 @@ class Proyecto(DeclarativeBase):
         
     def getmostrarFases(self):
         return self.__mostrarFases
+    
+    def isDefinible(self):
+        if self.fases.__len__() > 0:
+            for fase in self.fases:
+                if fase.estado_id != 1:
+                    return False
+            return True
+        return False
+                
+                
+        return False
+        
+    def isRedefinible(self):
+        for fase in self.fases:
+            if fase.estado_id==2 or fase.estado_id==4 or fase.estado_id==3:
+                return False
+        return True
+    
 
 class EstadoRelacion(DeclarativeBase):
     __tablename__ = 'estado_relacion'
@@ -80,9 +98,8 @@ class Fase(DeclarativeBase):
     numero_fase = Column(Integer, nullable=False)
     estado_id = Column(Integer, ForeignKey('estado_fase.id'), nullable=False)
     estadoObj = relation('EstadoFase', foreign_keys=estado_id)
-    usuarios = relation('User', secondary=usuario_fase_tabla, backref='fase')
     proyecto_id = Column(Integer, ForeignKey('proyecto.id'), nullable=False)
-    proyectoObj = relation('Proyecto', foreign_keys=proyecto_id)
+    proyectoObj = relation('Proyecto', foreign_keys=proyecto_id, backref='fases')
     codigo_fase = Column("codigo_fase", String(10), unique=False, nullable=False)
     
 class EstadoItem(DeclarativeBase):
@@ -114,7 +131,7 @@ class UsuarioFaseRol(DeclarativeBase):
     id = Column(Integer, autoincrement=True, primary_key=True)
     user_id = Column(Integer, ForeignKey('tg_user.user_id'), nullable = False)
     usuario = relation('User', foreign_keys = user_id)
-    fase_id = Column(Integer, ForeignKey('fase.id'), nullable = False)
+    fase_id = Column(Integer, ForeignKey('fase.id', onupdate="CASCADE", ondelete="CASCADE"), nullable = False)
     fase = relation('Fase', foreign_keys = fase_id)
     rol_id = Column(Integer, ForeignKey('tg_group.group_id'), nullable = False)
     rol = relation('Rol', foreign_keys = rol_id)

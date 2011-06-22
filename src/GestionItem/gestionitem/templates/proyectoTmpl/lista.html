@@ -1,106 +1,209 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:py="http://genshi.edgewall.org/"
-	xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<xi:include href="master.html" />
-
-<head>
-<link rel="stylesheet" type="text/css"
-	href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
-<title>Lista de Proyectos</title>
-<style>
-#menu_items {
-	padding: 0px 12px 0px 2px;
-	list-style-type: None
-}
-</style>
-<link rel="stylesheet" type="text/css" media="screen"
-	href="/css/style.css" />
-<link rel="stylesheet" type="text/css" media="screen"
-	href="/css/admin.css" />
-</head>
+    <xi:include href="master.html" />
 
 
-<body class="tundra">
-	<div>
-		<h2>Lista de Proyectos</h2>
-		<a py:if="tg.predicates.has_permission('crear proyecto')"
-			class="add_link" href="${tg.url('/proyecto/nuevo')}">Nuevo
-			Proyecto</a> <br /> <br />
-		<div class="crud_table" style="height: 50%; width: 90%">
-			<div>
-				<table class="grid">
-					<thead>
-						<tr>
-							<th></th>
-							<th>Identificador</th>
-							<th>Nombre de Proyecto</th>
-							<th>Lider de Proyecto</th>
-							<th>Fecha de Creacion</th>
-							<th>Estado</th>
-							
-							<py:if test="tg.predicates.in_group('LiderProyecto')">
-								<th></th>
-							</py:if>
-							<py:if test="tg.predicates.in_group('Desarrollaror')">
-								<th></th>
-							</py:if>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="navigation" py:if="currentPage.page_count > 1">
-							<td colspan="4" class="pager">${currentPage.pager()}</td>
-						</tr>
 
-						<tr class="navigation" py:if="currentPage.item_count == 0">
-							<td colspan="4" class="pager">No existen datos</td>
-						</tr>
+    <head>
 
-						<tr class="even" py:for="proyecto in proyectos">
-							<td class="col_0">
-								<div>
-									<div py:if="tg.predicates.has_permission('editar proyecto')">
-										<a class="edit_link" href="/proyecto/editar/${proyecto.id}"
-											style="text-decoration: none">edit</a>
-									</div>
-									<div py:if="tg.predicates.has_permission('eliminar proyecto')">
+        <link rel="stylesheet" type="text/css"
+              href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+        <title>Lista de Proyectos</title>
+        <style>
+            #menu_items {
+                padding: 0px 12px 0px 2px;
+                list-style-type: None
+            }
+        </style>
+        <link rel="stylesheet" type="text/css" media="screen"
+              href="/css/style.css" />
+        <link rel="stylesheet" type="text/css" media="screen"
+              href="/css/admin.css" />
 
-										<form method="POST" action="/proyecto/eliminar/${proyecto.id}"
-											class="button-to">
-											<input class="delete-button"
-												onclick="return confirm('Esta seguro que desea eliminar el registro con id ${proyecto.id}?');"
-												value="eliminar" type="submit"
-												style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
-										</form>
-									</div>
-								</div></td>
-							<td class="col_1">${proyecto.id}</td>
-							<td class="col_2">${proyecto.descripcion}</td>
-							<py:if test="proyecto.lider != None">
-								<td class="col_3">${proyecto.lider.user_name}</td>
-							</py:if>
-							<py:if test="proyecto.lider == None">
-								<td class="col_3">No posee lider !!!!</td>
-							</py:if>
-							<td class="col_4">${proyecto.fecha_creacion}</td>
-							<td class="col_5">${proyecto.estadoObj.descripcion}</td>
-							<td py:if="proyecto.estadoObj.descripcion == 'Creado'"><a
-								py:if="proyecto.getDefinir() and tg.predicates.has_permission('definir proyecto')"
-								href="/proyecto/definir_fase/${proyecto.id}">definir</a>
-							</td>
-							<td py:if="proyecto.getmostrarFases()"><a
-								href="/faseList/${proyecto.id}">Fases</a>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
+        <script type="text/javascript">
 
-	<div style="clear: both;" />
-</body>
+           
+            function valida(F) {
+
+                if(F.expresion.value != "" ) {
+                    return true
+                }else
+                    alert('Debe proporcionar un filtro');
+                return false
+            }
+
+            function popup(mylink, windowname)
+            {
+                if (! window.focus)return true;
+                var href;
+                if (typeof(mylink) == 'string')
+                    href=mylink;
+                else
+                    href=mylink.href;
+                window.open(href, windowname, 'width=400,height=200,scrollbars=yes');
+                return false;
+            }
+
+            function mostrar(param) {
+                obj = document.getElementById('ListaTodos');
+                if (param)
+                {
+                    obj.style.display = (obj.style.display=='none') ? 'block' : 'none';
+                    
+                }
+                
+            }
+            
+            function validarDefinir(form, definible){
+                if(definible=="False"){
+                    alert("No puede definir el proyecto, estado de fases ");
+                    return false;
+                }
+                return true;
+            }
+
+        </script>
+
+
+    </head>
+
+
+    <body class="tundra" onload="mostrar(${muestraBoton}); return true">
+        <div>
+            <h2>Lista de Proyectos</h2>
+
+            <!-- Inicio Buscador-->
+
+            <div id="Buscador">
+                <form class="izquierda" display="none" action="/proyecto/lista"
+                      method="get" onSubmit="return valida(this);">
+                    <div>
+                        <h3>
+                            <label>Buscar:</label> <input class="label" name="expresion"
+                                                          value="" /><input type="submit" name="submit" value="Buscar" />
+                        </h3>
+                    </div>
+                </form>
+            </div>
+
+            <div style="display: none" id="ListaTodos">
+                <form class="izquierda" display="none" action="/proyecto/lista"
+                      method="post">
+                    <input type="submit" name="submit" value="Listar Todos" />
+                </form>
+
+            </div>
+
+            <!--FIN-Buscador-->
+
+
+            <a py:if="tg.predicates.has_permission('crear proyecto')"
+               class="add_link" href="${tg.url('/proyecto/nuevo')}">Nuevo
+			Proyecto</a> <br/> <br/>
+            <div class="crud_table">
+                <div>
+                    <table class="grid"  style="height: 80%; width: 100%">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Nombre de Proyecto</th>
+                                <th>Lider de Proyecto</th>
+                                <th>Fecha de Creacion</th>
+                                <th>Estado</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="navigation" py:if="currentPage.page_count > 1">
+                                <td colspan="4" class="pager">${currentPage.pager()}</td>
+                            </tr>
+
+                            <tr class="navigation" py:if="currentPage.item_count == 0">
+                                <td colspan="4" class="pager">No existen datos</td>
+                            </tr>
+
+                            <tr class="${i%2 and 'odd' or 'even'}"
+                                py:for="i, proyecto in enumerate(proyectos)">
+                                <td class="col_0">
+                                    <div>
+                                        <div py:if="tg.predicates.has_permission('editar proyecto')">
+                                            <a class="edit_link" href="/proyecto/editar/${proyecto.id}"
+                                               style="text-decoration: none">edit</a>
+                                        </div>
+                                        <div py:if="tg.predicates.has_permission('eliminar proyecto')">
+
+                                            <form method="POST" action="/proyecto/eliminar/${proyecto.id}"
+                                                  class="button-to">
+                                                <input class="delete-button"
+                                                       onclick="return confirm('Esta seguro que desea eliminar el registro con id ${proyecto.id}?');"
+                                                       value="eliminar" type="submit"
+                                                       style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
+                                            </form>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="col_2">${proyecto.descripcion}</td>
+                                <py:if test="proyecto.lider != None">
+                                    <td class="col_3">${proyecto.lider.user_name}</td>
+                                </py:if>
+                                <py:if test="proyecto.lider == None">
+                                    <td bgcolor="red" class="col_3">No posee lider !!!!</td>
+                                </py:if>
+                                <td class="col_4">${proyecto.fecha_creacion}</td>
+                                <td class="col_5">${proyecto.estadoObj.descripcion}</td>
+
+                                <py:if test="proyecto.estado== 1">
+                                    <td><a py:if="proyecto.getDefinir() and tg.predicates.has_permission('definir proyecto') "
+                                           href="/proyecto/definir_fase/${proyecto.id}">Asignar fases</a></td>
+                                </py:if>
+                                <py:if test="proyecto.estado== 2">
+                                    <td>
+                                        <a py:if="proyecto.getDefinir() and tg.predicates.has_permission('definir proyecto') "
+                                           href="/proyecto/definir_fase/${proyecto.id}">Ver fases</a>
+                                    </td>
+                                </py:if>
+
+
+                                <td py:if="proyecto.getmostrarFases()"><a
+                                        href="/item/faseList/${proyecto.id}">Fases</a></td>
+
+                                <td py:if="not proyecto.getmostrarFases()"></td>
+                                <td>
+
+                                    <py:if test="tg.predicates.in_group('LiderProyecto') and proyecto.getDefinir() and proyecto.estado==1 ">
+                                        <div>
+                                            <form class="izquierda" display="none" action="/proyecto/cambiarEstado/${proyecto.id}/2"
+                                                  method="post" onsubmit="return validarDefinir(this,'${proyecto.isDefinible()}')">
+                                                <input type="submit" name="submit" value="definir" />
+                                            </form>
+                                        </div>
+                                    </py:if>
+
+                                    <py:if test="tg.predicates.in_group('LiderProyecto') and proyecto.getDefinir() and proyecto.estado==2 and proyecto.isRedefinible()">
+                                        <div>
+                                            <form class="izquierda"  action="/proyecto/cambiarEstado/${proyecto.id}/1"
+                                                  method="post">
+                                                <input type="submit" name="submit" value="redefinir" />
+                                            </form>
+                                        </div>
+                                    </py:if>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div style="clear: both;" />
+    </body>
 </html>
 
