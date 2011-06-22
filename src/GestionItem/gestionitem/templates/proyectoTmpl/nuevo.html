@@ -1,50 +1,109 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+	xmlns:py="http://genshi.edgewall.org/"
+	xmlns:xi="http://www.w3.org/2001/XInclude">
 
-    <xi:include href="master.html" />
+<xi:include href="master.html" />
 
-    <head>
-        <title>Nuevo proyecto</title>
-        <meta content="text/html; charset=UTF-8" http-equiv="content-type"
-              py:replace="''" />
+<script>
+var boton
+var codRepetido
 
-    </head>
-    <body>
-        <a href="/proyecto/">Lista de Proyectos</a> <br /> <br />
-        <h2 align="left">Nuevo Proyecto </h2>
-        <div>
-            <form action="/proyecto/add_proyecto" method="post" >
-                <table border="0" cellpadding="2" cellspacing="0">
-                    <tr>
-                        
-                        <td align="left"><label>Descripcion</label></td>
+function botonPresionado(botonP){
+	boton=botonP
+}
+function validarCamposObligatorios(form){
+	if (boton=="Cancelar"){
+		document.form.action="/proyecto/"
+		return true;
+	
+	}
+	
+	descripcion = document.form.descripcion.value
+	
+	if (descripcion==''){
+	
+		alert('Debe completar todos los campos obligatorios marcados con *');
+    	return false;
+	}
+	
+	if (codRepetido)
+	{ 
+		alert('El nombre de proyecto ya esta en uso'); 
+		return false
+		
+	}
 
-                        <td><input type="text" name="descripcion"></input></td>
+	
+
+}    
+
+function validarNombre(form,lista){
+	
+	codigos=lista.split(',');
+	codFase=document.form.descripcion.value;
+
+	for(j=0; ele=codigos[j]; j++){
+		if(ele==codFase){
+			alert("El nombre de proyecto ya esta en uso");
+				codRepetido=true		
+	            return false;  
+		} 
+		
+	}
+	codRepetido=false
+	
+}
+</script>
+
+<head>
+<title>Nuevo proyecto</title>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type"
+	py:replace="''" />
+
+</head>
+<body>
+
+	<h2 align="left">Nuevo Proyecto</h2>
+	<div>
+		<form name="form" action="/proyecto/add_proyecto" method="post"
+			onsubmit="return validarCamposObligatorios(this)">
+
+			<table border="0" cellpadding="2" cellspacing="0">
+				<tr>
+
+					<td align="left"><label>Nombre</label>
+					</td>
+
+					<td><input onblur="validarNombre(this,'${nombreProyectos}')" type="text" name="descripcion" value=""></input><b>*</b>
+					</td>
 
 
-                    </tr>
-                    <tr><td></td></tr>
-                    <tr>
-                        <td align="left"><label>Lider </label></td>
-                        <td>
-                            <select name="lider" >
-                                <option py:for="lider in lideres" value="${lider.user_id}">${lider.user_name}</option>
-                            </select>
+				</tr>
+				<tr>
+					<td></td>
+				</tr>
+				<tr>
+					<td align="left"><label>Lider </label>
+					</td>
+					<td><select name="lider">
+							<option py:for="lider in lideres" value="${lider.user_id}">${lider.user_name}</option>
+					</select></td>
+				</tr>
+				<tr>
+					<td></td>
 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                        <td><input type="submit" name="submit" value="Guardar" /></td>
-                    </tr>
-                </table>
+					<td>
+					<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" /> 
+					<input type="submit" name="submit" value="Guardar" />
+					</td>
+				</tr>
+			</table>
 
-            </form>
+		</form>
 
-        </div>
-    </body>
+	</div>
+</body>
 
 </html>

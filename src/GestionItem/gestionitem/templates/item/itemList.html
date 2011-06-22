@@ -86,7 +86,7 @@ function mostrar(param) {
 				<OPTION value="/item/listaItemsElim/${fase.id}">Listar Items Eliminados</OPTION>
 				<OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION>
 				<py:if test="existeLB==1">
-					<OPTION ><a href="/">Listar Linea Base</a></OPTION>
+					<OPTION  value="/lb/listar_linea_base/${proyecto.id}/${fase.id}">Listar Linea Base</OPTION>
 				
 				<OPTION ><a href="/">Abrir LB</a></OPTION>
 				<OPTION value="/item/solicitudAperturaLB/${fase.id}">Solicitar Apertura LB</OPTION>

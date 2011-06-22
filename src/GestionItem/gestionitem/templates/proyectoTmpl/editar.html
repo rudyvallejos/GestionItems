@@ -6,6 +6,32 @@
 
 <xi:include href="master.html" />
 
+<script>
+var boton
+
+function botonPresionado(botonP){
+	boton=botonP
+}
+function validarCamposObligatorios(form){
+	if (boton=="Cancelar"){
+		document.form.action="/proyecto/"
+		return true;
+	
+	}
+	
+	descripcion = document.form.descripcion.value
+	
+	if (descripcion==''){
+	
+		alert('Debe completar todos los campos obligatorios marcados con *');
+    	return false;
+	}
+	
+
+}    
+</script>
+
+
 <head>
 <link rel="stylesheet" type="text/css"
 	href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
@@ -25,11 +51,6 @@
 
 
 <body class="tundra">
-	<a href="/proyecto/">Lista de Proyectos</a>
-	<br />
-	<br />
-
-
 	<div>
 
 		<h2>Editar Proyecto</h2>
@@ -37,21 +58,20 @@
 		<div class="crud_table" style="height: 50%; width: 90%">
 			<div>
 
-				<form action="/proyecto/actualizar" method="post">
+				<form name="form" action="/proyecto/actualizar" method="post"
+					onsubmit="return validarCamposObligatorios(this)">
 					<table border="0" cellspacing="0" cellpadding="2">
 						<tr>
 							<input type="hidden" name="id" value="${proyecto.id}" />
 						</tr>
 						<tr>
-							<td><label>Nombre</label>
-							</td>
+							<td><label>Nombre</label></td>
 							<td><input type="text" name="descripcion"
-								class="textfield required" value="${proyecto.descripcion}" />
+								class="textfield required" value="${proyecto.descripcion}" /><b>*</b>
 							</td>
 						</tr>
 						<tr>
-							<td><label>Lider</label>
-							</td>
+							<td><label>Lider</label></td>
 							<td><select name="id_user">
 									<py:if test="proyecto.lider != None">
 										<option value="${proyecto.lider.user_id}">${proyecto.lider.user_name}</option>
@@ -61,13 +81,13 @@
 										<option value="${usuario.user_id}">${usuario.user_name}</option>
 
 									</div>
-							</select>
-							</td>
+							</select></td>
 						</tr>
 						<tr>
 							<td></td>
-							<td><input type="submit" name="submit" value="Guardar" />
-							</td>
+							<td><input type="submit" name="submit"
+								onClick="botonPresionado('Cancelar')" value="Cancelar" /> <input
+								type="submit" name="submit" value="Guardar" /></td>
 						</tr>
 					</table>
 				</form>

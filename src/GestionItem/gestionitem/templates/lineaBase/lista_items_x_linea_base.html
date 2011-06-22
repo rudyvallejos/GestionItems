@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+
+<head>
+	  <style>
+			 #menu_items {
+				padding:0px 12px 0px 2px;
+				list-style-type:None
+			 }
+	  </style>
+	  
+</head>
+
+<body>
+
+
+<div id="lista_linea_base">
+  <form  name="form1">
+  	<td>
+  		<div ><h3>Lista de Items de la Linea Base ${lineabase.id} </h3></div>
+  	</td>
+    
+    
+    
+   <table  style="height:80%; width:100%">
+		<tr>
+		<td width="5%"><a href="/lb/listar_linea_base/${fase.proyectoObj.id}/${fase.id}" ><IMG title="Lista fase" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 		</td>
+ 		
+		<td><u><b>Proyecto</b></u>
+			<label>: ${fase.proyectoObj.descripcion}</label>
+		</td>
+		<td></td>
+		<!-- td><td/><td/><u><b>Opciones: </b></u></td>
+		<td colspan="3">
+			<SELECT ONCHANGE="location.href = this.options[this.selectedIndex].value;">
+			
+				<OPTION  selected="true" value="/item/itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
+				<OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION>
+				<OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION>
+			</SELECT>
+		</td-->
+		</tr>
+		<tr><td/>
+		<td>
+			<u><b>Fase Nro</b></u>
+			<label>: ${fase.numero_fase}</label>
+		</td>
+		</tr>
+		<tr><td/>
+		<td>
+			<u><b>Fase</b></u>
+			<label>${fase.descripcion}</label>
+		</td>
+		
+		</tr>
+  		<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>		
+  		<tr>
+  		 <!--  td colspan="5"><a class="add_link" href="/item/agregar_item/${fase.id}/0">Agregar Nuevo Item</a></td>-->
+  			<div id="Buscador">
+  				<form  class="izquierda" display="none" onSubmit="return valida(this);" action="/lb/items_linea_base/${lineabase.id}/${fase.id}"> 
+  					<div>
+  						
+    					<td colspan="3" align="right">
+    						<label>
+  								<b>Buscar:</b>
+  							</label>
+    						<input  class="label" size="20" name="expresion" value=""/>
+    						<input   type="submit" name="submit" value="Buscar" align="center"/>
+    					</td>
+    					
+ 					</div>    
+  				</form>
+  			</div>
+  				
+  			<td colspan="2">
+	  			<div style="display:none" id="ListaTodos">
+	  				<form   class="izquierda" display="none" action="/lb/items_linea_base/${lineabase.id}/${fase.id}" method="post">
+	    				<input  type="submit" name="submit" value="Listar Todos"/>
+	 				</form>
+	  			</div>
+	  		</td>
+  			<!--FIN-BUSCADOR-->
+    </tr>	
+   	
+   </table> 
+    
+    <div class="crud_table">
+      
+		<div>
+		<table class="grid" rules="all" style="height:80%; width:100%">
+    		<thead>
+     			<tr>
+     			
+     				<th>Cod. Item</th>
+     				<th >Descripcion</th>
+     				<th >Version</th>
+     				
+     			</tr>
+    		</thead>
+     		<tbody >
+     			<tr class="navigation" py:if="currentPage.page_count > 1">
+    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+				</tr>
+        		<tr py:for="i, item in enumerate(items)" class="${i%2 and 'odd' or 'even'}">
+      			 
+            		<td class="col_0">${item.cod_item}</td>
+                	<td class="col_1">${item.descripcion}</td>
+                	<td class="col_1">V-${item.version}</td>
+        		
+  			</tr>
+    	  </tbody>
+    </table>
+		</div>
+    </div>	
+	 </form>
+</div>
+<br/><br/>
+</body>
+</html>

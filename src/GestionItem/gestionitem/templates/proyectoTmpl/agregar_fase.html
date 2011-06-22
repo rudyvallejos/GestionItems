@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+	xmlns:py="http://genshi.edgewall.org/"
+	xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <xi:include href="master.html" />
+<xi:include href="master.html" />
 
 <script> 
 var codRepetido
@@ -70,66 +70,57 @@ codRepetido=false
 }
 </script>
 
-    <head>
-   
-    
-        <title>Nueva fase</title>
-        <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
-
-    </head>
-
-    <body>
-
-        <h2>Nueva fase</h2>
-       	<div>
-            <form name="form" action="/proyecto/save_fase" onsubmit="return validarCamposObligatorios(this)" method="GET">
-                <table border="0" cellspacing="0" cellpadding="2">
-                    <tr>
-                        <td>
-                            <input type="hidden" name="id" value="${proyecto.id}"/>
-
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <label>Proyecto</label>
-                        </td>
-                        <td>
-                            <input type="text" name="descripcion_proyecto" value="${proyecto.descripcion}" readonly ="true"></input>
-
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Nombre de fase</label>
-                        </td>
-                        <td>
-                            <input type="text" name="nombre_fase" ></input><b>*</b>
-
-                        </td>
-                    </tr>
-                    <tr>
-						<td><label>Cod.Fase:</label></td>
-						<td><input  size="7"  onkeyup="form.codFase.value=form.codFase.value.toUpperCase();" onBlur="validarCodigos(this,'${codigos}');" name="codFase"  /><b>*</b></td>	
-		
-					</tr>
-                    
-                    <tr>
-                        <td></td>
-                        <td>
-                            <input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
-							<input type="submit" name="submit" value="Guardar"/>
-                            
-                            
-                        </td>
-                    </tr>
-
-                </table>
-            </form>
-        </div>
+<head>
 
 
-    </body>
+<title>Nueva fase</title>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type"
+	py:replace="''" />
+
+</head>
+
+<body>
+
+	<h2>Nueva fase</h2>
+	<div>
+		<form name="form" action="/proyecto/save_fase"
+			onsubmit="return validarCamposObligatorios(this)" method="GET">
+			<table border="0" cellspacing="0" cellpadding="2">
+				<tr>
+					<td><input type="hidden" name="id" value="${proyecto.id}" /></td>
+				</tr>
+
+				<tr>
+					<td><label>Proyecto</label></td>
+					<td><input type="text" name="descripcion_proyecto"
+						value="${proyecto.descripcion}" readonly="true"></input></td>
+				</tr>
+				<tr>
+					<td><label>Nombre de fase</label></td>
+					<td><input type="text" name="nombre_fase"></input><b>*</b></td>
+				</tr>
+				<tr>
+					<td><label>Cod.Fase:</label>
+					</td>
+					<td><input size="7"
+						onkeyup="form.codFase.value=form.codFase.value.toUpperCase();"
+						onBlur="validarCodigos(this,'${codigos}');" name="codFase" /><b>*</b>
+					</td>
+
+				</tr>
+
+				<tr>
+					<td></td>
+					<td><input type="submit" name="submit"
+						onClick="botonPresionado('Cancelar')" value="Cancelar" /> <input
+						type="submit" name="submit" value="Guardar" /></td>
+				</tr>
+
+			</table>
+		</form>
+	</div>
+
+
+</body>
 </html>
 
