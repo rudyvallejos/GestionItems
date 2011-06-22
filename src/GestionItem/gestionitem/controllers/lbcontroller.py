@@ -3,7 +3,7 @@ from tg import expose
 from tg import redirect
 from sqlalchemy import or_
 from gestionitem.model import DBSession
-from gestionitem.model.proyecto import ItemUsuario,Fase,LineaBase
+from gestionitem.model.proyecto import ItemUsuario,Fase,LineaBase,Proyecto
 
 
 class LineaBaseController(BaseController):
@@ -103,4 +103,46 @@ class LineaBaseController(BaseController):
         
         
         redirect('/item/itemList/'+faseid)
+        
+    @expose(template="gestionitem.templates.lineaBase.lista_linea_base")
+    def listar_linea_base(self, idproyecto,idfase, **named):
+        
+        lista=DBSession.query(LineaBase).filter(LineaBase.fase_id==idfase).all()
+        fase = DBSession.query(Fase).filter(Fase.id == idfase).one()
+        proyecto = DBSession.query(Proyecto).filter(Proyecto.id == idproyecto).one()
+        
+        
+        from webhelpers import paginate
+        #count = items.count()
+        count = lista.__len__()
+        page =int( named.get( 'page', '1' ))
+        currentPage = paginate.Page(
+            lista, page, item_count=count, 
+            items_per_page=2,
+        )
+        lista = currentPage.items
+        
+        return dict(lista=lista, fase=fase, proyecto=proyecto,filtro='', currentPage=currentPage, page=page)
+    
+    
+    @expose(template="gestionitem.templates.lineaBase.lista_items_x_linea_base")
+    def items_linea_base(self, lb_id, idfase, **named):
+        
+        items = DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id == lb_id).all()
+        
+        fase = DBSession.query(Fase).filter(Fase.id == idfase).one()
+        
+        lineabase = DBSession.query(LineaBase).filter(LineaBase.id == lb_id).one()
+        
+        from webhelpers import paginate
+        #count = items.count()
+        count = items.__len__()
+        page =int( named.get( 'page', '1' ))
+        currentPage = paginate.Page(
+            items, page, item_count=count, 
+            items_per_page=2,
+        )
+        items = currentPage.items
+        
+        return dict(items=items, fase=fase, filtro='', lineabase=lineabase, page = page, currentPage=currentPage)
     
