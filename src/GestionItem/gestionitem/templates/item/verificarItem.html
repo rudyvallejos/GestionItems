@@ -9,65 +9,30 @@
 
 
 <SCRIPT LANGUAGE="JavaScript">
-function cargarVector(atributos)
-{
-  var f;
-  py:for each="i, atributo in enumerate(atributos)"
-  	obj = document.form.(i);	
-  	obj.value="prueba"
-  
-}
-function cambiaPalabra() {
 
-document.form.1.value="Adios";
-}
 
 </SCRIPT>
 
 
 <script> 
-var numero = 2 
-function verificar()
-{
-
-              
-              for(i=0; ele=document.formulario.fases[i]; i++){
-    				if (ele.checked==true){
-    					
-    					return true;
-    					
-    				}
-    				}
-    				
-    			
+boton=""
+function valida(F) {
 	
-    					 alert("Debe seleccionar al menos una fase");
-    					 return false;
-    					
+	if (boton=="Cancelar")
+		{  
+   				
     				
-}
-function verificarItems()
-{	
-			  
-			  
-              for(j=0; ele=document.formulario2.itemselect[j]; j++){ 
-              		
-    				if (ele.checked==true){
-    					
-    					return true;
-    					
-    				}
-    				}
-    				
-    			if(document.formulario2.itemselect.checked==true)
+    				document.formulario2.action="/item/itemList/${fase.id}/"
+			  		
 			  		return true;	
-	
-    					 alert("Debe seleccionar al menos un item");
-    					 return false;
-    					
-    				
+				
+       	}
+		
+			
 }
-        
+function botonPresionado(botonP){
+boton=botonP
+}        
 </script>
 
 
@@ -89,17 +54,19 @@ function verificarItems()
 
 <body>
 
- 	<div><h3>Revision del Item</h3></div>
+ 	<div><h1>Revision del Item <IMG title="Ayuda: Si desea modificar el item debe solicitar la apertura de la LB. Si no lo desea modificar, pulse el boton 
+ Revisado que se encuentra en la parte inferior de esta pantalla, o en el caso de que no este seguro de que accion realizar, pulse el boton cancelar" 
+ 	border="0" height="25" src="${tg.url('/images/ayuda.png')}" /></h1></div>
 
 <div id="CargaAtributos">
 <fieldset>
  	<input type="hidden" name="idFase" value="${fase.id}"/>
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <table border="0">
-	
+	 
 	<tr>
 		<td>
- 		<a href="/item/itemList/${fase.id}" ><IMG title="Def fase" border="0" height="25" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 		<!-- a href="/item/itemList/${fase.id}" ><IMG title="Def fase" border="0" height="25" src="${tg.url('/images/flechaAtras.jpg')}" /></a-->
  		
  	</td>
 		<td><u><b>Proyecto</b></u></td>
@@ -120,12 +87,25 @@ function verificarItems()
 	<tr>
 		<td/><td><label><u><b>Descripcion</b></u></label></td>
 		<td colspan="4"><label>${item.descripcion}</label></td>
-			
-		
 	</tr>
+	<tr>
+			<td/><td><u><b>Version</b></u></td>
+			<td><label>${item.version}</label></td>
+			<td><u><b>Tipo</b></u></td>
+			<td><label>${tipoItem}</label></td>
+		</tr>
+		<py:if test="conTipo!=0">
+			<tr><td/><td colspan="3"><b>Atributos Especificos del Tipo de Item</b></td>
+			</tr>
+			<tr py:for="i, atributo in enumerate(atributos)">
+				<td/><td><u><b>${atributo.nombre_atributo}</b></u></td>
+				<td colspan="5"><label>${atributoValor[i].valor}</label></td>
+			</tr>
+		
+		</py:if>
 	
 	<tr/><tr/><tr/><tr/><tr/><tr/>
-	<!--  form  display="none"   action="/item/relacionar_item/${item.id}/${fase.id}" name="formulario" onSubmit="return verificar(this);" method="get">
+	<!--  form  display="none"   action="/item/itemVerificado/${item.id}/${fase.id}" name="formulario" onSubmit="return verificar(this);" method="get">
 	<tr><td><h3>Seleccione las Fases: </h3></td></tr>
 	<tr>
 		<py:for each="f in fases">
@@ -170,9 +150,9 @@ function verificarItems()
 	    		</td>
 	    	</tr>
 
-    <form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get">
+    <form  display="none"  action="/item/itemVerificado/${item.id}/${fase.id}" name="formulario2" onSubmit="return valida(this);" method="get">
    
-    <div class="centrado"><h2><u>Lista de Items Relacionados con estado Pendiente de Aprobacion</u></h2></div>
+    <div class="centrado"><h2><u>Lista de Items Relacionados</u></h2></div>
    
  	<div><h3><IMG title="Def fase" border="0" height="20" src="${tg.url('/images/ok.png')}"/>
  		<i><u>Este item se relaciona con: </u></i>
@@ -277,7 +257,8 @@ function verificarItems()
 <!-- hasta aca quitar!!! -->
      
       	<br/><br/><br/><br/>
-		<!--input type="button" name="submit" value="Cancelar" /-->
+		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')"  value="Cancelar" />
+		<input type="submit" name="submit" value="Revisado" />
 		
 	
 	 </form>

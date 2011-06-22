@@ -3,7 +3,7 @@ from tg import expose
 from tg import redirect
 from sqlalchemy import or_
 from gestionitem.model import DBSession
-from gestionitem.model.proyecto import ItemUsuario, LineaBase, Fase
+from gestionitem.model.proyecto import ItemUsuario,Fase,LineaBase
 
 
 class LineaBaseController(BaseController):
@@ -38,71 +38,69 @@ class LineaBaseController(BaseController):
     @expose()
     def guardar_linea_base(self, faseid,**named):
         
-        itemselect_car = named.get('itemselect','')
-        
-        if(itemselect_car != ""):
+        itemselect = named.get('itemselect')
             
-            try:
-                
-                itemselect = int(itemselect_car)
-                
-                item = DBSession.query(ItemUsuario).filter(ItemUsuario.id == itemselect).all()
+        try:
+            itemselect=int(itemselect)
+            itemselect=[itemselect]
+            itemseleccionados = DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemselect)).all()
         
-                listaIds=DBSession.query(LineaBase).order_by(LineaBase.id)
-                
-                if (listaIds.count()>0):
-                    list=listaIds[-1]
-                    id=list.id + 1
-                else: 
-                    id=1    
-                
-                lb = LineaBase(id = int(id),
-                               version = 1,
-                               estado_id = 1,
-                               fase_id = int(faseid))
-                
-                DBSession.add(lb)
-                DBSession.flush()
-                
-                
+            listaIds=DBSession.query(LineaBase).order_by(LineaBase.id)
+            if (listaIds.count()>0):
+                list=listaIds[-1]
+                id=list.id + 1
+            else: 
+                id=1    
+        
+            lb = LineaBase(id = int(id),
+                           version = 1,
+                           estado_id = 1,
+                           fase_id = int(faseid)) 
+            DBSession.add(lb)
+            DBSession.flush()
+        
+            for item in itemseleccionados:
+                lbAnterior=item.linea_base_ant
+                itemsEnLbAnterior= DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_ant==lbAnterior).all()
+                for itemLbAnt in itemsEnLbAnterior:
+                    if itemLbAnt.estado_id==5:
+                        itemLbAnt.estado_id=3
+                        itemLbAnt.linea_base_id= id
+                        itemLbAnt.linea_base_ant = id
                 item.estado_id = 3
                 item.linea_base_id = id
-                    
+                item.linea_base_ant = id
                 DBSession.flush()
-                        
-            except:
-                    
-                itemseleccionados = DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemselect_car)).all()
-                
-                listaIds=DBSession.query(LineaBase).order_by(LineaBase.id)
-                if (listaIds.count()>0):
-                    list=listaIds[-1]
-                    id=list.id + 1
-                else: 
-                    id=1    
-                
-                lb = LineaBase(id = int(id),
-                               version = 1,
-                               estado_id = 1,
-                               fase_id = int(faseid))
-                
-                DBSession.add(lb)
+        except :
+            itemseleccionados = DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemselect)).all()
+            listaIds=DBSession.query(LineaBase).order_by(LineaBase.id)
+            if (listaIds.count()>0):
+                list=listaIds[-1]
+                id=list.id + 1
+            else: 
+                id=1    
+        
+            lb = LineaBase(id = int(id),
+                           version = 1,
+                           estado_id = 1,
+                           fase_id = int(faseid)) 
+            DBSession.add(lb)
+            DBSession.flush()
+        
+            for item in itemseleccionados:
+                lbAnterior=item.linea_base_ant
+                itemsEnLbAnterior= DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_ant==lbAnterior).all()
+                for itemLbAnt in itemsEnLbAnterior:
+                    if itemLbAnt.estado_id==5:
+                        itemLbAnt.estado_id=3
+                        itemLbAnt.linea_base_id= id
+                        itemLbAnt.linea_base_ant = id
+                item.estado_id = 3
+                item.linea_base_id = id
+                item.linea_base_ant = id
                 DBSession.flush()
-        
-                for item in itemseleccionados:
-                    item.estado_id = 3
-                    item.linea_base_id = id
-                    
-                    DBSession.flush()
+
         
         
-        redirect('/item/lb/listar_linea_base/'+faseid)
-        
-    @expose(template="gestionitem.templates.lineaBase.lista_linea_base")
-    def listar_linea_base(self, idfase):
-        
-        lista=DBSession.query(LineaBase).filter(LineaBase.fase_id==idfase)
-        fase = DBSession.query(Fase).filter(Fase.id == idfase)
-        
-        return dict(lista=lista, fase=fase, filtro = '')
+        redirect('/item/itemList/'+faseid)
     
