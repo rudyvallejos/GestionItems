@@ -132,7 +132,7 @@ function verificarItems()
 
 <body onload="mostrar(${muestraBoton});  return true">
 <!--div onclick="comprueba(this)">Otro comentario</div-->
-<div><h3>Historial de Item</h3></div>
+<div><h3>Lista de Items Eliminados</h3></div>
 <div id="CargaAtributos">
 	<input type="hidden" name="CantItem" value=""/>
  	<input type="hidden" name="idFase" value="${fase.id}"/>
@@ -149,36 +149,13 @@ function verificarItems()
  			</td>
 			<td><u><b>Proyecto</b></u></td>
 			<td><label>${proyecto.descripcion}</label></td>
-			<td><u><b>Fase</b></u></td>
-			<td><label>${fase.descripcion}</label></td>
-			
-		</tr>
-<tr><td colspan="3"><h3>Informacion del Item Actual</h3></td></tr>
-		<tr>
-			<td/><td><label><u><b>Cod.Item</b></u></label></td>
-			<td><label>${item.cod_item}</label></td>
-			<td><label><u><b>Complejidad</b></u></label></td>
-			<td><label>${item.prioridad}</label></td>
+				
 		</tr>
 		<tr>
-			<td/><td><label><u><b>Descripcion</b></u></label></td>
-			<td colspan="6"><label>${item.descripcion}</label></td>
-		</tr>
-		<tr>
-			<td/><td><u><b>Version</b></u></td>
-			<td><label>${item.version}</label></td>
-			<td><u><b>Tipo</b></u></td>
-			<td><label>${tipoItem}</label></td>
-		</tr>
-		<py:if test="conTipo!=0">
-			<tr><td/><td colspan="3"><b>Atributos Especificos del Tipo de Item</b></td>
-			</tr>
-			<tr py:for="i, atributo in enumerate(atributos)">
-				<td/><td><u><b>${atributo.nombre_atributo}</b></u></td>
-				<td colspan="5"><label>${atributoValor[i].valor}</label></td>
-			</tr>
+			<td/><td ><u><b>Fase</b></u></td>
+			<td colspan="15"><label>${fase.descripcion}</label></td>
 		
-		</py:if>
+		</tr>
 		<tr/><tr/><tr/><tr/><tr/><tr/>
 	
 	
@@ -186,9 +163,10 @@ function verificarItems()
 	
 	<!--BUSCADOR-->
   	<tr>
-  		<td colspan="5">
+  		<td colspan="10">
   		<div id="Buscador">
     		<div>
+    			<td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/>
     			<td/><td/><td/><td/>
     			<td><label><b>Buscar:</b></label>
     			</td>
@@ -202,12 +180,12 @@ function verificarItems()
   <!--FIN-BUSCADOR--> 
       <!-- form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/" method="get"-->
     
-    <div><h3>Versiones anteriores al Item</h3></div>
+    <div><h3>Items Eliminados</h3></div>
 	<div class="crud_table" >
 		<div>
 			<table class="grid" style="height:80%; width:100%">
     		<thead>
-     			<tr><th colspan="3">Cod. Item</th><th colspan="3">Descripcion</th><th colspan="3">Complejidad</th><th colspan="2">Version</th><th colspan="2">Nro.Fase</th><th colspan="2">Estado</th><th>Revertir</th></tr>
+     			<tr><th colspan="3">Cod. Item</th><th colspan="3">Descripcion</th><th colspan="3">Complejidad</th><th colspan="2">Version</th><th colspan="2">Nro.Fase</th><th colspan="2">Estado</th><th>Revivir</th></tr>
     		</thead>
      		<tbody >
      		
@@ -215,9 +193,9 @@ function verificarItems()
     			<td colspan="4" class="pager">${currentPage.pager()}</td>
     			</tr>
 					<tr class="navigation" py:if="currentPage.item_count == 0">
-    			<td colspan="4" class="pager">No existen Versiones anteriores</td>
+    			<td colspan="4" class="pager">No existen Items Eliminados en esta fase</td>
 				</tr> 
-        		<tr py:for="i, itemA in enumerate(itemsAnteriores)" class="${i%2 and 'odd' or 'even'}">
+        		<tr py:for="i, itemA in enumerate(itemsElimFase)" class="${i%2 and 'odd' or 'even'}">
       			 
   					<td class="col_1" colspan="3">${itemA.cod_item}</td>
                 	<td class="col_1" colspan="3">${itemA.descripcion}</td>
@@ -225,12 +203,14 @@ function verificarItems()
                 	<td class="col_1" colspan="2">V-${itemA.version}</td>
                 	<td class="col_1" colspan="2">${itemA.fase.numero_fase}</td>
                 	<td class="col_1">${itemA.estado.descripcion}</td><td/>
-                	<py:if test="item.estado.id!=3">
-                 		<py:if test="item.estado.id!=4">
-                 		<py:if test="itemA.estado.id!=7">
-                 			<td><a href="/item/revertirItem/${item.id}/${itemA.id}" onclick="return confirm('Esta seguro que volver a la version ${itemA.version} del item  ${item.cod_item}?');">
-                 			<IMG title="Revertir Item" border="0" height="25" src="${tg.url('/images/reversion.png')}" /></a>
+                	
+                	<py:if test="itemA.cod_item not in itemsEnProduccion">
+                	<py:if test="itemA.estado.id!=3">
+                 		<py:if test="itemA.estado.id!=4">
+                 			<td><a href="/item/revivirItem/${itemA.id}/" onclick="return confirm('Esta seguro que desea revivir el item ${itemA.cod_item}?');">
+                 			<IMG title="Revivir Item" border="0" height="25" src="${tg.url('/images/revivir.png')}" /></a>
                 			</td>  		
+                		
                 		</py:if>
                 		</py:if>
                 		</py:if>
