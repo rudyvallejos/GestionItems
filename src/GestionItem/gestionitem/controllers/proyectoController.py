@@ -29,7 +29,7 @@ class ProyectoController(BaseController):
     allow_only = not_anonymous(msg='Solo usuarios registrados pueden acceder a los proyectos')
     
     @expose()
-    def index(self):
+    def index(self, **named):
         """Handle the front-page."""
         redirect('/proyecto/lista')
         
@@ -37,27 +37,51 @@ class ProyectoController(BaseController):
     @expose(template='gestionitem.templates.proyectoTmpl.lista')
     def lista(self, **named):
         identity = request.environ.get('repoze.who.identity')
-
-#        mostrarDefinir= False
-#        mostrarFases = False
+        user = identity['user']
+        expresion = named.get('expresion')
+        orden = named.get('submit')
         proyectos = []
-
+        
 
         id = identity['user']
         for grupo in id.groups:
             if(grupo.group_name =='Administrador'):
-                proyectos =DBSession.query(Proyecto).all()
+                if(orden ==None or orden == 'Listar Todos'):
+                    proyectos =DBSession.query(Proyecto).all()
+                    muestraBoton="false"
+                elif(orden =='Buscar' and expresion != None):
+                    proyectoxlider = DBSession.query(Proyecto).join((User,Proyecto.lider)).filter(User.user_name.like('%'+expresion+'%')).order_by(Proyecto.descripcion).all()
+                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%'+expresion+'%')).order_by(Proyecto.descripcion).all()
+                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%'+expresion+'%')).order_by(Proyecto.descripcion).all()
+                    proyectos = proyectoxdescripcion + proyectoxlider + proyectoxestado
+                    muestraBoton="true"
             
             if(grupo.group_name =='LiderProyecto'):
-                proyectosLider =DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id).all()
+                if(orden ==None or orden == 'Listar Todos'):
+                    proyectosLider =DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id).all()
+                    muestraBoton="false"
+                elif(orden =='Buscar' and expresion != None):
+                    proyectoxlider = DBSession.query(Proyecto).join((User,Proyecto.lider)).filter(User.user_name.like('%'+expresion+'%')).filter(Proyecto.id_lider == id.user_id).order_by(Proyecto.descripcion).all()
+                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%'+expresion+'%')).filter(Proyecto.id_lider == id.user_id).order_by(Proyecto.descripcion).all()
+                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%'+expresion+'%')).filter(Proyecto.id_lider == id.user_id).order_by(Proyecto.descripcion).all()
+                    proyectosLider = proyectoxdescripcion + proyectoxlider + proyectoxestado
+                    muestraBoton="true"
+                elif(orden):
+                    proyectosLider =DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id).all()
+                    muestraBoton="false"
+                    
+                
                 for proyect in proyectosLider:
                     if(proyect in proyectos):
                         proyect.setDefinir()
+                        proyect.setmostrarFases()
+                        de= proyect.isDefinible()
                         indice= proyectos.index(proyect)
                         proyectos[indice] = proyect
                         
                     else:
                         proyect.setDefinir()
+                        proyect.setmostrarFases()
                         proyectos.append(proyect)
                             
                     
@@ -65,6 +89,7 @@ class ProyectoController(BaseController):
     
             if(grupo.group_name =='Desarrollador' or grupo.group_name =='Aprobador'):
                 lp=[]
+                muestraBoton="false"
                 
                 ufrs = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.user_id==id.user_id).all()
                 for ufr in ufrs:
@@ -72,11 +97,25 @@ class ProyectoController(BaseController):
                         ufr.fase.proyectoObj.setmostrarFases()
                         indice = proyectos.index(ufr.fase.proyectoObj)
                         proyectos[indice] = ufr.fase.proyectoObj
+                        if(orden =='Buscar'):
+                            muestraBoton="true"
+                        else:
+                            muestraBoton="false"
                     else:
                         lp.append(ufr.fase.proyecto_id)
-                        proyect1 =DBSession.query(Proyecto).filter(Proyecto.id==ufr.fase.proyecto_id).one()
-                        proyect1.setmostrarFases()
-                        proyectos.append(proyect1)
+                        if(orden ==None or orden == 'Listar Todos'):
+                            proyect1 =DBSession.query(Proyecto).filter(Proyecto.id==ufr.fase.proyecto_id).one()
+                            proyect1.setmostrarFases()
+                            proyectos.append(proyect1)
+                            muestraBoton="false"
+                            
+                        elif(orden =='Buscar' and expresion != None):
+                            proyectoxlider = DBSession.query(Proyecto).join((User,Proyecto.lider)).filter(User.user_name.like('%'+expresion+'%')).filter(Proyecto.id==ufr.fase.proyecto_id).order_by(Proyecto.descripcion).all()
+                            proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%'+expresion+'%')).filter(Proyecto.id==ufr.fase.proyecto_id).order_by(Proyecto.descripcion).all()
+                            proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%'+expresion+'%')).filter(Proyecto.id==ufr.fase.proyecto_id).order_by(Proyecto.descripcion).all()
+                            proyectoxestado = proyectoxdescripcion + proyectoxlider + proyectoxestado
+                            muestraBoton="true"
+                            
              
         
         from webhelpers import paginate
@@ -93,7 +132,10 @@ class ProyectoController(BaseController):
         return dict(page='Lista de proyectos',
                     proyectos=proyectos, 
                     subtitulo='Proyectos',
+                    user=user,
+                    muestraBoton=muestraBoton,
                     currentPage = currentPage)
+        
         
         
     @expose('gestionitem.templates.proyectoTmpl.nuevo')
@@ -101,12 +143,19 @@ class ProyectoController(BaseController):
                  msg='Debe poseer Rol "Administrador" para crear nuevos proyectos'))
     def nuevo(self):
         """Handle the front-page."""
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         lideres = DBSession.query(User).join((Rol, User.groups)).filter(Rol.group_name =='LiderProyecto').all()
-#        tmpl_context.add_Proyecto_form = add_Proyecto_form
-
+        nombreProyectos=[]
+        proyectos = DBSession.query(Proyecto).all()
+        for proyecto in proyectos:
+            nombreProyectos.append(proyecto.descripcion)
+            nombreProyectos.append(",")
         return dict(
             page='Nuevo Proyecto',
-            lideres = lideres
+            lideres = lideres,
+            nombreProyectos = nombreProyectos,
+            user = user
         )
                
 
@@ -130,8 +179,11 @@ class ProyectoController(BaseController):
     @require(All(in_group('Administrador'), has_permission('editar proyecto'),
                  msg='Debe poseer Rol "Administrador" editar proyectos'))
     def editar(self,id):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        
         proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
-#        usuarios=DBSession.query(User).filter(User.user_id != proyecto.lider.user_id)
+
         if proyecto.lider !=None:
             usuarios = DBSession.query(User).join((Rol, User.groups)).filter(Rol.group_name =='LiderProyecto').filter(User.user_id != proyecto.lider.user_id).all()
         else:
@@ -141,6 +193,7 @@ class ProyectoController(BaseController):
                     id=id,
                     proyecto=proyecto,
                     subtitulo='ABM-Proyecto',
+                    user=user,
                     usuarios = usuarios)
     
     
@@ -165,6 +218,13 @@ class ProyectoController(BaseController):
     def eliminar(self,id):
         DBSession.delete(DBSession.query(Proyecto).filter_by(id=id).one())
         redirect( '/proyecto' )    
+    
+    @expose()    
+    def cambiarEstado(self, id, estado,**named):
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        proyecto.estado=estado
+        DBSession.flush()
+        redirect( '/proyecto' )
 
 
         
@@ -174,15 +234,11 @@ class ProyectoController(BaseController):
     def proyectoDef(self, id, **named):
         fases = DBSession.query(Fase).filter(Fase.proyecto_id == id)
         
-#        if fases.count()== 0:
-#           mostrarLink= False
-#        else:
-#            mostrarLink = True
         proyecto_id = id
                 
         return dict(page='Definir Proyecto',
                     proyecto_id = proyecto_id,  
-#                    mostrarLink = mostrarLink,
+
                     subtitulo='Definir Proyecto'
                     )
     
@@ -192,20 +248,14 @@ class ProyectoController(BaseController):
                  msg='Debe poseer Rol "LiderProyecto" para definir fases'))
     def definir_fase(self, id, **named):
         identity = request.environ.get('repoze.who.identity')
-#        mostrarNuevo = False
-#        mostrarAsigUsu= False
-#        mostrarEditar = False
-#        mostrarEliminar = False
         fases = []
         
         iduser = identity['user']
         
+        proyecto =DBSession.query(Proyecto).filter(Proyecto.id == id).one()
+        proyectoEstado = proyecto.estado
         for grupo in iduser.groups:
             if(grupo.group_name =='LiderProyecto'):
-#                mostrarNuevo = True
-#                mostrarEditar = True
-#                mostrarEliminar = True
-#                mostrarAsigUsu = True
                 fases = DBSession.query(Fase).filter(Fase.proyecto_id == id).all()
             elif(grupo.group_name =='Desarrollador' or grupo.group_name =='Aprobador'):
                 ufrs = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.user_id==iduser.user_id).all()
@@ -222,9 +272,6 @@ class ProyectoController(BaseController):
         proyecto_id = id
         
         from webhelpers import paginate
-#        if(grupo.group_name =='Desarrollador' or grupo.group_name =='Aprobador'):
-#            count = fases.__len__()
-#        else:    
         count = fases.__len__()
         page =int( named.get( 'page', '1' ))
         currentPage = paginate.Page(
@@ -236,10 +283,8 @@ class ProyectoController(BaseController):
                     fases = fases,
                     proyecto_id = proyecto_id,  
                     subtitulo = 'fases',
-#                    mostrarNuevo = mostrarNuevo,
-#                    mostrarEditar = mostrarEditar,
-#                    mostrarEliminar = mostrarEliminar,
-#                    mostrarAsigUsu = mostrarAsigUsu,
+                    user=iduser,
+                    proyectoEstado =proyectoEstado,
                     currentPage = currentPage)
         
     
@@ -270,7 +315,7 @@ class ProyectoController(BaseController):
         new = Fase(descripcion = nombre_fase,
                    proyecto_id = id,
                    numero_fase = num,
-                   estado_id   = 1,
+                   estado_id   = 3,
                    codigo_fase = codFase
                    )
         DBSession.add( new )
@@ -282,10 +327,21 @@ class ProyectoController(BaseController):
     @require(All(in_group('LiderProyecto'), has_permission('editar fase'),
                  msg='Debe poseer Rol "LiderProyecto" para editar fases'))
     def editar_fase(self,id):
+        
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         fase = DBSession.query(Fase).filter(Fase.id == id).one()
+        fases =  DBSession.query(Fase).filter(Fase.proyecto_id== fase.proyecto_id).all()
+        codigos=[]
+        for i, cod in enumerate(fases):
+            codigos.append(cod.codigo_fase)
+            codigos.append(",")
+            
         return dict(page='Editar fase',
                     id=id,
                     fase=fase,
+                    user=user,
+                    codigos=codigos,
                     subtitulo='ABM-Fase')
         
            
@@ -296,6 +352,7 @@ class ProyectoController(BaseController):
         fase = DBSession.query(Fase).filter(Fase.id == id).one()
         fase.descripcion = nombre_fase
         fase.numero_fase = numero_fase
+#        fase.codigo_fase = codFase
         DBSession.flush()
         redirect('/proyecto/definir_fase/'+ str(fase.proyecto_id))
         
@@ -306,13 +363,27 @@ class ProyectoController(BaseController):
     def eliminar_fase(self,id):
         fase = DBSession.query(Fase).filter(Fase.id == id).one()
         id_proyecto = fase.proyecto_id
+        ufrs = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id==id).all()
+        for ufr in ufrs:
+            DBSession.delete(ufr)
+        DBSession.flush()
+#        itemusuarios = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.fase_id == id).all()
+                    
         DBSession.delete(fase)
+        fases = DBSession.query(Fase).filter(Fase.proyecto_id==id_proyecto).order_by(Fase.id).all()
+        for i, fase in enumerate(fases):
+            fase.numero_fase = i+1
+            DBSession.flush()
+        
+        
         redirect( '/proyecto/definir_fase/'+ str(id_proyecto) )    
         
     
     @expose("gestionitem.templates.proyectoTmpl.usuario_faseList")
     @require(in_group('LiderProyecto', msg='Debe poseer Rol "LiderProyecto" para listar usuarios') )
     def usuario_faseList(self, id, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         usuarioFaseRols =DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id == id).all()
         for ufr in usuarioFaseRols:
             if ufr.usuario==None:
@@ -336,6 +407,7 @@ class ProyectoController(BaseController):
                     fase_id =id,
                     subtitulo = 'Usuarios de fase',
                     proyecto_id = fase.proyecto_id,
+                    user = user,
                     currentPage = currentPage
                     ) 
     
@@ -343,6 +415,8 @@ class ProyectoController(BaseController):
     @require(All(in_group('LiderProyecto'), has_permission('asignar desarrollador'),
                  msg='LiderProyecto" para agregar usuarios'))
     def agregar_usuario_fase(self, id):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         usuarios = DBSession.query(User).join((Rol, User.groups)).filter(or_(Rol.group_name =='Aprobador',Rol.group_name =='Desarrollador')).all()
         roles   = DBSession.query(Rol).filter(or_(Rol.group_name =='Aprobador',Rol.group_name =='Desarrollador')).all()
         fase = DBSession.query(Fase).filter(Fase.id == id).one()
@@ -351,6 +425,7 @@ class ProyectoController(BaseController):
                     usuarios = usuarios,
                     roles = roles,
                     proyecto_id = id,
+                    user =user,
                     fase = fase) 
         
     @expose()
@@ -358,10 +433,12 @@ class ProyectoController(BaseController):
                  msg='Debe poseer Rol "LiderProyecto" para agregar usuarios'))
     def save_usuario_fase(self, fase, user, rol, submit):
         new = UsuarioFaseRol(user_id = user,
-                                 fase_id = fase,
-                                 rol_id  = rol
+                                    fase_id = fase,
+                                    rol_id  = rol
                                  ) 
         DBSession.add(new)
+        CambiarEstadoFase = DBSession.query(Fase).filter(Fase.id == fase).one()
+        CambiarEstadoFase.estado_id = 1
         redirect('/proyecto/usuario_faseList/'+ fase)
         
         
@@ -371,13 +448,22 @@ class ProyectoController(BaseController):
     def eliminar_usuario_fase(self, ufr):
         usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.id==ufr).one()
         fase = usuarioFaseRol.fase_id     
-        DBSession.delete(usuarioFaseRol)                                   
+        DBSession.delete(usuarioFaseRol)         
+        usuarioFaseRolcantidad = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id==fase).all()
+        if usuarioFaseRolcantidad.__len__() == 0:
+            faseCambiarEstado = DBSession.query(Fase).filter(Fase.id==fase).one()
+            faseCambiarEstado.estado_id = 3
+            DBSession.flush()
+                                     
         redirect('/proyecto/usuario_faseList/'+ str(fase))
+        
         
     @expose("gestionitem.templates.proyectoTmpl.editarUsuarioFase")
     @require(All(in_group('LiderProyecto'), has_permission('editar desarrollador'),
                  msg='Debe poseer Rol "LiderProyecto" para editar usuarios'))
     def editar_usuario_fase(self, ufr):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.id==ufr).one()
         fase = DBSession.query(Fase).filter(Fase.id==usuarioFaseRol.fase_id).one()
         usuario = DBSession.query(User).filter(User.user_id==usuarioFaseRol.user_id).one()
@@ -388,6 +474,7 @@ class ProyectoController(BaseController):
                     usuario= usuario,
                     roles = roles,
                     rol = rol,
+                    user =user,
                     ufr = usuarioFaseRol)
         
     @expose()
