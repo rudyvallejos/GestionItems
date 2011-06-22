@@ -7,7 +7,6 @@ from gestionitem.lib.base import BaseController
 from gestionitem.model.proyecto import Proyecto , EstadoProyecto, Fase, UsuarioFaseRol
 from gestionitem.model import DBSession
 from gestionitem.model.auth import User, Rol
-from gestionitem.model.tipoItemUsuario import TipoItemUsuario
 from tg import expose, flash, tmpl_context, validate, redirect
 from sprox.formbase import AddRecordForm
 from tg import request
