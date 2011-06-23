@@ -82,13 +82,13 @@ function mostrar(param) {
 			
 			<!--  SELECT ONCHANGE="enviarA(this.options[this.selectedIndex].value)"-->
 				<OPTION  selected="true" value="/item/itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
-				<OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION>
+				<py:if test="tg.predicates.has_permission('Aprobar items')"><OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION></py:if>
 				<OPTION value="/item/listaItemsElim/${fase.id}">Listar Items Eliminados</OPTION>
 				<OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION>
 				<py:if test="existeLB==1">
 					<OPTION  value="/lb/listar_linea_base/${proyecto.id}/${fase.id}">Listar Linea Base</OPTION>
-				
-				<OPTION ><a href="/">Abrir LB</a></OPTION>
+				<OPTION value="/lb/cerrar_linea_base_abierta/${fase.id}">Cerrar LB</OPTION>
+				<OPTION value="/item/verSolicitudAperturaLB/${fase.id}">Abrir LB</OPTION>
 				<OPTION value="/item/solicitudAperturaLB/${fase.id}">Solicitar Apertura LB</OPTION>
 				</py:if>	
 			</SELECT>

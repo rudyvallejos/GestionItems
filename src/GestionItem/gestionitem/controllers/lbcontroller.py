@@ -4,12 +4,17 @@ from tg import redirect
 from sqlalchemy import or_
 from gestionitem.model import DBSession
 from gestionitem.model.proyecto import ItemUsuario,Fase,LineaBase,Proyecto
+from repoze.what.predicates import not_anonymous, in_group, has_permission, All
+from tg.decorators import require
 
 
 class LineaBaseController(BaseController):
     
     
     @expose(template="gestionitem.templates.lineaBase.generar_linea_base")
+    @require(All(in_group('LiderProyecto', msg='Debe poseer Rol "LiderProyecto" para generar lineas bases'),
+                 has_permission('Generar linea base', msg='Debe poseer Permiso "Generar linea base" para agregar fases')))
+
     def generar_linea_base(self,idfase,**named):
         #items = DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idfase).filter(ItemUsuario.estado_id==2).all()
         expresion=""

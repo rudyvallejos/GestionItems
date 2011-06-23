@@ -7,7 +7,7 @@
   <xi:include href="master.html" />
 
 <head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
-    <title>Turbogears Admin System - Group Listing</title><style>
+    <title>Definicion de Atributos de Tipo de Item</title><style>
 #menu_items {
   padding:0px 12px 0px 2px;
   list-style-type:None
@@ -20,14 +20,52 @@
 
 <body class="tundra">
 
+ <table border="0">
+		<tr>
+		<td><a href="/tipoItems/tipoItemUsuario/${tipoItem.fase_id}/lista"><IMG title="Lista fase" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 		</td>	
+		<td><u><b>Proyecto</b></u></td>
+		<td colspan="3"><label>${fase.proyectoObj.descripcion}</label></td>
+		</tr>
+		<tr><td/>
+		<td><u><b>Fase Nro.</b></u></td>
+		<td><label>${fase.numero_fase}</label></td>
+		</tr>
+		<tr><td/>
+		<td><u><b>Fase</b></u></td>
+		<td><label>${fase.descripcion}</label></td>
+		</tr>
+		<tr>
+			<td/><td><u><b>Tipo de Item:</b></u> </td><td>${tipoItem.descripcion}</td>
+		</tr>
+		<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>	
+</table>
+
+
+
+
+
+
+
+
+
+
+
 <div>
-   <h2>Tipo de Item: ${tipoItem.descripcion}</h2>
+   
+   
+   
+   
+   
+   
+   
+   
    <a  class="" title="Lista Todos los atributos" href="/tipoItems/atributosDef/${tipoItem.id}"><h2>Lista de Atributos</h2></a>
  <a class="add_link" href="/tipoItems/agregar_Atributo/${tipoItem.id}">Agregar Nuevo Atributo</a>
-    <div class="crud_table" style="height:50%; width:90%">
+    <div class="crud_table" >
     <div>
      
-    <table class="grid">
+    <table class="grid" style="height:80%; width:100%">
         <thead>
             <tr><th></th><th>Identificador</th><th >Nombre de Atributo</th><th>Tipo de Dato</th></tr>
         </thead>
@@ -60,7 +98,6 @@
   </div>
       </div>
   <br/><br/>
-<a  href="/tipoItems/tipoItemUsuario/${tipoItem.fase_id}/lista">Def. Tipo Item</a>
   
  
   

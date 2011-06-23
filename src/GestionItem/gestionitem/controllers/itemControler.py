@@ -2,7 +2,7 @@ from gestionitem.lib.base import BaseController
 from tg import expose, flash, require, url, request, redirect, response
 from sqlalchemy import or_, and_
 from tg import expose, flash, require, url, request, redirect
-from gestionitem.model.proyecto import ItemUsuario, ArchivosAdjuntos, Proyecto,RelacionItem,Fase,LineaBase, TipoItemUsuario,TipoItemUsuarioAtributos,TipoItemUsuarioAtributosValor
+from gestionitem.model.proyecto import ItemUsuario, ArchivosAdjuntos,UsuarioFaseRol, Proyecto,RelacionItem,Fase,LineaBase, TipoItemUsuario,TipoItemUsuarioAtributos,TipoItemUsuarioAtributosValor
 from gestionitem.model import DBSession 
 from tw.forms import TextField,CalendarDatePicker
 from sqlalchemy import schema as sa_schema
@@ -15,6 +15,8 @@ from webhelpers import paginate
 from sets import Set
 from tw.api import WidgetsList
 from tg.controllers import CUSTOM_CONTENT_TYPE
+from repoze.what.predicates import not_anonymous, in_group, has_permission, All
+from tg.decorators import require
 
 #Libreria para graficar
 import pygraphviz as pgv
@@ -26,10 +28,17 @@ class ItemControler(BaseController):
 
     @expose(template="gestionitem.templates.item.faseList")
     def faseList(self,id, **named):
-        fases = DBSession.query(Fase).filter_by(proyecto_id=id).order_by(Fase.id).all()
-        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
+        
+        fasesDelUsuario=DBSession.query(UsuarioFaseRol).filter_by(user_id=user.user_id).all()
+        idsFasesUsuario=[]
+        for idFaseUser in fasesDelUsuario:
+            idsFasesUsuario.append(idFaseUser.fase_id)
+     
+        fases = DBSession.query(Fase).filter_by(proyecto_id=id).filter(Fase.id.in_(idsFasesUsuario)).order_by(Fase.id).all()
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        
         mensajes=[]
         for i, fase in enumerate(fases):
             lbs = DBSession.query(LineaBase).filter_by(fase_id=fase.id).order_by(LineaBase.id).all()
@@ -868,6 +877,9 @@ class ItemControler(BaseController):
             for item in itemselecccionado:
                 itemselect=itemselect+"itemselect="+str(item.sucesor_item_id)+"&"
             redirect( '/item/editar_relacion/'+str(idItem)+'/'+ str(fase.id)+'/2?'+str(itemselect))        
+    
+    @require(All(in_group('Aprobador', msg='Debe poseer Rol "Aprobador" para aprobar Items'),
+                 has_permission('Aprobar items', msg='Debe poseer Permiso "Aprobar items" aprobar Items')))
     @expose('gestionitem.templates.item.aprobarItem')
     def aprobarItems(self,idFase, **named):
         identity = request.environ.get('repoze.who.identity')
