@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey, Column, Table
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.types import Unicode, Integer, DateTime, String, CHAR
+from sqlalchemy.types import Unicode, Integer, DateTime, String, CHAR,LargeBinary
 from datetime import datetime
 from sqlalchemy.orm import relation
 
@@ -221,4 +221,16 @@ class ItemUsuario(DeclarativeBase):
     linea_base = relationship(LineaBase, order_by=LineaBase.id, backref="linea_base")   
     tipo = relationship(TipoItemUsuario, order_by=TipoItemUsuario.id, backref="tipo_item_usuario")
     linea_base_ant = Column("linea_base_ant", Integer, nullable=False)
+
+
+class ArchivosAdjuntos(DeclarativeBase):
+    __tablename__ = 'archivos_ajuntos'
+ 
+    id      =   Column(Integer, autoincrement=True, primary_key=True)
     
+    nombre    =   Column(String(100), nullable=False) 
+    
+    archivo = Column(LargeBinary)
+
+    item_usuario_id =   Column(Integer, ForeignKey('item_usuario.id'))
+   
