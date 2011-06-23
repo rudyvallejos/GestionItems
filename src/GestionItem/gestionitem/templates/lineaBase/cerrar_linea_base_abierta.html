@@ -87,7 +87,7 @@
 			<input type="hidden" name="idFase" value="${fase.id}"/>
 			<input type="hidden" name="idProy" value="${proyecto.id}"/>
 			
-			<form name="formulario" action="/item/verSolicitudAperturaLB/${fase.id}" method="get" onSubmit="return valida(this);">
+			<form action="/item/cerrar_linea_base_abierta/${fase.id}" class="izquierda" method="get" name="formulario" onsubmit="return valida(this);">
 				<table border="0">
 					<tr>
 						<td>Proyecto:</td>
@@ -110,6 +110,9 @@
 					<tr></tr>
 					<td></td>
 					<td/>
+					<div align="left">
+						<h3>Lista de Lineas Bases: </h3>
+					</div>
 			</table>
 					<div id="Buscador">
 						<div>
@@ -127,15 +130,12 @@
 					</div>
 					<tr/>
 					<tr/>
-				<div>
-					<h3>Lista de Lineas Bases: </h3>
-				</div>
+				
 				<div class="crud_table">
 					<div>
 						<table class="grid" style="height:80%; width:100%">
 							<thead>
 								<tr>
-									<th></th>
 									<th>ID LB</th>
 									<th>Items de la LB</th>
 									<th>Fase</th>
@@ -152,11 +152,7 @@
 								</tr>
 								
 								<tr py:for="i, lbse in enumerate(lbSolicitadas)" class="${i%2 and 'odd' or 'even'}">
-									
-									<td class="col_0">
-										<input TYPE="CHECKBOX" disable="true" readOnly="true" checked="true" value="${lbse.id}" />
-									
-									</td>
+								
 									<td class="col_1">${lbse.id}</td>
 									<td class="col_1">${itemsLBSol[i]}</td>
 									<td class="col_1">${lbse.fase.descripcion}</td>
@@ -179,8 +175,10 @@
 				</div>
 				<br/>
 				<br/>
-				<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
-				<input type="submit" name="submit" title="Realizar acion" onClick="botonPresionado('Solicitar')" value="Realizar"/>	
+				<div align="left">
+						<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+						<input type="submit" name="submit" title="Realizar acion" onClick="botonPresionado('Solicitar')" value="Realizar"/>	
+				</div>
 			</form>
 		</div>
 		<br/>

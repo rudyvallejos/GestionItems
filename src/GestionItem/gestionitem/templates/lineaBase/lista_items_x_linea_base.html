@@ -1,26 +1,51 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:py="http://genshi.edgewall.org/"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<xi:include href="master.html" />
+			<xi:include href="master.html" />
 
-<head>
-	  <style>
-			 #menu_items {
-				padding:0px 12px 0px 2px;
-				list-style-type:None
-			 }
-	  </style>
+			<head>
+					<style>
+						  #menu_items {
+							 padding:0px 12px 0px 2px;
+							 list-style-type:None
+						  }
+					</style>
 	  
-</head>
+					<script>
+						  boton=""	
+						 function valida(F) {  
+						  
+								if(F.filtro.value != "" ) { 
+								 
+										  return true; 
+								}else
+								  if(boton == "filter") 
+									 return false;
+									else(boton == "all")
+									 return true;
+						 }  
+					 
+						 function botonPresionado(botonP){
+							 boton=botonP
+						 }
+							
+						 
+						 function mostrar(param) {
+							obj = document.getElementById('ListaTodos');
+							if (param)
+							{
+							 obj.style.display = (obj.style.display=='none') ? 'block' : 'none';
+							}
+						 }
+					 </script>
+	  
+	  </head>
 
 <body>
 
 
 <div id="lista_linea_base">
-  <form  name="form1">
   	<td>
   		<div ><h3>Lista de Items de la Linea Base ${lineabase.id} </h3></div>
   	</td>
@@ -36,15 +61,6 @@
 			<label>: ${fase.proyectoObj.descripcion}</label>
 		</td>
 		<td></td>
-		<!-- td><td/><td/><u><b>Opciones: </b></u></td>
-		<td colspan="3">
-			<SELECT ONCHANGE="location.href = this.options[this.selectedIndex].value;">
-			
-				<OPTION  selected="true" value="/item/itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
-				<OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION>
-				<OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION>
-			</SELECT>
-		</td-->
 		</tr>
 		<tr><td/>
 		<td>
@@ -58,37 +74,28 @@
 			<label>${fase.descripcion}</label>
 		</td>
 		
-		</tr>
-  		<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>		
-  		<tr>
-  		 <!--  td colspan="5"><a class="add_link" href="/item/agregar_item/${fase.id}/0">Agregar Nuevo Item</a></td>-->
-  			<div id="Buscador">
-  				<form  class="izquierda" display="none" onSubmit="return valida(this);" action="/lb/items_linea_base/${lineabase.id}/${fase.id}"> 
-  					<div>
-  						
-    					<td colspan="3" align="right">
-    						<label>
-  								<b>Buscar:</b>
-  							</label>
-    						<input  class="label" size="20" name="expresion" value=""/>
-    						<input   type="submit" name="submit" value="Buscar" align="center"/>
-    					</td>
-    					
- 					</div>    
-  				</form>
-  			</div>
-  				
-  			<td colspan="2">
-	  			<div style="display:none" id="ListaTodos">
-	  				<form   class="izquierda" display="none" action="/lb/items_linea_base/${lineabase.id}/${fase.id}" method="post">
-	    				<input  type="submit" name="submit" value="Listar Todos"/>
-	 				</form>
-	  			</div>
-	  		</td>
-  			<!--FIN-BUSCADOR-->
-    </tr>	
-   	
-   </table> 
+		</tr>  		
+   </table>
+   			<tr>
+				<div id="Buscador" align="right">
+					<form class="izquierda" display="none" onSubmit="return valida(this);" action="/lb/items_linea_base/${lineabase.id}/${fase.id}">
+						<div>
+
+							<td colspan="10" align="right">
+								<label>
+									<b>Buscar:</b>
+								</label>
+								<input class="label" size="20" name="filtro" value=""/>
+								<input type="submit" name="submit" value="Buscar" align="center"  onClick="botonPresionado('filter')" />
+								<input type="submit" name="submit" value="Listar Todos"  onClick="botonPresionado('all')" /> 
+							</td>
+
+						</div>
+						
+					</form>
+					
+				</div>
+			</tr>	 
     
     <div class="crud_table">
       
@@ -99,6 +106,7 @@
      			
      				<th>Cod. Item</th>
      				<th >Descripcion</th>
+     				<th>Estado</th>
      				<th >Version</th>
      				
      			</tr>
@@ -111,6 +119,7 @@
       			 
             		<td class="col_0">${item.cod_item}</td>
                 	<td class="col_1">${item.descripcion}</td>
+                	<td class="col_1">${item.estado.descripcion}</td>
                 	<td class="col_1">V-${item.version}</td>
         		
   			</tr>
@@ -118,7 +127,6 @@
     </table>
 		</div>
     </div>	
-	 </form>
 </div>
 <br/><br/>
 </body>

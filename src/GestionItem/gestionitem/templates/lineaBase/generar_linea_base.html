@@ -138,7 +138,8 @@ function botonPresionado(botonP){
   			</tr>
   			<tr py:for="i, itemse in enumerate(itemSeleccionado)" class="${i%2 and 'odd' or 'even'}">
 	            	<td class="col_0">
-                		<input TYPE="CHECKBOX" checked="true" name="itemselect" value="${itemse.id}" />
+                		<div><div><input TYPE="CHECKBOX" checked="true" name="itemselect" value="${itemse.id}" /></div><div>
+                		</div></div>
             		</td>
             		<td class="col_0">${itemse.cod_item}</td>
                 	<td class="col_1">${itemse.descripcion}</td>
@@ -150,8 +151,10 @@ function botonPresionado(botonP){
 		</div>
     </div>
       	<br/><br/><br/><br/>
-      	<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
-		<input align="right" name="submit" onclick="botonPresionado('genlb')" title="Generar" type="submit" value="Generar Linea Base"/>	
+      	<div align="left">
+      		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+			<input align="right" name="submit" onclick="botonPresionado('genlb')" title="Generar" type="submit" value="Generar Linea Base"/>
+		</div>	
 	 </form>
 </div>
 <br/><br/>
