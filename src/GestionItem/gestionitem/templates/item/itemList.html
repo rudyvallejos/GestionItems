@@ -83,9 +83,10 @@ function mostrar(param) {
 			<!--  SELECT ONCHANGE="enviarA(this.options[this.selectedIndex].value)"-->
 				<OPTION  selected="true" value="/item/itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
 				<OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION>
+				<OPTION value="/item/listaItemsElim/${fase.id}">Listar Items Eliminados</OPTION>
 				<OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION>
 				<py:if test="existeLB==1">
-					<OPTION ><a href="/">Listar Linea Base</a></OPTION>
+					<OPTION  value="/lb/listar_linea_base/${proyecto.id}/${fase.id}">Listar Linea Base</OPTION>
 				
 				<OPTION ><a href="/">Abrir LB</a></OPTION>
 				<OPTION value="/item/solicitudAperturaLB/${fase.id}">Solicitar Apertura LB</OPTION>
@@ -138,9 +139,9 @@ function mostrar(param) {
     </tr>	
    	
    </table> 
-<div class="crud_table" style="height:50%; width:90%">
+<div class="crud_table" >
     <div> 
-    <table class="grid" >
+    <table class="grid" style="height:80%; width:100%">
         <thead>
             <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Estado</th><th>Complejidad</th><th>Version</th><th>Impacto</th><th>Historial</th><th>Mensajes</th></tr>
         </thead>

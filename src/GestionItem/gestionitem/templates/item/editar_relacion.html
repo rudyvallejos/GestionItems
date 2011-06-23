@@ -79,8 +79,11 @@ function valida(F) {
     					return true;
     					
 				}
-    			alert("Debe seleccionar al menos un item para relacionar");
-    			return false;
+    			//alert("Debe seleccionar al menos un item para relacionar");
+    			document.formulario.action="/item/actualizarRelacion/${item.id}"
+        				F.filtros.value="Lista"
+    				
+    			return true;
        	}
        	if (boton=="RelacionPH")
 		{  
@@ -230,9 +233,9 @@ function verificarItems()
     <!-- form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get"-->
     
     <div><h3>Lista de Items con LB: </h3></div>
-	<div class="crud_table" style="height:80%; width:100%">
+	<div class="crud_table">
 		<div>
-			<table class="grid"  >
+			<table class="grid"  style="height:80%; width:100%">
     		<thead>
      			<tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Fase</th><th>Nro.Fase</th></tr>
     		</thead>

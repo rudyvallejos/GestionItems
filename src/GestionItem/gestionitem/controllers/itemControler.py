@@ -1,8 +1,8 @@
 from gestionitem.lib.base import BaseController
-from tg import redirect
+from tg import expose, flash, require, url, request, redirect, response
 from sqlalchemy import or_, and_
 from tg import expose, flash, require, url, request, redirect
-from gestionitem.model.proyecto import ItemUsuario,Proyecto,RelacionItem,Fase,LineaBase, TipoItemUsuario,TipoItemUsuarioAtributos,TipoItemUsuarioAtributosValor
+from gestionitem.model.proyecto import ItemUsuario, ArchivosAdjuntos, Proyecto,RelacionItem,Fase,LineaBase, TipoItemUsuario,TipoItemUsuarioAtributos,TipoItemUsuarioAtributosValor
 from gestionitem.model import DBSession 
 from tw.forms import TextField,CalendarDatePicker
 from sqlalchemy import schema as sa_schema
@@ -14,6 +14,8 @@ from sqlalchemy import types as sqltypes
 from webhelpers import paginate
 from sets import Set
 from tw.api import WidgetsList
+from tg.controllers import CUSTOM_CONTENT_TYPE
+
 #Libreria para graficar
 import pygraphviz as pgv
 
@@ -162,7 +164,7 @@ class ItemControler(BaseController):
                     proyecto=proyecto,lista=lista,user=user, 
                     item=item,subtitulo='ABM-Item')
     @expose()
-    def updateItemConTipo( self,idFase,idProy,idItem,TipoItem ,numCod,codItem,complejidad,descripcion, lista,idAtributos, submit):                
+    def updateItemConTipo( self,idFase,idProy,idItem,TipoItem ,numCod,codItem,complejidad,descripcion,file, lista,idAtributos, submit):                
         try:
             for i, valor in enumerate(lista):
                 atributo = DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=idItem).filter_by(atributo_id=idAtributos[i]).one()
@@ -172,6 +174,14 @@ class ItemControler(BaseController):
             atributo = DBSession.query(TipoItemUsuarioAtributosValor).filter_by(atributo_id=idAtributos).filter_by(item_usuario_id=idItem).one()
             atributo.valor=lista
             DBSession.flush() 
+        try:
+            filecontent = file.file.read()
+            new_file = ArchivosAdjuntos(nombre=file.filename, archivo=filecontent,item_usuario_id=idItem)
+            DBSession.add(new_file)
+            DBSession.flush()
+        except:
+            filecontent=""        
+            
         item = DBSession.query(ItemUsuario).filter_by(id=idItem).one()
         item.prioridad=complejidad
         item.descripcion=descripcion
@@ -186,9 +196,17 @@ class ItemControler(BaseController):
             if(submit=="Modificar Item"):
                 redirect( '/item/itemList/'+idFase)    
     @expose()
-    def updateItemSinTipo( self,idFase,idProy,idItem,TipoItem , numCod,codItem,complejidad,descripcion, submit):                
+    def updateItemSinTipo( self,idFase,idProy,idItem,TipoItem , numCod,codItem,complejidad,descripcion,file, submit):                
+        try:
+            filecontent = file.file.read()
+            new_file = ArchivosAdjuntos(nombre=file.filename, archivo=filecontent,item_usuario_id=idItem)
+            DBSession.add(new_file)
+            DBSession.flush()
+        except:
+            filecontent="" 
         item = DBSession.query(ItemUsuario).filter_by(id=idItem).one()
         item.prioridad=complejidad
+        
         item.descripcion=descripcion
         if (item.estado_id!=1):
             item.estado_id=2
@@ -201,10 +219,13 @@ class ItemControler(BaseController):
             if(submit=="Modificar Item"):
                 redirect( '/item/itemList/'+idFase) 
     @expose()
-    def saveItemLB( self,idFase,idProy,idItem,tipoItem ,numCod,codItem,complejidad,descripcion,  **named):
+    def saveItemLB( self,idFase,idProy,idItem,tipoItem ,numCod,codItem,complejidad,descripcion,file,  **named):
         #Obtiene el id del Item a modificar
         itemAnterior=DBSession.query(ItemUsuario).filter_by(id=idItem).one()
         itemAnterior.estado_id=6
+        DBSession.flush()
+        lb=DBSession.query(LineaBase).filter_by(id=itemAnterior.linea_base_id).one()
+        lb.estado_id=5
         DBSession.flush()
         lbAnterior=itemAnterior.linea_base_id
         lista=named.get('lista','')
@@ -233,7 +254,14 @@ class ItemControler(BaseController):
             listTemp=listaIds[-1]
             id=listTemp.id + 1
         else: 
-            id=1                            
+            id=1
+        try:
+            filecontent = file.file.read()
+            new_file = ArchivosAdjuntos(nombre=file.filename, archivo=filecontent,item_usuario_id=id)
+            DBSession.add(new_file)
+            DBSession.flush()
+        except:
+            filecontent=""                             
         if (tipoItem!=""):
             new = ItemUsuario()
             new.id=id                              
@@ -282,7 +310,11 @@ class ItemControler(BaseController):
             DBSession.flush()
         fase = DBSession.query(Fase).filter_by(id=idFase).one() 
         
-        
+        archivosAnteriores=DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=itemAnterior.id).all()
+        for newFile in archivosAnteriores:
+            new_file2 = ArchivosAdjuntos(nombre=newFile.nombre, archivo=newFile.archivo,item_usuario_id=id)
+            DBSession.add(new_file2)
+            DBSession.flush()
         ####ESTA INCOMPLETO-VER!!! FALTA LAS RELACIONES SUCESORAS
         relacionesItemAnterior = DBSession.query(RelacionItem).filter_by(estado_id=1).filter(( RelacionItem.antecesor_item_id == itemAnterior.id)).order_by(RelacionItem.id).all()
         relacionesItemAnteriorS = DBSession.query(RelacionItem).filter_by(estado_id=1).filter(( RelacionItem.sucesor_item_id == itemAnterior.id)).order_by(RelacionItem.id).all()
@@ -326,23 +358,38 @@ class ItemControler(BaseController):
             DBSession.flush()
         
         
+        
+        
+        
         if (submit!="Modificar Relaciones"):        
             redirect( '/item/itemList/'+idFase )
             flash( '''Tipo Item Agregado! %s''')
         else: 
             if (submit=="Modificar Relaciones"):        
-                redirect( '/item/updateRelacion/'+idFase+'/'+idItem )
+                redirect( '/item/updateRelacion/'+idFase+'/'+str(id) )
                 flash( '''Item Modificado! %s''')
          
     @expose()
-    def saveItem( self,idFase,idProy, numCod,codItem,complejidad,descripcion,tipoItem, lista,idAtributos, submit,):
+    def saveItem( self,idFase,idProy, numCod,codItem,complejidad,descripcion,file,tipoItem, lista,idAtributos, submit,):
         listaIds=DBSession.query(ItemUsuario).order_by(ItemUsuario.id)
+        
         fase=DBSession.query(Fase).filter_by(id=idFase).one()
         if (listaIds.count()>0):
             listaTemp=listaIds[-1]
             id=listaTemp.id + 1
         else: 
             id=1                            
+        
+        
+        try:
+            filecontent = file.file.read()
+            new_file = ArchivosAdjuntos(nombre=file.filename, archivo=filecontent,item_usuario_id=id)
+            DBSession.add(new_file)
+            DBSession.flush()
+        except:
+            filecontent="" 
+        
+        
         if (tipoItem!="0"):
             new = ItemUsuario()
             new.id=id,                              
@@ -398,11 +445,24 @@ class ItemControler(BaseController):
             else:
                 if (submit=="Relacionar" and fase.numero_fase!="1"):
                     redirect( '/item/relacionar_item/'+str(id)+'/'+ idFase+'/2') 
+    
+    
+    @expose()
+    def delete(self, fileid, path):
+        try:
+            userfile = DBSession.query(ArchivosAdjuntos).filter_by(id=fileid).one()
+        except:
+            return redirect(path)
+        DBSession.delete(userfile)
+        return redirect(path)
+    
     @expose('gestionitem.templates.item.editar_item')
     def editar_item(self,id,idItem):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
         fase=DBSession.query(Fase).filter_by(id=id).one()
+        current_files = DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=idItem).all()
+        
         compleLista=[1,2,3,4,5,6,7,8,9]
         item=DBSession.query(ItemUsuario).filter_by(id=idItem).one()
         if (item.estado.id==5):
@@ -424,11 +484,12 @@ class ItemControler(BaseController):
         return dict(page='Editar Item', atributos=atributos,tipo=tipo,
                     fase=fase, compleLista=compleLista, user=user, 
                     proyecto=proyecto, atributosValor=atributosValor,
-                    item=item,subtitulo='ABM-Item')
+                    item=item,subtitulo='ABM-Item',current_files=current_files)
     @expose('gestionitem.templates.item.editar_itemLB')
     def editar_itemLB(self,id,idItem, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
+        current_files = DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=idItem).all()
         fase=DBSession.query(Fase).filter_by(id=id).one()
         compleLista=[1,2,3,4,5,6,7,8,9]
         item=DBSession.query(ItemUsuario).filter_by(id=idItem).one()  
@@ -448,8 +509,10 @@ class ItemControler(BaseController):
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
         return dict(page='Editar Item', atributos=atributos,tipo=tipo,
                     fase=fase, compleLista=compleLista,user=user,  
-                    proyecto=proyecto, atributosValor=atributosValor,
-                    item=item,subtitulo='ABM-Item')    
+                    proyecto=proyecto, atributosValor=atributosValor,current_files=current_files,
+                    item=item,subtitulo='ABM-Item')
+    
+        
     @expose('gestionitem.templates.item.avisoEditarItem')
     def avisoEditarItem(self,id,**named):
         identity = request.environ.get('repoze.who.identity')
@@ -499,9 +562,44 @@ class ItemControler(BaseController):
 
     @expose()
     def eliminar_item(self,idFase,id):
+        
+        
         item=DBSession.query(ItemUsuario).filter_by(id=id).one()
         if (item.estado.id==5):
             redirect( '/item/avisoEliminarItem/'+ str(item.id))
+        
+        try:
+            userfile = DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=id).all()
+            for archivo in userfile:
+                DBSession.delete(archivo)
+        except:
+            userfile = ""
+        if (item.linea_base_ant!=None):
+            lineaBaseAnt=item.linea_base_ant
+            version=item.version
+            versionAnt=version-1
+            itemAnterior=DBSession.query(ItemUsuario).filter(ItemUsuario.cod_item==item.cod_item).filter(ItemUsuario.fase_id==item.fase_id).filter(ItemUsuario.version==versionAnt).filter(ItemUsuario.estado_id==6).filter(ItemUsuario.linea_base_id==lineaBaseAnt).one()
+            itemAnterior.estado_id=5
+            DBSession.flush()
+            itemsLBAnt=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==lineaBaseAnt).all()
+            noMod=0
+            for itemLB in itemsLBAnt:
+                if itemLB.estado_id!=5:
+                    noMod=1
+            if noMod==0:
+                lb=DBSession.query(LineaBase).filter_by(id=lineaBaseAnt).one()
+                lb.estado_id=2
+                DBSession.flush()
+            antecesorAnt=DBSession.query(RelacionItem).filter(RelacionItem.antecesor_item_id==itemAnterior.id).filter(RelacionItem.estado_id==2)
+            for i, antA in enumerate(antecesorAnt):
+                antA.estado_id=1
+                DBSession.flush()
+            sucesor=DBSession.query(RelacionItem).filter(RelacionItem.estado_id==2).filter(RelacionItem.sucesor_item_id==itemAnterior.id)    
+            for i, sucA in enumerate(sucesor):
+                sucA.estado_id=1
+                DBSession.flush()
+             
+            
         antecesor=DBSession.query(RelacionItem).filter(RelacionItem.antecesor_item_id==id).filter(RelacionItem.estado_id!=2)
         for i, ant in enumerate(antecesor):
             DBSession.delete(ant)
@@ -545,6 +643,9 @@ class ItemControler(BaseController):
         #DBSession.delete(DBSession.query(ItemUsuario).filter_by(id=id).one())
         item.estado_id=7
         DBSession.flush()
+        lbAC=DBSession.query(LineaBase).filter_by(id=item.linea_base_id).one()
+        lbAC.estado_id=2
+        DBSession.flush()
         redirect( '/item/itemList/'+idFase)
             
     @expose('gestionitem.templates.item.errorEliminarItem')
@@ -575,23 +676,46 @@ class ItemControler(BaseController):
                     proyecto=proyecto,
                     item=item,subtitulo='Error')
     @expose()
-    def actualizarRelacion( self, id, tipo, filtros, itemselect,submit ):
+    def actualizarRelacion( self, id, tipo, filtros, **named ):
         antecesor=DBSession.query(RelacionItem).filter_by(estado_id=1).filter(RelacionItem.antecesor_item_id==id)
         for i, ant in enumerate(antecesor):
             DBSession.delete(ant)
         DBSession.flush()
         item=DBSession.query(ItemUsuario).filter_by(id=id).one()
-        for i, itemRelacion in enumerate(itemselect):
-            new = RelacionItem(
-                               antecesor_item_id=id,
-                               sucesor_item_id = itemRelacion,
-                               tipo=tipo,
-                               estado_id=1
-                               )
-            DBSession.add( new )
-            DBSession.flush()
         item.estado_id=2
         DBSession.flush()
+        itemselect=named.get('itemselect','')
+        if itemselect!='':
+            try:
+                itemselect=int(itemselect)
+                itemselect=[itemselect]
+                for i, itemRelacion in enumerate(itemselect):
+                    new = RelacionItem(
+                                       antecesor_item_id=id,
+                                       sucesor_item_id = itemRelacion,
+                                       tipo=tipo,
+                                       estado_id=1
+                                       )
+                    DBSession.add( new )
+                    DBSession.flush()
+            except :
+                for i, itemRelacion in enumerate(itemselect):
+                    new = RelacionItem(
+                                       antecesor_item_id=id,
+                                       sucesor_item_id = itemRelacion,
+                                       tipo=tipo,
+                                       estado_id=1
+                                       )
+                    DBSession.add( new )
+                    DBSession.flush()
+            
+        else:
+            if(itemselect=='' )and(item.fase.numero_fase>1):
+                    item.estado_id=1
+        
+        
+        submit=named.get('submit','')
+        
         if(submit=="Relacionar"):
                 redirect( '/item/itemList/'+str(item.fase_id) )    
         else:
@@ -1085,7 +1209,7 @@ class ItemControler(BaseController):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
         itemUsuario=DBSession.query(ItemUsuario).filter_by(id=id).one()
-        
+        current_files = DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=id).all()
         ###OBTIENE LOS ATRIBUTOS DEL TIPO DE ITEM
         conTipo=0
         atributos=""
@@ -1155,12 +1279,38 @@ class ItemControler(BaseController):
         lista=""   
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
         item=itemUsuario
-        return dict(page='Nuevo Item',user=user,
+        return dict(page='Nuevo Item',user=user,current_files=current_files,
                     fase=fase,contRelaciones=contRelaciones,itemsAntecesoresRelacionados=itemsAntecesoresRelacionados,contRelacionesSucesores=contRelacionesSucesores,itemsRelacionados=itemsRelacionados,fasesRelacionados=fasesRelacionados,
                     proyecto=proyecto,lista=lista,fasesRelacionadosSucesoras=fasesRelacionadosSucesoras,
                     conTipo=conTipo,
                     atributos=atributos,atributoValor=atributoValor,tipoItem=tipoItem, 
                     item=item,subtitulo='Informacion-Item')
+    
+    
+    @expose(content_type=CUSTOM_CONTENT_TYPE)
+    def view(self, fileid, idItem):
+        try:
+            userfile = DBSession.query(ArchivosAdjuntos).filter_by(id=fileid).one()
+            iid= idItem
+        except:
+            redirect("/")
+        content_types = {
+            'display': {'.png': 'image/jpeg', '.jpeg':'image/jpeg', '.jpg':'image/jpeg', '.gif':'image/jpeg'},
+            'download': {'.pdf':'application/pdf', '.zip':'application/zip','.rar':'application/x-rar-compressed', '.txt': 'text/plain',
+                         '.py':'application/text','.c':'application/text','.java':'application/text'}
+        }
+        for file_type in content_types['display']:
+            if userfile.nombre.endswith(file_type):
+                response.headers["Content-Type"] = content_types['display'][file_type]
+        for file_type in content_types['download']:
+            if userfile.nombre.endswith(file_type):
+                response.headers["Content-Type"] = content_types['download'][file_type]
+                response.headers["Content-Disposition"] = 'attachment; filename="'+userfile.nombre+'"'
+        if userfile.nombre.find(".") == -1:
+            response.headers["Content-Type"] = "text/plain"
+        return userfile.archivo
+   
+        return redirect('/desarrollar/items/index/?itemid='+str(iid))
         
     @expose('gestionitem.templates.item.verificarItem')
     def verificarItem(self,id, **named):
@@ -1380,106 +1530,310 @@ class ItemControler(BaseController):
                     proyecto=proyecto,currentPage = currentPage,subtitulo='Historial-Item')
         
         
+    @expose('gestionitem.templates.item.listaItemsElim')
+    def listaItemsElim(self,idFase, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user'] 
+        #CONSULTA ALA BD   
+        fase=DBSession.query(Fase).filter_by(id=idFase).one()
+        estados=[1,2,3,4,5,8]
+        itemsElimFase=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==fase.id).filter_by(estado_id=7).order_by(ItemUsuario.id).all()
+        itemsEnProd=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==fase.id).filter(ItemUsuario.estado_id.in_(estados)).order_by(ItemUsuario.id).all()
+        filtro=named.get('filtros','')
+        if (filtro!=""):
+                itemsElimFase=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==fase.id).filter_by(estado_id=7).filter(ItemUsuario.descripcion.like('%'+str(filtro)+'%')).order_by(ItemUsuario.id).all()   
+        proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
+        #from webhelpers import paginate
+        count = itemsElimFase.__len__()
+        page =int( named.get( 'page', '1'))
+        currentPage = paginate.Page(
+            itemsElimFase, page, item_count=count, 
+            items_per_page=3,
+        )
+        itemsEnProduccion=[]
+        for itemP in itemsEnProd:
+            itemsEnProduccion.append(itemP.cod_item)
+        
+        
+        expresion=str(named.get( 'expresion'))
+        expre_cad=expresion
+        filtro=""
+        muestraBoton="false"
+        return dict(page='Historial-Item',user=user,itemsEnProduccion=itemsEnProduccion,
+                    muestraBoton=muestraBoton,itemsEnProd=itemsEnProd,
+                    named=named,filtro=filtro,itemsElimFase=itemsElimFase,
+                    fase=fase,  
+                    proyecto=proyecto,currentPage = currentPage,subtitulo='Items Eliminados')
         
     @expose()
-    def revertirItem( self,idItemActual,idItemAnterior,  **named):
-        #Obtiene el id del Item a modificar
-        itemActual=DBSession.query(ItemUsuario).filter_by(id=idItemActual).one()
-        lbActualAnt=itemActual.linea_base_ant
-        itemAnterior=DBSession.query(ItemUsuario).filter_by(id=idItemAnterior).one()
-        itemActual.estado_id=6
-        DBSession.flush()
-        #Obtiene los items relacionados
-        relacionesActual = DBSession.query(RelacionItem).filter_by(estado_id=1).filter(or_(RelacionItem.sucesor_item_id == itemActual.id, RelacionItem.antecesor_item_id == itemActual.id)).order_by(RelacionItem.id).all()
-        relaciones_antecesores=[]
-        relaciones_sucesores=[]
-        for i, relActual in enumerate(relacionesActual):
-            relaciones_antecesores.append(relActual.antecesor_item_id)
-            relaciones_sucesores.append(relActual.sucesor_item_id)
-            relActual.estado_id=2
-            DBSession.flush()
-        itemsRelacionados = DBSession.query(ItemUsuario).filter(or_(ItemUsuario.id.in_(relaciones_antecesores),ItemUsuario.id.in_(relaciones_sucesores))).all()
-        for i, itemActual in enumerate(itemsRelacionados):
-            
-            if (itemActual.estado_id==3) or (itemActual.estado_id==5):
-                itemActual.estado_id=4
-                DBSession.flush()
-                lineaBase=DBSession.query(LineaBase).filter_by(id=itemActual.linea_base_id)
-                lineaBase.estado_id=4
-                DBSession.flush()
-        version=itemActual.version
-        version=version+1        
+    def revivirItem(self,idItem, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user'] 
+        itemElim=DBSession.query(ItemUsuario).filter_by(id=idItem).one()
+        itemsOtrasVersiones=DBSession.query(ItemUsuario).filter_by(cod_item=itemElim.cod_item).order_by(ItemUsuario.version).all()  
+        versionUltima=itemsOtrasVersiones[-1].version
+        versionActual=versionUltima+1
+        
+      
+        
+        
         listaIds=DBSession.query(ItemUsuario).order_by(ItemUsuario.id)
+        fase=DBSession.query(Fase).filter_by(id=itemElim.fase_id).one()
         if (listaIds.count()>0):
-            listTemp=listaIds[-1]
-            id=listTemp.id + 1
+            listaTemp=listaIds[-1]
+            id=listaTemp.id + 1
         else: 
-            id=1                                
-        if (itemActual.tipo_item_id!=""):
-            new = ItemUsuario()
-            new.id=id                              
-            new.tipo_item_id = itemAnterior.tipo_item_id
-            new.fase_id = itemAnterior.fase_id
-            new.numero_cod = itemAnterior.numero_cod
-            new.cod_item=itemAnterior.cod_item
-            new.prioridad=itemAnterior.prioridad
-            new.descripcion=itemAnterior.descripcion
-            new.version=version
-            new.linea_base_ant=lbActualAnt
-            new.estado_id=2
-            
-            DBSession.add( new )
+            id=1                            
+        
+        archivosAnteriores=DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=itemElim.id).all()
+        for newFile in archivosAnteriores:
+            new_file2 = ArchivosAdjuntos(nombre=newFile.nombre, archivo=newFile.archivo,item_usuario_id=id)
+            DBSession.add(new_file2)
             DBSession.flush()
-            
-            atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=itemActual.tipo_item_id).order_by(TipoItemUsuarioAtributos.id).all()
-            idAtributos=[]
-            for i, atri in enumerate(atributos):
-                idAtributos.append(atri.id)
-            listaValor=DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemAnterior.id).filter(TipoItemUsuarioAtributosValor.atributo_id.in_(idAtributos)).order_by(TipoItemUsuarioAtributosValor.id).all()
-            if type(idAtributos) == list:
-                for i, valor in enumerate(listaValor):
+        if (itemElim.tipo_item_id!=None):
+                new = ItemUsuario()
+                new.id=id                              
+                new.tipo_item_id = itemElim.tipo_item_id
+                new.fase_id = itemElim.fase_id
+                new.numero_cod = itemElim.numero_cod
+                new.cod_item=itemElim.cod_item
+                new.prioridad=itemElim.prioridad
+                new.descripcion=itemElim.descripcion
+                new.version=versionActual
+                new.estado_id=1
+                
+                DBSession.add( new )
+                DBSession.flush()
+                
+                atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=itemElim.tipo_item_id).order_by(TipoItemUsuarioAtributos.id).all()
+                idAtributos=[]
+                for i, atri in enumerate(atributos):
+                    idAtributos.append(atri.id)
+                listaValor=DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemElim.id).filter(TipoItemUsuarioAtributosValor.atributo_id.in_(idAtributos)).order_by(TipoItemUsuarioAtributosValor.id).all()
+                if type(idAtributos) == list:
+                    for i, valor in enumerate(listaValor):
+                        new2 = TipoItemUsuarioAtributosValor(
+                        item_usuario_id = id,
+                        atributo_id = idAtributos[i],
+                        valor=valor.valor
+                        )
+                        DBSession.add( new2 )
+                else:
                     new2 = TipoItemUsuarioAtributosValor(
-                    item_usuario_id = id,
-                    atributo_id = idAtributos[i],
-                    valor=valor.valor
-                    )
+                        item_usuario_id = id,
+                        atributo_id = idAtributos,
+                        valor=listaValor
+                        )
                     DBSession.add( new2 )
-            else:
-                new2 = TipoItemUsuarioAtributosValor(
-                    item_usuario_id = id,
-                    atributo_id = idAtributos,
-                    valor=listaValor
-                    )
-                DBSession.add( new2 )
-        elif(itemActual.tipo_item_id==""):
+        elif(itemElim.tipo_item_id==None):
             new = ItemUsuario()
             new.id=id,                              
-            new.fase_id = itemAnterior.fase_id,
-            new.cod_item= itemAnterior.cod_item,
-            new.numero_cod = itemAnterior.numero_cod,
-            new.prioridad= itemAnterior.prioridad,
-            new.descripcion= itemAnterior.descripcion,
-            new.estado_id=2,
-            new.linea_base_ant=lbActualAnt
-            new.version=version,
+            new.fase_id = itemElim.fase_id,
+            new.cod_item= itemElim.cod_item,
+            new.numero_cod = itemElim.numero_cod,
+            new.prioridad= itemElim.prioridad,
+            new.descripcion= itemElim.descripcion,
+            new.estado_id=1,
+            new.version=versionActual,
             new.tipo_item_generico = 1
             DBSession.add( new )
             DBSession.flush()
         
-        for i, relNueva in enumerate(relacionesActual):
-            newRel = RelacionItem()
-            if (relNueva.antecesor_item_id!=itemActual.id):
-                newRel.antecesor_item_id=relNueva.antecesor_item_id
-            else:
-                newRel.antecesor_item_id=id
-            if (relNueva.sucesor_item_id!=itemActual.id):
-                newRel.sucesor_item_id=relNueva.sucesor_item_id
-            else:
-                newRel.sucesor_item_id=id
-            newRel.tipo=relNueva.tipo
-            newRel.estado_id=1
-            DBSession.add(newRel)
+     
+        itemNuevo=DBSession.query(ItemUsuario).filter_by(id=id).one()
+        
+        if fase.numero_fase==1:
+            itemNuevo.estado_id=2
             DBSession.flush()
+            
+        
+        redirect( '/item/itemList/'+str(itemNuevo.fase_id) )
+        flash( '''Tipo Item Agregado! %s''')    
+       
+    
+    
+    @expose()
+    def revertirItemSinLB( self,idItemActual,idItemAnterior,  **named):
+        itemAnterior=DBSession.query(ItemUsuario).filter_by(id=idItemAnterior).one()
+        #Obtiene el id del Item a modificar
+        itemActual=DBSession.query(ItemUsuario).filter_by(id=idItemActual).one()
+        lbActualAnt=itemActual.linea_base_ant
+        try:
+            userfile = DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=itemActual.id).all()
+            for archivo in userfile:
+                DBSession.delete(archivo)
+        except:
+            userfile = ""
+        
+        archivosAnteriores=DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=itemAnterior.id).all()
+        for newFile in archivosAnteriores:
+            new_file2 = ArchivosAdjuntos(nombre=newFile.nombre, archivo=newFile.archivo,item_usuario_id=itemActual.id)
+            DBSession.add(new_file2)
+            DBSession.flush()
+        
+        
+        #Obtiene los items relacionados                                
+        if (itemActual.tipo_item_id!=None):
+            itemActual.tipo_item_id = itemAnterior.tipo_item_id
+            itemActual.fase_id = itemAnterior.fase_id
+            itemActual.numero_cod = itemAnterior.numero_cod
+            itemActual.cod_item=itemAnterior.cod_item
+            itemActual.prioridad=itemAnterior.prioridad
+            itemActual.descripcion=itemAnterior.descripcion
+            #itemActual.version=version
+            itemActual.linea_base_ant=lbActualAnt
+            itemActual.estado_id=2
+            DBSession.flush()
+            atributosActual=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=itemActual.tipo_item_id).order_by(TipoItemUsuarioAtributos.id).all()
+            idAtributosActual=[]
+            for i, atri in enumerate(atributosActual):
+                idAtributosActual.append(atri.id)
+            listaValorAnterior=DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemAnterior.id).filter(TipoItemUsuarioAtributosValor.atributo_id.in_(idAtributosActual)).order_by(TipoItemUsuarioAtributosValor.id).all()
+            listaValorActual=DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemActual.id).filter(TipoItemUsuarioAtributosValor.atributo_id.in_(idAtributosActual)).order_by(TipoItemUsuarioAtributosValor.id).all()
+            if type(idAtributosActual) == list:
+                for i, valorAnt in enumerate(listaValorAnterior):
+                    valorActual=DBSession.query(TipoItemUsuarioAtributosValor).filter_by(id=listaValorActual[i].id).one()
+                    valorActual.valor=valorAnt.valor
+                    DBSession.flush()
+            else:
+                    listaValorActual.valor=listaValorAnterior.valor
+                    DBSession.flush()
+        elif(itemActual.tipo_item_id==None):
+            itemActual.fase_id = itemAnterior.fase_id,
+            itemActual.cod_item= itemAnterior.cod_item,
+            itemActual.numero_cod = itemAnterior.numero_cod,
+            itemActual.prioridad= itemAnterior.prioridad,
+            itemActual.descripcion= itemAnterior.descripcion,
+            itemActual.estado_id=2,
+            itemActual.linea_base_ant=lbActualAnt
+                #new.version=version,
+            itemActual.tipo_item_generico = 1
+            DBSession.flush()
+        
+        
+        redirect( '/item/itemList/'+str(itemActual.fase_id) )
+        flash( '''Tipo Item Agregado! %s''')    
+        
+    
+    
+    
+    @expose()
+    def revertirItem( self,idItemActual,idItemAnterior,  **named):
+        #Obtiene el id del Item a modificar
+        itemActual=DBSession.query(ItemUsuario).filter_by(id=idItemActual).one()
+        if (itemActual.estado_id!=5):
+            redirect( '/item/revertirItemSinLB/'+idItemActual+'/'+idItemAnterior)
+        else:
+            lbActualAnt=itemActual.linea_base_ant
+            lbAC=DBSession.query(LineaBase).filter_by(id=itemActual.linea_base_id).one()
+            lbAC.estado_id=5
+            DBSession.flush()
+            itemAnterior=DBSession.query(ItemUsuario).filter_by(id=idItemAnterior).one()
+            itemActual.estado_id=6
+            DBSession.flush()
+            #Obtiene los items relacionados
+            relacionesActual = DBSession.query(RelacionItem).filter_by(estado_id=1).filter(or_(RelacionItem.sucesor_item_id == itemActual.id, RelacionItem.antecesor_item_id == itemActual.id)).order_by(RelacionItem.id).all()
+            relaciones_antecesores=[]
+            relaciones_sucesores=[]
+            for i, relActual in enumerate(relacionesActual):
+                relaciones_antecesores.append(relActual.antecesor_item_id)
+                relaciones_sucesores.append(relActual.sucesor_item_id)
+                relActual.estado_id=2
+                DBSession.flush()
+            itemsRelacionados = DBSession.query(ItemUsuario).filter(or_(ItemUsuario.id.in_(relaciones_antecesores),ItemUsuario.id.in_(relaciones_sucesores))).all()
+            for i, itemActual in enumerate(itemsRelacionados):
+                
+                if (itemActual.estado_id==3) or (itemActual.estado_id==5):
+                    itemActual.estado_id=4
+                    DBSession.flush()
+                    lineaBase=DBSession.query(LineaBase).filter_by(id=itemActual.linea_base_id)
+                    lineaBase.estado_id=4
+                    DBSession.flush()
+            version=itemActual.version
+            version=version+1        
+            listaIds=DBSession.query(ItemUsuario).order_by(ItemUsuario.id)
+            if (listaIds.count()>0):
+                listTemp=listaIds[-1]
+                id=listTemp.id + 1
+            else: 
+                id=1
+            try:
+                userfile = DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=itemActual.id).all()
+                for archivo in userfile:
+                    DBSession.delete(archivo)
+            except:
+                userfile = ""
+        
+            archivosAnteriores=DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=itemAnterior.id).all()
+            for newFile in archivosAnteriores:
+                new_file2 = ArchivosAdjuntos(nombre=newFile.nombre, archivo=newFile.archivo,item_usuario_id=id)
+                DBSession.add(new_file2)
+                DBSession.flush()                                
+            if (itemActual.tipo_item_id!=None):
+                new = ItemUsuario()
+                new.id=id                              
+                new.tipo_item_id = itemAnterior.tipo_item_id
+                new.fase_id = itemAnterior.fase_id
+                new.numero_cod = itemAnterior.numero_cod
+                new.cod_item=itemAnterior.cod_item
+                new.prioridad=itemAnterior.prioridad
+                new.descripcion=itemAnterior.descripcion
+                new.version=version
+                new.linea_base_ant=lbActualAnt
+                new.estado_id=2
+                
+                DBSession.add( new )
+                DBSession.flush()
+                
+                atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=itemActual.tipo_item_id).order_by(TipoItemUsuarioAtributos.id).all()
+                idAtributos=[]
+                for i, atri in enumerate(atributos):
+                    idAtributos.append(atri.id)
+                listaValor=DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemAnterior.id).filter(TipoItemUsuarioAtributosValor.atributo_id.in_(idAtributos)).order_by(TipoItemUsuarioAtributosValor.id).all()
+                if type(idAtributos) == list:
+                    for i, valor in enumerate(listaValor):
+                        new2 = TipoItemUsuarioAtributosValor(
+                        item_usuario_id = id,
+                        atributo_id = idAtributos[i],
+                        valor=valor.valor
+                        )
+                        DBSession.add( new2 )
+                else:
+                    new2 = TipoItemUsuarioAtributosValor(
+                        item_usuario_id = id,
+                        atributo_id = idAtributos,
+                        valor=listaValor
+                        )
+                    DBSession.add( new2 )
+            elif(itemActual.tipo_item_id==None):
+                new = ItemUsuario()
+                new.id=id,                              
+                new.fase_id = itemAnterior.fase_id,
+                new.cod_item= itemAnterior.cod_item,
+                new.numero_cod = itemAnterior.numero_cod,
+                new.prioridad= itemAnterior.prioridad,
+                new.descripcion= itemAnterior.descripcion,
+                new.estado_id=2,
+                new.linea_base_ant=lbActualAnt,
+                new.version=version,
+                new.tipo_item_generico=1,
+                DBSession.add( new )
+                DBSession.flush()
+            
+            for i, relNueva in enumerate(relacionesActual):
+                newRel = RelacionItem()
+                if (relNueva.antecesor_item_id!=itemActual.id):
+                    newRel.antecesor_item_id=relNueva.antecesor_item_id
+                else:
+                    newRel.antecesor_item_id=id
+                if (relNueva.sucesor_item_id!=itemActual.id):
+                    newRel.sucesor_item_id=relNueva.sucesor_item_id
+                else:
+                    newRel.sucesor_item_id=id
+                newRel.tipo=relNueva.tipo
+                newRel.estado_id=1
+                DBSession.add(newRel)
+                DBSession.flush()
         
         
         redirect( '/item/itemList/'+str(itemActual.fase_id) )
