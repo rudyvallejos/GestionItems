@@ -171,7 +171,7 @@ formatoNoValido[i]=false
 <!--div onclick="comprueba(this)">Otro comentario</div-->
 <div><h3>Editar Item</h3></div>
 <div id="CargaAtributos">
- 	<form  display="none"  name="form" onsubmit="return validarCamposObligatorios(this)" action="/item/saveItemLB" method="get">
+ 	<form  display="none"  name="form" onsubmit="return validarCamposObligatorios(this)" action="/item/saveItemLB" enctype="multipart/form-data" method="post">
      <input type="hidden" name="idFase" value="${fase.id}"/>
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <input type="hidden" name="idItem" value="${item.id}"/>
@@ -207,7 +207,7 @@ formatoNoValido[i]=false
 		<td><textarea name="descripcion" py:content="item.descripcion" rows="7" cols="38"/><b>*</b></td>
 		<td><label><b>Adjuntar archivo:</b></label></td>
 		<td>
-		<input type="file" />
+		<input type="file" name="file"/>
 		</td>
 	</tr>
 	
@@ -227,7 +227,12 @@ formatoNoValido[i]=false
 	</py:if>
 	</py:for>	
 	</py:for>
-	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+	<tr><td colspan="3"><b>Archivos Adjuntados:</b></td>
+    <tr py:for="file in current_files">
+    	<td/><td><a href="/item/view/${file.id}/${item.id}">${file.nombre}</a>[<a href="/item/delete/${file.id}?path=/item/editar_itemLB/${fase.id}/${item.id}"><IMG title="Def fase" border="0" height="15" src="${tg.url('/images/error.png')}" /></a>]</td> 
+    </tr>
+    </tr>
 	<tr/><tr/><tr/><tr/><tr/><tr/>
 	<tr>
 		

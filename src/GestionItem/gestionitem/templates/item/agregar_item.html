@@ -161,6 +161,7 @@ formatoNoValido[i]=false
 
 
 <head>
+ 
 <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
 </head>
 
@@ -169,7 +170,7 @@ formatoNoValido[i]=false
 <!--div onclick="comprueba(this)">Otro comentario</div-->
 <div><h3>Agregar Nuevo Item</h3></div>
 <div id="CargaAtributos">
- 	<form  display="none"  name="form" onsubmit="return validarCamposObligatorios(this)" action="/item/saveItem" method="get">
+ 	<form  display="none"  name="form" onsubmit="return validarCamposObligatorios(this)" action="/item/saveItem" enctype="multipart/form-data" method="post">
      <input type="hidden" name="idFase" value="${fase.id}"/>
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <input type="hidden" name="numCod" value="${item.numero_cod}"/>
@@ -227,7 +228,7 @@ formatoNoValido[i]=false
 		<td><textarea name="descripcion" py:content="item.descripcion" rows="7" cols="38"/><b>*</b></td>
 		<td><label>Adjuntar archivo</label></td>
 		<td>
-		<input type="file" />
+		<input type="file" name="file"/>
 		</td>
 	</tr>
 	<div>

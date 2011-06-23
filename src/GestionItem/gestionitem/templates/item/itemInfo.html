@@ -136,7 +136,11 @@ function verificarItems()
 			</tr>
 		
 		</py:if>
-	
+	<tr><td/><td><u><b>Archivos Adjuntados:</b></u></td>
+    <tr py:for="file in current_files">
+    	<td/><td/><td><a href="/item/view/${file.id}/${item.id}">${file.nombre}</a> </td>
+    </tr>
+    </tr>
 	<tr/><tr/><tr/><tr/><tr/><tr/>
 	<!--  form  display="none"   action="/item/relacionar_item/${item.id}/${fase.id}" name="formulario" onSubmit="return verificar(this);" method="get">
 	<tr><td><h3>Seleccione las Fases: </h3></td></tr>
