@@ -100,14 +100,26 @@ class LineaBaseController(BaseController):
                 item.linea_base_ant = id
                 DBSession.flush()
 
-        
-        
+        estados=[1,2,3,4,5,8]
+        itemsEnLB=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==faseid).filter(ItemUsuario.estado_id.in_(estados)).order_by(ItemUsuario.id).all()
+        faseConLB=0
+        for itemP in itemsEnLB:
+            if itemP.estado_id!=3:
+                faseConLB=1
+        if faseConLB==0:
+            fase=DBSession.query(Fase).filter_by(id=faseid).one()
+            fase.estado_id=4
+            DBSession.flush()
+        else:
+            fase=DBSession.query(Fase).filter_by(id=faseid).one()
+            fase.estado_id=4
+            DBSession.flush()  
         redirect('/item/itemList/'+faseid)
         
     @expose(template="gestionitem.templates.lineaBase.lista_linea_base")
     def listar_linea_base(self, idproyecto,idfase, **named):
         
-        
+        expresion=""
        
         submit=named.get( 'submit')
         
@@ -137,16 +149,26 @@ class LineaBaseController(BaseController):
         
         lista = currentPage.items
         
-        return dict(lista=lista, fase=fase, proyecto=proyecto,filtro='', currentPage=currentPage, page=page)
+        return dict(lista=lista, fase=fase, proyecto=proyecto,filtro=expresion, currentPage=currentPage, page=page)
     
     
     @expose(template="gestionitem.templates.lineaBase.lista_items_x_linea_base")
     def items_linea_base(self, lb_id, idfase, **named):
         
-        items = DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id == lb_id).all()
+       
+        expresion=""
+        
+        submit=named.get( 'submit')
+        
+        if(submit=="Buscar"): 
+            expresion=named.get( 'filtro')
+            expre_cad=expresion
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==lb_id).filter(or_(ItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(ItemUsuario.cod_item.like('%'+str(expre_cad)+'%')))).all()
+        else:
+            items = DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id == lb_id).all()
+        
         
         fase = DBSession.query(Fase).filter(Fase.id == idfase).one()
-        
         lineabase = DBSession.query(LineaBase).filter(LineaBase.id == lb_id).one()
         
         from webhelpers import paginate
@@ -159,14 +181,14 @@ class LineaBaseController(BaseController):
         )
         items = currentPage.items
         
-        return dict(items=items, fase=fase, filtro='', lineabase=lineabase, page = page, currentPage=currentPage)
+        return dict(items=items, fase=fase, filtro=expresion, lineabase=lineabase, page = page, currentPage=currentPage)
     
     @expose(template="gestionitem.templates.lineaBase.cerrar_linea_base_abierta")
     def cerrar_linea_base_abierta(self,idFase, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
         #CONSULTA ALA BD
-        lbSolicitadas=DBSession.query(LineaBase).filter_by(apertura="1").filter(LineaBase.fase_id==idFase).all()
+        lbSolicitadas=DBSession.query(LineaBase).filter_by(estado_id = 2).filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
         for idLB in lbSolicitadas:
             items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
