@@ -47,7 +47,17 @@
         }else if (boton=="ListarTodos"){
        	 	F.filtros.value=""
         		return true
-        }				
+        }
+        
+        	if (boton=="Cancelar")
+		{  
+   				
+    				
+    				document.form1.action="/item/itemList/${fase.id}/"
+			  		
+			  		return true;	
+				
+       	}				
 }
 
 function botonPresionado(botonP){
@@ -62,22 +72,56 @@ function botonPresionado(botonP){
 <body>
 
 <div><h3>Pantalla para generar linea base</h3></div>
+
+   <table>
+		<tr>
+			<!-- td>
+				<a href="/item/itemList/${fase.id}" ><IMG title="Lista fase" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 			</td-->	
+			<td>
+				<u><b>Proyecto</b></u>
+			</td>
+			<td>
+				<label>${fase.proyectoObj.descripcion}</label>
+			</td>
+		</tr>
+		
+		<tr>
+			
+			<td><u><b>Fase Nro.</b></u></td>
+			<td><label>${fase.numero_fase}</label></td>
+		</tr>
+		
+		<tr>
+			
+			<td><u><b>Fase</b></u></td>
+			<td><label>${fase.descripcion}</label></td>
+		</tr>	
+  			
+   </table> 
+
 <div id="list_item_aprobados">
-  <form action="/lb/generar_linea_base/${fase.id}" method="get" name="form1" onsubmit="valida(this)">
+  <form  class="izquierda"  action="/lb/generar_linea_base/${fase.id}" method="get" name="form1" onsubmit="return valida(this)">
   	
-    <div><h3>Lista de Items aprobados </h3></div>
-    <table>
-     <div id="Buscador">
-    	<div><td><label><b>Buscar:</b></label>
-    		</td><td><input type="text" size="15" name="filtros" value="${filtro}"/></td><td><input   type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/></td>
-    		<td><input   type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/></td>
- 		</div>   
- 	</div></table>
+    <div align="left"><h3>Lista de Items aprobados </h3></div>
+   
+	     <div id="Buscador">
+	    	<div>
+	    		<td>
+	    			<label>
+  								<b>Buscar:</b>
+  							</label>
+	    			<input type="text" size="15" name="filtros" value="${filtro}"/></td><td><input   type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/>
+	    			<input type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/>
+	    		</td>
+	 		</div>   
+	 	 </div>
+ 	
     <div class="crud_table" style="height:80%; width:100%">
 		<div>
-		<table class="grid" rules="all">
+		<table class="grid" rules="all" style="height:80%; width:100%">
     		<thead>
-     			<tr><th></th><th>Cod. Item</th><th >Descripcionxx</th><th>Fase</th><th>Nro.Fase</th></tr>
+     			<tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Fase</th><th>Nro.Fase</th></tr>
     		</thead>
      		<tbody >
         		<tr py:for="i, item in enumerate(items)" class="${i%2 and 'odd' or 'even'}">
@@ -106,6 +150,7 @@ function botonPresionado(botonP){
 		</div>
     </div>
       	<br/><br/><br/><br/>
+      	<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
 		<input align="right" name="submit" onclick="botonPresionado('genlb')" title="Generar" type="submit" value="Generar Linea Base"/>	
 	 </form>
 </div>
