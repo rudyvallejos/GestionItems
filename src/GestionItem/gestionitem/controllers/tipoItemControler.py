@@ -1,6 +1,7 @@
 from gestionitem.lib.base import BaseController
 #from sqlalchemy import or_ 
-from tg import expose, flash,redirect
+from tg import expose, flash, require, url, request, redirect, response
+
 from gestionitem.model import DBSession
 from gestionitem.model.proyecto import Fase,Proyecto, TipoItemUsuario,TipoItemUsuarioAtributos, Tipo
 
@@ -9,6 +10,9 @@ class TipoItemControler(BaseController):
       
     @expose('gestionitem.templates.tipoItem.tipoItemUsuario')
     def tipoItemUsuario(self,id,expresion,**named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        
         if expresion=="lista":
             muestraBoton="false"    
             fase = DBSession.query(Fase).filter_by(id=id).one()
@@ -32,9 +36,9 @@ class TipoItemControler(BaseController):
             tiposItemUs, page, item_count=count,
             items_per_page=3,
         )
-        tiposItemUs = currentPage.items
+        tiposItemUs = currentPage.items 
 
-        return dict(muestraBoton=muestraBoton,page='tipoItemUsuario',fase=fase,
+        return dict(muestraBoton=muestraBoton,user=user,page='tipoItemUsuario',fase=fase,
                     tiposItemUs=tiposItemUs, proyecto=proyecto,
                     subtitulo='ABM-TipoItemUsuario',currentPage = currentPage)
     @expose(template="gestionitem.templates.tipoItem.tipoItem_editar")
@@ -48,8 +52,10 @@ class TipoItemControler(BaseController):
             codigos.append(itemUser.codigo)
             codigos.append(",")
         
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         
-        return dict(page='Editar Tipo de Item',codigos=codigos,
+        return dict(page='Editar Tipo de Item',user=user,codigos=codigos,
                     id=id,proyecto=proyecto,fase=fase,tipoItem=tipoItem,subtitulo='TipoItem-Editar')
     @expose()
     def actualizar_tipoItem( self,id,idProy, idFase,codItem,nombre, submit ):
@@ -62,6 +68,9 @@ class TipoItemControler(BaseController):
  
     @expose('gestionitem.templates.tipoItem.agregar_tipoItem')
     def agregar_tipoItem(self,id):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        
         fase=DBSession.query(Fase).filter_by(id=id).one()
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
         todosItems=DBSession.query(TipoItemUsuario).filter_by(fase_id=fase.id)
@@ -74,7 +83,7 @@ class TipoItemControler(BaseController):
         tipoItem.descripcion=''
         tipoItem.codigo=''
         #fases=DBSession.query(Fase).filter_by(proyecto_id=id)
-        return dict(page='Nuevo recurso',codigos=codigos,fase=fase,
+        return dict(page='Nuevo recurso',user=user,codigos=codigos,fase=fase,
                     proyecto=proyecto, 
                     tipoItem=tipoItem,subtitulo='ABM-Recurso')
     @expose()
@@ -101,7 +110,10 @@ class TipoItemControler(BaseController):
        
     @expose('gestionitem.templates.tipoItem.atributosDef')
     def atributosDef(self,id,**named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
         tipoItem = DBSession.query(TipoItemUsuario).filter_by(id=id).one()
+        fase=DBSession.query(Fase).filter_by(id=tipoItem.fase_id).one()
         atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=id).order_by( TipoItemUsuarioAtributos.id )    
         from webhelpers import paginate
         count = atributos.count()
@@ -112,7 +124,7 @@ class TipoItemControler(BaseController):
         )
         atributos = currentPage.items
 
-        return dict(page='tipoItemUsuario',
+        return dict(page='tipoItemUsuario',user=user, fase=fase,
                     atributos=atributos, tipoItem=tipoItem,
                     subtitulo='ABM-TipoItemUsuario',currentPage = currentPage)
         

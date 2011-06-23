@@ -463,14 +463,10 @@ class ProyectoController(BaseController):
     def agregar_usuario_fase(self, id, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
-        noRepetir = []
         usuarios = DBSession.query(User).join((Rol, User.groups)).filter(or_(Rol.group_name == 'Aprobador', Rol.group_name == 'Desarrollador')).all()
         roles = DBSession.query(Rol).filter(or_(Rol.group_name == 'Aprobador', Rol.group_name == 'Desarrollador')).all()
         fase = DBSession.query(Fase).filter(Fase.id == id).one()
-        usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id == id).all()
-#        for ufr in usuarioFaseRol:
-#            noRepetir.append(str(ufr.user_id)+':'+str(ufr.rol_id))
-#            noRepetir.append(',')
+#        usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id == id).all()
         
         
         return dict(page='Asignar Usuario a fase ' + fase.descripcion,
@@ -561,34 +557,40 @@ class ProyectoController(BaseController):
         usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.id == ufr).one()
         user = usuarioFaseRol.user_id
         
-        try:
-            rol = int(rol)
+        if rol==None:
+            usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.id == ufr).one()
+            DBSession.delete(usuarioFaseRol)
+        
+        else:    
+        
             try:
-                usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id == fase).filter(UsuarioFaseRol.user_id == user).filter(UsuarioFaseRol.rol_id == rol).one()
-                DBSession.delete(usuarioFaseRol)
-            except:
-                pass
-            new = UsuarioFaseRol(user_id=user,
-                                    fase_id=fase,
-                                    rol_id=rol
-                                 ) 
-            
-            DBSession.add(new)
-            
-        except:
-            
-            for rol1 in rol:
+                rol = int(rol)
                 try:
-                    usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id == fase).filter(UsuarioFaseRol.user_id == user).filter(UsuarioFaseRol.rol_id == rol1).one()
+                    usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id == fase).filter(UsuarioFaseRol.user_id == user).filter(UsuarioFaseRol.rol_id == rol).one()
                     DBSession.delete(usuarioFaseRol)
                 except:
                     pass
                 new = UsuarioFaseRol(user_id=user,
-                                    fase_id=fase,
-                                    rol_id=rol1
-                                 ) 
-            
+                                        fase_id=fase,
+                                        rol_id=rol
+                                     ) 
+                
                 DBSession.add(new)
+                
+            except:
+                
+                for rol1 in rol:
+                    try:
+                        usuarioFaseRol = DBSession.query(UsuarioFaseRol).filter(UsuarioFaseRol.fase_id == fase).filter(UsuarioFaseRol.user_id == user).filter(UsuarioFaseRol.rol_id == rol1).one()
+                        DBSession.delete(usuarioFaseRol)
+                    except:
+                        pass
+                    new = UsuarioFaseRol(user_id=user,
+                                        fase_id=fase,
+                                        rol_id=rol1
+                                     ) 
+                
+                    DBSession.add(new)
         redirect('/proyecto/usuario_faseList/' + fase)
         
         

@@ -224,7 +224,7 @@ class PermissionControllerConfig(CrudRestControllerConfig):
 
         class PermissionEditForm(EditableForm):
             __model__ = self.model
-            __limit_fields__ = [permission_name_field, permission_description_field]
+            __limit_fields__ = [permission_name_field, permission_description_field, 'groups']
         self.edit_form_type = PermissionEditForm
 
         class PermissionEditFiller(RecordFiller):
