@@ -18,7 +18,26 @@ function validarCamposObligatorios(form){
 	
 	}
 	
-}    
+	
+}
+
+function validarCodigos(form,lista){
+
+	codigos=lista.split(',');
+	user=document.form.user.value;
+	rol=document.form.rol.value;
+	codigoNuevo = user.toString() + rol.toString(); 
+
+	for(j=0; ele=codigos[j]; j++){
+		if(ele==codigoNuevo){
+			alert("El usuario con el rol ya esta asignado a la fase");
+				codRepetido=true		
+	            return false;  
+		} 
+		
+	}
+	codRepetido=false 
+}
 </script>
     
 
@@ -51,7 +70,7 @@ function validarCamposObligatorios(form){
                     <tr>
                         <td align="left"><label>Rol </label></td>
                         <td align="right">
-                            <input py:for="rol in roles"  type="radio" name="rol" value="${rol.group_id}">${rol.group_name}</input>
+                            <input py:for="rol in roles"  type="checkbox" name="rol" value="${rol.group_id}">${rol.group_name}</input>
                         </td>
                     </tr>
                     <tr>
