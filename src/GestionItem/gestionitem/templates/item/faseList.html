@@ -53,7 +53,7 @@
             	<py:if test="fase.estadoObj.id!=2"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
                 <td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
                 <td class="col_1">${fase.estadoObj.descripcion}</td>
-                <td class="col_1"><a href="/lb/generar_linea_base/${fase.id}">Generar Linea Base</a></td>
+                <td class="col_1"><py:if test="tg.predicates.has_permission('Generar linea base')"><a href="/lb/generar_linea_base/${fase.id}">Generar Linea Base</a></py:if></td>
         		<td class="col_1"><py:if test="mensajes[i]!=''"><a href="/proyecto/lista" ><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /></a>
         		<a href="/item/verSolicitudAperturaLB/${fase.id}">${mensajes[i]}</a>
         		</py:if></td>
