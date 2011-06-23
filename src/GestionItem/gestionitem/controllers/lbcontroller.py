@@ -100,8 +100,20 @@ class LineaBaseController(BaseController):
                 item.linea_base_ant = id
                 DBSession.flush()
 
-        
-        
+        estados=[1,2,3,4,5,8]
+        itemsEnLB=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==faseid).filter(ItemUsuario.estado_id.in_(estados)).order_by(ItemUsuario.id).all()
+        faseConLB=0
+        for itemP in itemsEnLB:
+            if itemP.estado_id!=3:
+                faseConLB=1
+        if faseConLB==0:
+            fase=DBSession.query(Fase).filter_by(id=faseid).one()
+            fase.estado_id=4
+            DBSession.flush()
+        else:
+            fase=DBSession.query(Fase).filter_by(id=faseid).one()
+            fase.estado_id=4
+            DBSession.flush()  
         redirect('/item/itemList/'+faseid)
         
     @expose(template="gestionitem.templates.lineaBase.lista_linea_base")

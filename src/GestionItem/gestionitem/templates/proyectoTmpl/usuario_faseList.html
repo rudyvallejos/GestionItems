@@ -1,86 +1,149 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:py="http://genshi.edgewall.org/"
-	xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<xi:include href="master.html" />
+    <xi:include href="master.html" />
 
-<head>
-<link rel="stylesheet" type="text/css"
-	href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
-<title>Lista de usuarios de fases</title>
-<style type="">
-#menu_items {
-	padding: 0px 12px 0px 2px;
-	list-style-type: None
-}
-</style>
-<link rel="stylesheet" type="text/css" media="screen"
-	href="/css/style.css" />
-<link rel="stylesheet" type="text/css" media="screen"
-	href="/css/admin.css" />
-</head>
-<body class="tundra">
-	<h2>Usuarios de fase ${descripcion}</h2>
-	<a href="/proyecto/definir_fase/${proyecto_id}"><IMG height="30" title="Def fase" border="0" src="/images/flechaAtras.jpg" /></a>
- <br/><br/>
-	<a class="add_link" href="/proyecto/agregar_usuario_fase/${fase_id}">Agregar
+    <head>
+        <link rel="stylesheet" type="text/css"
+              href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
+        <title>Lista de usuarios de fases</title>
+        <style type="">
+            #menu_items {
+                padding: 0px 12px 0px 2px;
+                list-style-type: None
+            }
+        </style>
+        <link rel="stylesheet" type="text/css" media="screen"
+              href="/css/style.css" />
+        <link rel="stylesheet" type="text/css" media="screen"
+              href="/css/admin.css" />
+
+        <script type="text/javascript">
+
+
+            function valida(F) {
+
+                if(F.expresion.value != "" ) {
+                    return true
+                }else
+                    alert('Debe proporcionar un filtro');
+                return false
+            }
+
+            function popup(mylink, windowname)
+            {
+                if (! window.focus)return true;
+                var href;
+                if (typeof(mylink) == 'string')
+                    href=mylink;
+                else
+                    href=mylink.href;
+                window.open(href, windowname, 'width=400,height=200,scrollbars=yes');
+                return false;
+            }
+
+            function mostrar(param) {
+                obj = document.getElementById('ListaTodos');
+                if (param)
+                {
+                    obj.style.display = (obj.style.display=='none') ? 'block' : 'none';
+
+                }
+
+            }
+
+
+        </script>
+
+    </head>
+    <body class="tundra" onload="mostrar(${muestraBoton}); return true">
+        <h2>Usuarios de fase ${descripcion}</h2>
+
+        <!-- Inicio Buscador-->
+
+        <div id="Buscador">
+            <form class="izquierda" display="none" action="/proyecto/usuario_faseList/${fase_id}"
+                  method="get" onSubmit="return valida(this);">
+                <div>
+                    <h3>
+                        <label>Buscar:</label> <input class="label" name="expresion"
+                                                      value="" /><input type="submit" name="submit" value="Buscar" />
+                    </h3>
+                </div>
+            </form>
+        </div>
+
+        <div style="display: none" id="ListaTodos">
+            <form class="izquierda" display="none" action="/proyecto/usuario_faseList/${fase_id}"
+                  method="post">
+                <input type="submit" name="submit" value="Listar Todos" />
+            </form>
+
+        </div>
+
+        <!--FIN-Buscador-->
+
+        <a href="/proyecto/definir_fase/${proyecto_id}"><IMG height="30" title="Def fase" border="0" src="/images/flechaAtras.jpg" /></a>
+        <br/><br/>
+        <a class="add_link" href="/proyecto/agregar_usuario_fase/${fase_id}">Agregar
 		Usuario</a>
-	<br />
-	<br />
-	<div class="crud_table" style="height: 50%; width: 90%">
-		<div>
-			<table class="grid">
-				<thead>
-					<tr>
-						<th></th>
-						<th>Nombre de Usuario</th>
-						<th>Rol</th>
-						
-					</tr>
-				</thead>
-				<tbody>
-				
-					<tr class="navigation" py:if="currentPage.page_count > 1">
-						<td colspan="4" class="pager">${currentPage.pager()}</td>
-					</tr>
+        <br />
+        <br />
+        <div class="crud_table" style="height: 50%; width: 90%">
+            <div>
+                <table class="grid">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Nombre de Usuario</th>
+                            <th>Rol</th>
 
-					<tr class="navigation" py:if="currentPage.item_count == 0">
-						<td colspan="4" class="pager">No existen datos</td>
-					</tr>
-					 
-					<tr class="even" py:for="ufr in usuariofaserol">
-						<td class="col_0">
-							<div>
-								<div>
-									<a class="edit_link" href="/proyecto/editar_usuario_fase/${ufr.id}"
-										style="text-decoration: none" >edit</a>
-										
-								</div>
-								<div>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-									<form method="POST" action="/proyecto/eliminar_usuario_fase/${ufr.id}"
-										class="button-to">
-										<input class="delete-button"
-											onclick="return confirm('Esta seguro que desea eliminar el registro ?');"
-											value="eliminar" type="submit"
-											style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
-									</form>
-								</div>
-							</div></td>
-						<td class="col_1">${ufr.usuario.user_name}</td>
-						<td class="col_1">${ufr.rol.group_name}</td>
-					</tr>
+                        <tr class="navigation" py:if="currentPage.page_count > 1">
+                            <td colspan="4" class="pager">${currentPage.pager()}</td>
+                        </tr>
 
+                        <tr class="navigation" py:if="currentPage.item_count == 0">
+                            <td colspan="4" class="pager">No existen datos</td>
+                        </tr>
 
+                        <tr class="even" py:for="ufr in usuariofaserol">
+                            <td class="col_0">
+                                <div>
+                                    <div>
+                                        <a class="edit_link" href="/proyecto/editar_usuario_fase/${ufr.id}"
+                                           style="text-decoration: none" >edit</a>
 
-				</tbody>
-			</table>
-		</div>
-	</div>
+                                    </div>
+                                    <div>
+
+                                        <form method="POST" action="/proyecto/eliminar_usuario_fase/${ufr.id}"
+                                              class="button-to">
+                                            <input class="delete-button"
+                                                   onclick="return confirm('Esta seguro que desea eliminar el registro ?');"
+                                                   value="eliminar" type="submit"
+                                                   style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
+                                        </form>
+                                    </div>
+                                </div></td>
+                            <td class="col_1">${ufr.usuario.user_name}</td>
+                            <td class="col_1">${ufr.rol.group_name}</td>
+                        </tr>
 
 
-</body>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </body>
 
 </html>

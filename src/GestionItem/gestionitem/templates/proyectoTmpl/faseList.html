@@ -20,10 +20,75 @@
 	href="/css/style.css" />
 <link rel="stylesheet" type="text/css" media="screen"
 	href="/css/admin.css" />
+	
+	<script type="text/javascript">
+
+           
+            function valida(F) {
+
+                if(F.expresion.value != "" ) {
+                    return true
+                }else
+                    alert('Debe proporcionar un filtro');
+                return false
+            }
+
+            function popup(mylink, windowname)
+            {
+                if (! window.focus)return true;
+                var href;
+                if (typeof(mylink) == 'string')
+                    href=mylink;
+                else
+                    href=mylink.href;
+                window.open(href, windowname, 'width=400,height=200,scrollbars=yes');
+                return false;
+            }
+
+            function mostrar(param) {
+                obj = document.getElementById('ListaTodos');
+                if (param)
+                {
+                    obj.style.display = (obj.style.display=='none') ? 'block' : 'none';
+                    
+                }
+                
+            }
+            
+       
+        </script>
+	
+	
+	
 </head>
-<body class="tundra">
+<body class="tundra" onload="mostrar(${muestraBoton}); return true">
 	<a href="/proyecto/lista"><IMG title="Lista de Proyectos" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
 	<h2>Lista de Fases</h2>
+	
+	<!-- Inicio Buscador-->
+
+            <div id="Buscador">
+                <form class="izquierda" display="none" action="/proyecto/definir_fase/${proyecto_id}"
+                      method="get" onSubmit="return valida(this);">
+                    <div>
+                        <h3>
+                            <label>Buscar:</label> <input class="label" name="expresion"
+                                                          value="" /><input type="submit" name="submit" value="Buscar" />
+                        </h3>
+                    </div>
+                </form>
+            </div>
+
+            <div style="display: none" id="ListaTodos">
+                <form class="izquierda" display="none" action="/proyecto/definir_fase/${proyecto_id}"
+                      method="post">
+                    <input type="submit" name="submit" value="Listar Todos" />
+                </form>
+
+            </div>
+
+            <!--FIN-Buscador-->
+	
 	
 	<a py:if ="tg.predicates.has_permission('crear fase') and proyectoEstado==1 " class="add_link" href="/proyecto/agregar_fase/${proyecto_id}">Nueva
 		Fase</a>
