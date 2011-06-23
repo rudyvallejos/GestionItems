@@ -185,10 +185,11 @@ class LineaBaseController(BaseController):
     
     @expose(template="gestionitem.templates.lineaBase.cerrar_linea_base_abierta")
     def cerrar_linea_base_abierta(self,idFase, **named):
+        
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
         #CONSULTA ALA BD
-        lbSolicitadas=DBSession.query(LineaBase).filter_by(estado_id = 2).filter(LineaBase.fase_id==idFase).all()
+        lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
         for idLB in lbSolicitadas:
             items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
