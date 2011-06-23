@@ -1,0 +1,189 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+	
+	<xi:include href="master.html" />
+	<script> 
+			 var numero = 2 
+			 function verificar()
+			 {
+					if(document.formulario.itemselect.checked==true)
+					{
+						  return true;
+					}
+					
+					for(i=0; ele=document.formulario.itemselect[i]; i++){
+						  if (ele.checked==true){
+						  		 return true;
+						  }
+					}
+					
+					alert("Debe seleccionar al menos una fase");
+					return false;
+			 }
+			 
+			 }
+			 boton=""
+			 function valida(F) {
+			 
+						  if (boton=="Cancelar")
+						  {  
+						  		 document.formulario.action="/item/faseList/${proyecto.id}/"
+						  		 return true;	
+						  }
+						  
+						  if (boton=="Solicitar"){
+						  		 document.formulario.action="/item/accionSolicitud/${fase.id}"
+						  		 return true			
+						  }
+						  
+						  if(boton=="Buscar"){
+								 if(F.filtros.value != "") {   
+											  return true 
+								 } else if (F.filtros.value == ""){
+										return false
+								 }	  
+						  }else if (boton=="ListarTodos"){
+								 F.filtros.value=""
+								 return true
+						  }				
+			 }
+			 
+			 function botonPresionado(botonP){
+			 		boton=botonP
+			 }  
+			 
+			 function verificarItems()
+			 {	
+					for(j=0; ele=document.formulario2.itemselect[j]; j++){ 
+					
+						  if (ele.checked==true){
+						  		 return true;
+						  }
+					}
+					
+					if(document.formulario2.itemselect.checked==true)
+						  return true;	
+					
+					alert("Debe seleccionar al menos un item");
+					return false;
+			 }
+   </script>
+	<head>
+		<style>
+			 #menu_items {
+			 padding:0px 12px 0px 2px;
+			 list-style-type:None
+			 }
+	   </style>
+	</head>
+	<body >
+		<div>
+			<h3>Solicitudes de Apertura de LB</h3>
+		</div>
+		<div id="CargaAtributos">
+			<input type="hidden" name="CantItem" value=""/>
+			<input type="hidden" name="idFase" value="${fase.id}"/>
+			<input type="hidden" name="idProy" value="${proyecto.id}"/>
+			
+			<form name="formulario" action="/item/verSolicitudAperturaLB/${fase.id}" method="get" onSubmit="return valida(this);">
+				<table border="0">
+					<tr>
+						<td>Proyecto:</td>
+						<td>
+							<input size="35" disable="TRUE" readonly="TRUE" value="${proyecto.descripcion}"/>
+						</td>
+						<td>Fase:</td>
+						<td colspan="3">
+							<input size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
+						</td>
+					</tr>
+					<tr>
+					</tr>
+					<tr/>
+					<tr/>
+					<tr/>
+					<tr/>
+					<tr/>
+					<tr/>
+					<tr></tr>
+					<td></td>
+					<td/>
+			</table>
+					<div id="Buscador">
+						<div>
+							<td/>
+							<td/>
+							<td>
+								<label>
+									<b>Buscar:</b>
+								</label>
+								<input type="text" size="15" name="filtros" value="${filtro}"/>
+								<input type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/>
+							 <input type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/>
+							</td>
+						</div>
+					</div>
+					<tr/>
+					<tr/>
+				<div>
+					<h3>Lista de Lineas Bases: </h3>
+				</div>
+				<div class="crud_table">
+					<div>
+						<table class="grid" style="height:80%; width:100%">
+							<thead>
+								<tr>
+									<th></th>
+									<th>ID LB</th>
+									<th>Items de la LB</th>
+									<th>Fase</th>
+									<th>Nro.Fase</th>
+									<th>Usuario Solicitante</th>
+									<th>Comentario</th>
+									<th>Accion</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+								<tr class="navigation" py:if="currentPage.item_count == 0">
+									<td colspan="4" class="pager">No existen Lineas Bases</td>
+								</tr>
+								
+								<tr py:for="i, lbse in enumerate(lbSolicitadas)" class="${i%2 and 'odd' or 'even'}">
+									
+									<td class="col_0">
+										<input TYPE="CHECKBOX" disable="true" readOnly="true" checked="true" value="${lbse.id}" />
+									
+									</td>
+									<td class="col_1">${lbse.id}</td>
+									<td class="col_1">${itemsLBSol[i]}</td>
+									<td class="col_1">${lbse.fase.descripcion}</td>
+									<td class="col_1">${lbse.fase.numero_fase}</td>
+									<td class="col_1">${lbse.usuario_sol}</td>
+									<td class="col_1">${lbse.comentario}</td>
+									<td class="col_1">
+										<SELECT name="${lbse.id}">
+											<OPTION selected="true" value="NONE" disable="false">Seleccione un Opcion</OPTION>
+											<OPTION value="Rechazado">Rechazar Solicitud</OPTION>
+											<OPTION value="Aceptado">Aceptar Solicitud</OPTION>
+										</SELECT>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<br/>
+						<br/>
+					</div>
+				</div>
+				<br/>
+				<br/>
+				<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+				<input type="submit" name="submit" title="Realizar acion" onClick="botonPresionado('Solicitar')" value="Realizar"/>	
+			</form>
+		</div>
+		<br/>
+		<br/>
+	</body>
+</html>
