@@ -1,5 +1,5 @@
 from gestionitem.lib.base import BaseController
-from tg import expose
+from tg import expose,request
 from tg import redirect
 from sqlalchemy import or_
 from gestionitem.model import DBSession
@@ -194,7 +194,7 @@ class LineaBaseController(BaseController):
                     codigosItems=codigosItems+"|"+item.cod_item+" "
                 itemsLB.append(codigosItems)
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
-        #from webhelpers import paginate
+        from webhelpers import paginate
         count = items.__len__()
         page =int( named.get( 'page', '1'))
         currentPage = paginate.Page(
