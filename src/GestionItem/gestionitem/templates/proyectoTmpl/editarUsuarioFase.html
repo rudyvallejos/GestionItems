@@ -58,11 +58,11 @@ function validarCamposObligatorios(form){
 					</td>
 					<td align="right"><py:for each="rol1 in roles">
 							<py:if test="rol1.group_id == rol.group_id">
-								<input type="radio" name="rol" value="${rol1.group_id}"
+								<input type="checkbox" name="rol" value="${rol1.group_id}"
 									checked="true">${rol1.group_name}</input>
 							</py:if>
 							<py:if test="rol1.group_id != rol.group_id">
-								<input type="radio" name="rol" value="${rol1.group_id}">${rol1.group_name}</input>
+								<input type="checkbox" name="rol" value="${rol1.group_id}">${rol1.group_name}</input>
 							</py:if>
 
 						</py:for></td>
