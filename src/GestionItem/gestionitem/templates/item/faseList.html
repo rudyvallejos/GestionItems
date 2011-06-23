@@ -48,6 +48,7 @@
 			</tr-->
         
             <tr py:for="i, fase in enumerate(fases)" class="${i%2 and 'odd' or 'even'}">
+            	<py:if test="fase.estadoObj.id==4"><td class="col_0"><IMG title="Con Linea Base" height="20" border="0" src="${tg.url('/images/ok.png')}" /><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
             	<py:if test="fase.estadoObj.id==2"><td class="col_0"><IMG title="En dasarrollo" height="40" border="0" src="${tg.url('/images/trabajando.jpeg')}" /><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
             	<py:if test="fase.estadoObj.id!=2"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
                 <td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
