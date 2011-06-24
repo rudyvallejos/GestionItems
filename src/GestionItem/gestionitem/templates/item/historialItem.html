@@ -228,9 +228,11 @@ function verificarItems()
                 	<py:if test="item.estado.id!=3">
                  		<py:if test="item.estado.id!=4">
                  		<py:if test="itemA.estado.id!=7">
+                 		<py:if test="esDesarrollador">
                  			<td><a href="/item/revertirItem/${item.id}/${itemA.id}" onclick="return confirm('Esta seguro que volver a la version ${itemA.version} del item  ${item.cod_item}?');">
                  			<IMG title="Revertir Item" border="0" height="25" src="${tg.url('/images/reversion.png')}" /></a>
-                			</td>  		
+                			</td>
+                		</py:if>	  		
                 		</py:if>
                 		</py:if>
                 		</py:if>

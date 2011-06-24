@@ -30,14 +30,22 @@ class ItemControler(BaseController):
     def faseList(self,id, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
         
         fasesDelUsuario=DBSession.query(UsuarioFaseRol).filter_by(user_id=user.user_id).all()
         idsFasesUsuario=[]
         for idFaseUser in fasesDelUsuario:
             idsFasesUsuario.append(idFaseUser.fase_id)
-     
-        fases = DBSession.query(Fase).filter_by(proyecto_id=id).filter(Fase.id.in_(idsFasesUsuario)).order_by(Fase.id).all()
-        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        
+        esLider=0    
+        if (proyecto.id_lider==user.user_id):
+            esLider=1
+        
+        
+        if (esLider==0):    
+            fases = DBSession.query(Fase).filter_by(proyecto_id=id).filter(Fase.id.in_(idsFasesUsuario)).order_by(Fase.id).all()
+        else:
+            fases = DBSession.query(Fase).filter_by(proyecto_id=id).order_by(Fase.id).all()
         
         mensajes=[]
         for i, fase in enumerate(fases):
@@ -60,18 +68,29 @@ class ItemControler(BaseController):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
         expresion=named.get('expresion','lista')
-        fase = DBSession.query(Fase).filter_by(id=id).one()    
+        fase = DBSession.query(Fase).filter_by(id=id).one()
+        
+        
+        fasesDelUsuario=DBSession.query(UsuarioFaseRol).filter_by(fase_id=id).filter_by(user_id=user.user_id).all()
+        
+        esDesarrollador=0
+        esAprobador=0
+        
+        for fg in fasesDelUsuario:
+            if(fg.rol.group_name=="Desarrollador"):
+                esDesarrollador=1
+            if(fg.rol.group_name=="Aprobador"):
+                esAprobador=1
             
-        mensajes=[]
+        mensajes=""
         lbs = DBSession.query(LineaBase).filter_by(fase_id=fase.id).order_by(LineaBase.id).all()
         existe_sol=0
         for lb in lbs:
             if (lb.apertura=="1"):
                 existe_sol=1
             if existe_sol:
-                mensajes.append("Solicitud de Apertura de LB")
-            else:
-                mensajes.append("")
+                mensajes="Solicitud de Apertura de LB"
+          
     
         existeLB=0
         if expresion=="lista":
@@ -95,6 +114,11 @@ class ItemControler(BaseController):
             fase = DBSession.query(Fase).filter_by(id=id).one()    
             proyecto = DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
             tiposItemUs=DBSession.query(TipoItemUsuario).order_by( TipoItemUsuario.id )    
+        
+        
+        esLider=0    
+        if (proyecto.id_lider==user.user_id):
+            esLider=1
         from webhelpers import paginate
         #count = items.count()
         count = items.__len__()
@@ -105,7 +129,7 @@ class ItemControler(BaseController):
         )
         items = currentPage.items
 
-        return dict(mensajes=mensajes,muestraBoton=muestraBoton,page='Lista de Items',user=user,existeLB=existeLB,
+        return dict(mensajes=mensajes,esLider=esLider,esDesarrollador=esDesarrollador,esAprobador=esAprobador,muestraBoton=muestraBoton,page='Lista de Items',user=user,existeLB=existeLB,
                     tiposItemUs=tiposItemUs, fase=fase,items=items, proyecto=proyecto,
                     subtitulo='Lista de Items',currentPage = currentPage)
     @expose(template="gestionitem.templates.tipoItem.tipoItem_editar")
@@ -1517,7 +1541,8 @@ class ItemControler(BaseController):
     @expose('gestionitem.templates.item.historialItem')
     def historialItem(self,idItem, **named):
         identity = request.environ.get('repoze.who.identity')
-        user = identity['user'] 
+        user = identity['user']
+        
         #CONSULTA ALA BD
         itemActual=DBSession.query(ItemUsuario).filter_by(id=idItem).one()
         ####AGREGAR LUEGO EN ITEM INFO!!!!
@@ -1539,6 +1564,18 @@ class ItemControler(BaseController):
         
            
         fase=DBSession.query(Fase).filter_by(id=itemActual.fase_id).one()
+        
+        
+        fasesDelUsuario=DBSession.query(UsuarioFaseRol).filter_by(fase_id=fase.id).filter_by(user_id=user.user_id).all()
+        
+        esDesarrollador=0
+        esAprobador=0
+        
+        for fg in fasesDelUsuario:
+            if(fg.rol.group_name=="Desarrollador"):
+                esDesarrollador=1
+            if(fg.rol.group_name=="Aprobador"):
+                esAprobador=1
         
         itemsAnteriores=DBSession.query(ItemUsuario).filter(ItemUsuario.id!=itemActual.id).filter_by(cod_item=itemActual.cod_item).filter_by(fase_id=itemActual.fase_id).order_by(ItemUsuario.version).all()
         
@@ -1565,7 +1602,7 @@ class ItemControler(BaseController):
         filtro=""
         item=itemActual
         muestraBoton="false"
-        return dict(page='Historial-Item',user=user,itemsAnteriores=itemsAnteriores,conTipo=conTipo,
+        return dict(page='Historial-Item',esDesarrollador=esDesarrollador,esAprobador=esAprobador,user=user,itemsAnteriores=itemsAnteriores,conTipo=conTipo,
                     atributos=atributos,atributoValor=atributoValor,tipoItem=tipoItem,
                     muestraBoton=muestraBoton,
                     named=named,filtro=filtro,
@@ -1577,7 +1614,19 @@ class ItemControler(BaseController):
     def listaItemsElim(self,idFase, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
-        #CONSULTA ALA BD   
+        #CONSULTA ALA BD
+        
+        fasesDelUsuario=DBSession.query(UsuarioFaseRol).filter_by(fase_id=idFase).filter_by(user_id=user.user_id).all()
+        
+        esDesarrollador=0 
+        esAprobador=0
+        
+        for fg in fasesDelUsuario:
+            if(fg.rol.group_name=="Desarrollador"):
+                esDesarrollador=1
+            if(fg.rol.group_name=="Aprobador"):
+                esAprobador=1
+        
         fase=DBSession.query(Fase).filter_by(id=idFase).one()
         estados=[1,2,3,4,5,8]
         itemsElimFase=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==fase.id).filter_by(estado_id=7).order_by(ItemUsuario.id).all()
@@ -1602,7 +1651,7 @@ class ItemControler(BaseController):
         expre_cad=expresion
         filtro=""
         muestraBoton="false"
-        return dict(page='Historial-Item',user=user,itemsEnProduccion=itemsEnProduccion,
+        return dict(page='Historial-Item',esDesarrollador=esDesarrollador,esAprobador=esAprobador , user=user,itemsEnProduccion=itemsEnProduccion,
                     muestraBoton=muestraBoton,itemsEnProd=itemsEnProd,
                     named=named,filtro=filtro,itemsElimFase=itemsElimFase,
                     fase=fase,  
