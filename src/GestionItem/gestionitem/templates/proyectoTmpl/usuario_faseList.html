@@ -107,7 +107,7 @@
 
         <!--FIN-Buscador-->
 
-        <a class="add_link" href="/proyecto/agregar_usuario_fase/${fase_id}">Agregar
+        <a py:if="tg.predicates.has_permission('asignar desarrollador')" class="add_link" href="/proyecto/agregar_usuario_fase/${fase_id}">Agregar
 		Usuario</a>
         <br />
         <br />
