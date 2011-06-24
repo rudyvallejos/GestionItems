@@ -5,36 +5,19 @@
 	
 	<xi:include href="master.html" />
 	<script> 
-			 var numero = 2 
-			 function verificar()
-			 {
-					if(document.formulario.itemselect.checked==true)
-					{
-						  return true;
-					}
-					
-					for(i=0; ele=document.formulario.itemselect[i]; i++){
-						  if (ele.checked==true){
-						  		 return true;
-						  }
-					}
-					
-					alert("Debe seleccionar al menos una fase");
-					return false;
-			 }
-			 
-			 }
+
 			 boton=""
+			 
 			 function valida(F) {
 			 
 						  if (boton=="Cancelar")
 						  {  
-						  		 document.formulario.action="/item/faseList/${proyecto.id}/"
+						  		 document.formulario.action="/item/itemList/${fase.id}"
 						  		 return true;	
 						  }
 						  
 						  if (boton=="Solicitar"){
-						  		 document.formulario.action="/item/accionSolicitud/${fase.id}"
+						  		 document.formulario.action="/lb/accionSolicitud/${fase.id}"
 						  		 return true			
 						  }
 						  
@@ -53,22 +36,6 @@
 			 function botonPresionado(botonP){
 			 		boton=botonP
 			 }  
-			 
-			 function verificarItems()
-			 {	
-					for(j=0; ele=document.formulario2.itemselect[j]; j++){ 
-					
-						  if (ele.checked==true){
-						  		 return true;
-						  }
-					}
-					
-					if(document.formulario2.itemselect.checked==true)
-						  return true;	
-					
-					alert("Debe seleccionar al menos un item");
-					return false;
-			 }
    </script>
 	<head>
 		<style>
@@ -87,7 +54,7 @@
 			<input type="hidden" name="idFase" value="${fase.id}"/>
 			<input type="hidden" name="idProy" value="${proyecto.id}"/>
 			
-			<form action="/item/cerrar_linea_base_abierta/${fase.id}" class="izquierda" method="get" name="formulario" onsubmit="return valida(this);">
+			<form action="/lb/cerrar_linea_base_abierta/${fase.id}" class="izquierda" method="get" name="formulario" onsubmit="return valida(this);">
 				<table border="0">
 					<tr>
 						<td>Proyecto:</td>
@@ -162,8 +129,7 @@
 									<td class="col_1">
 										<SELECT name="${lbse.id}">
 											<OPTION selected="true" value="NONE" disable="false">Seleccione un Opcion</OPTION>
-											<OPTION value="Rechazado">Rechazar Solicitud</OPTION>
-											<OPTION value="Aceptado">Aceptar Solicitud</OPTION>
+											<OPTION value="Cerrar">Cerrar</OPTION>
 										</SELECT>
 									</td>
 								</tr>

@@ -209,9 +209,9 @@ class LineaBaseController(BaseController):
         filtro=named.get( 'filtros','')
         if (filtro!=""):
             if filtro.isdigit():
-                lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.fase_id==idFase).filter_by(id=filtro).order_by(LineaBase.id).all()
+                lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==idFase).filter_by(id=filtro).order_by(LineaBase.id).all()
             else:
-                lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.fase_id==idFase).filter(LineaBase.comentario.like('%'+str(filtro)+'%')).order_by(LineaBase.id).all()
+                lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==idFase).filter(LineaBase.descripcion.like('%'+str(filtro)+'%')).order_by(LineaBase.id).all()
             lbIds=[]
             itemsLB=[]
             for idLB in lbSolicitadas:
@@ -229,11 +229,41 @@ class LineaBaseController(BaseController):
             items, page, item_count=count, 
             items_per_page=3,
         )
-        expresion=str(named.get( 'expresion'))
-        expre_cad=expresion
-        filtro=""
+        
         muestraBoton="false"
         return dict(page='Solicitudes de Apertura',user=user,itemsLBSol=itemsLBSol,muestraBoton=muestraBoton,lbSolicitadas=lbSolicitadas,named=named,filtro=filtro,itemSelec=itemSelec,items=items,
                     fase=fase,  
                     proyecto=proyecto,currentPage = currentPage,subtitulo='Solicitudes de Apertura')
+        
+    @expose()  
+    def accionSolicitud( self, idFase, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        
+        lbs=DBSession.query(LineaBase).filter_by(fase_id=idFase).filter_by(estado_id = 2).all()
+        for lb in lbs:
+            accion=named.get(str(lb.id),'')
+            if (accion!="") and (accion=="Cerrar"):
+                
+                lb.estado_id=1
+                DBSession.flush()
+                ###Cambia Estado del Item
+                items=DBSession.query(ItemUsuario).filter_by(linea_base_id=lb.id).all()
+                for item in items:
+                    if(item.estado_id == 5):
+                        item.estado_id=3
+                        DBSession.flush
+        fase=DBSession.query(Fase).filter_by(id=idFase).one()
+                  
+        redirect( '/item/itemList/'+str(fase.id) )
+        
+    @expose(template="gestionitem.templates.lineaBase.listar_proyectos_definidos")
+    def listar_proyectos_definidos(self):
+        
+        proyectos = DBSession.query(Proyecto).filter(Proyecto.estado_id == 1).all()
+        
+        
+        
+    
+    
     
