@@ -60,7 +60,7 @@
             
             function validarDefinir(form, definible){
                 if(definible=="False"){
-                    alert("No puede definir el proyecto, estado de fases ");
+                    alert("No es posible definir el proyecto, verifique la definicion ");
                     return false;
                 }
                 return true;
@@ -177,18 +177,23 @@
 
                                 <py:if test="proyecto.estado== 1">
                                     <td><a py:if="proyecto.getDefinir() and tg.predicates.has_permission('definir proyecto') "
-                                           href="/proyecto/definir_fase/${proyecto.id}">Asignar fases</a></td>
+                                           href="/proyecto/definir_fase/${proyecto.id}">Definir Proyecto</a></td>
                                 </py:if>
+                                
+								
+									
+                                <td>
+                                <py:if test="proyecto.getmostrarFases() and proyecto.estado!=1">
+									<a href="/item/faseList/${proyecto.id}">Lista de Fases</a>
+									</py:if>
+                                </td>
+                                
                                 <py:if test="proyecto.estado== 2">
                                     <td>
                                         <a py:if="proyecto.getDefinir() and tg.predicates.has_permission('definir proyecto') "
-                                           href="/proyecto/definir_fase/${proyecto.id}">Ver fases</a>
+                                           href="/proyecto/definir_fase/${proyecto.id}">Asignar usuarios</a>
                                     </td>
                                 </py:if>
-
-
-                                <td py:if="proyecto.getmostrarFases()"><a
-                                        href="/item/faseList/${proyecto.id}">Fases</a></td>
 
                                 <td py:if="not proyecto.getmostrarFases()"></td>
                                 <td>
@@ -197,7 +202,7 @@
                                         <div>
                                             <form class="izquierda" display="none" action="/proyecto/cambiarEstado/${proyecto.id}/2"
                                                   method="post" onsubmit="return validarDefinir(this,'${proyecto.isDefinible()}')">
-                                                <input type="submit" name="submit" value="definir" />
+                                                <input type="submit" name="submit" value="definido" />
                                             </form>
                                         </div>
                                     </py:if>
