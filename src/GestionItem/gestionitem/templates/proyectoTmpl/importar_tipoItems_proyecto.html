@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+
+<head>
+	  <style>
+			 #menu_items {
+				padding:0px 12px 0px 2px;
+				list-style-type:None
+			 }
+	  </style>
+	  <script>
+					 boton=""
+					 function valida(F) {
+					 
+					 if (boton=="genlb")
+					 {  
+								 for(j=0; ele=document.form1.itemselect[j]; j++){ 
+									 ip = document.form1.itemselect.length;
+								 if (ele.checked==true){
+									 document.form1.action="/lb/guardar_items_importados/6"
+									 //F.filtros.value="Lista"
+									 return true;	
+								 }
+							 }
+								 
+							 if(document.form1.itemselect.checked==true){
+								 document.form1.action="/lb/guardar_linea_base/${proyecto.id}"
+								 //F.filtros.value=""
+								 return true;	
+							 }
+							 alert("Debe seleccionar al menos un item para importar");
+							 return false;
+						 }
+						 
+						 if(boton=="Buscar"){
+							 if(F.filtros.value != "") {   
+									 return true 
+							 }
+							 else if (F.filtros.value == ""){
+								 return false
+							 }	 
+						}else if (boton=="ListarTodos"){
+							 F.filtros.value=""
+							 return true
+						}
+						
+						 if (boton=="Cancelar")
+					 {  
+								 
+								 
+								 document.form1.action="/lb/listar_proyectos_definidos"
+								 
+								 return true;	
+							 
+						 }				
+					}
+					
+					function botonPresionado(botonP){
+						boton=botonP
+					}  
+					
+										
+										
+					checked=false;
+					function checkedAll(F) 
+					{
+						 if (checked == false)
+						{
+							  checked = true
+						} else{
+							 checked = false
+						}
+						hasta = document.form1.itemselect.length; 
+						 for(j=0; j!=hasta; j++){ 
+						
+								document.form1.itemselect[j].checked= checked;
+							 }
+						
+				 }
+	  </script>
+</head>
+
+<body>
+
+<div><h3>Lista de todos los Tipos de items</h3></div>
+
+   <table>
+		<tr>
+			<td>
+				<u><b>Proyecto</b></u>
+			</td>
+			<td>
+				<label>${proyecto.descripcion}</label>
+			</td>
+		</tr>
+		
+		<!--tr>
+			<td><u><b>Fase Nro.</b></u></td>
+			<td><label>${fase.numero_fase}</label></td>
+		</tr>
+		
+		<tr>
+			
+			<td><u><b>Fase</b></u></td>
+			<td><label>${fase.descripcion}</label></td>
+		</tr-->	
+  			
+   </table> 
+
+<div id="list_item_aprobados">
+  <form  class="izquierda"  action="/lb/importar_tipoItems_proyecto/${fase.id}" method="get" name="form1" onsubmit="return valida(this)">
+  	
+    <div align="left"><h3>Lista de Items aprobados </h3></div>
+   
+	     <div id="Buscador">
+	    	<div>
+	    		<td>
+	    			<label>
+  								<b>Buscar:</b>
+  							</label>
+	    			<input type="text" size="15" name="filtros" value="${filtro}"/></td><td><input   type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/>
+	    			<input type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/>
+	    		</td>
+	 		</div>   
+	 	 </div>
+ 	
+    <div class="crud_table" style="height:80%; width:100%">
+    <div align="left" >
+    		<input name="checkall" onclick="checkedAll(this)" type="checkbox">Seleccionar Todo </input>
+    </div>
+		<div>
+		<table class="grid" rules="all" style="height:80%; width:100%">
+    		<thead>
+     			<tr align= "center"><th></th><th>Codigo</th><th >Descripcion</th><th>Fase</th></tr>
+    		</thead>
+     		<tbody >
+        		<tr py:for="i, item in enumerate(listaItemUser)" class="${i%2 and 'odd' or 'even'}"  align= "center">
+      			  <py:if test="item not in itemSeleccionado">
+	            	<td class="col_0">
+                		<div><div><input TYPE="CHECKBOX"  name="itemselect" value="${item.id}" /></div><div>
+               			</div></div>
+            		</td>
+            		<td class="col_0">${item.codigo}</td>
+                	<td class="col_1">${item.descripcion}</td>
+                	<td class="col_1">${item.fase_id}</td>
+        		 </py:if>
+  			</tr>
+  			<tr py:for="i, itemse in enumerate(itemSeleccionado)" class="${i%2 and 'odd' or 'even'}" align= "center">
+	            	<td class="col_0">
+                		<div><div><input TYPE="CHECKBOX" checked="true" name="itemselect" value="${itemse.id}" /></div><div>
+                		</div></div>
+            		</td>
+            		<td class="col_0">${itemse.codigo}</td>
+                	<td class="col_1">${itemse.descripcion}</td>
+                	<td class="col_1">${itemse.fase_id}</td>
+  			</tr>
+  		
+    	  </tbody>
+    </table>
+    
+		</div>
+    </div>
+      	<br/><br/><br/><br/>
+      	<div align="left">
+      		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
+			<input align="right" name="submit" onclick="botonPresionado('genlb')" title="Generar" type="submit" value="Importar"/>
+		</div>	
+	 </form>
+</div>
+<br/><br/>
+</body>
+</html>

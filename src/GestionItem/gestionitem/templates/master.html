@@ -27,9 +27,13 @@
 		<li py:if="request.identity"><a href="${tg.url('/proyecto')}"
 			class="${('', 'active')[defined('page') and page=='proyecto']}">Proyecto</a>
 		</li>
+		
+		<!-- 
 		<li py:if="request.identity"><a href="${tg.url('/recurso')}"
 			class="${('', 'active')[defined('page') and page=='recurso']}">Recurso</a>
 		</li>
+		 -->
+		 
 		<span py:if="tg.auth_stack_enabled" py:strip="True">
 			<li py:if="not request.identity" id="login" class="loginlogout"><a
 				href="${tg.url('/login')}">Login</a>
