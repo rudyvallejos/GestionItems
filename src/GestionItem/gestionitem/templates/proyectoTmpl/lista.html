@@ -67,13 +67,17 @@
             }
             
             function validarEstado(formEliminar, estado, id){
-            	if(estado!=2){
+            	
+            	if(estado!=1){
+            		
             		url = "/proyecto/avisoEliminarProyecto/"+id
             		window.location=url;
                 	return false;
             	
             	}
             	else{
+            		url = "/proyecto/eliminar/"+id;
+            		document.formEliminar.action=url;
             		return true;
             	}
             	
@@ -154,9 +158,7 @@
 
                                             <form name="formEliminar" method="post" action="/proyecto/eliminar/${proyecto.id}"
                                                   class="button-to" onsubmit="return validarEstado(this, '${proyecto.estado}','${proyecto.id}');">
-                                                <input class="delete-button"
-                                                       
-                                                       value="eliminar" type="submit"
+                                                <input class="delete-button" value="eliminar" type="submit"
                                                        style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
                                             </form>
                                         </div>
