@@ -83,12 +83,13 @@ function mostrar(param) {
 			<!--  SELECT ONCHANGE="enviarA(this.options[this.selectedIndex].value)"-->
 				<OPTION  selected="true" value="/item/itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
 				<py:if test="esAprobador"><py:if test="tg.predicates.has_permission('Aprobar items')"><OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION></py:if></py:if>
-				<OPTION value="/item/listaItemsElim/${fase.id}">Listar Items Eliminados</OPTION>
-				<py:if test="esLider"><py:if test="tg.predicates.has_permission('Gestionar linea base')"><OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION></py:if></py:if>
+				<py:if test="esItemEliminado"><OPTION value="/item/listaItemsElim/${fase.id}">Listar Items Eliminados</OPTION></py:if>
+				<py:if test="esItemAprobado"><py:if test="esLider"><py:if test="tg.predicates.has_permission('Gestionar linea base')"><OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION></py:if></py:if></py:if>
 				<OPTION  value="/lb/listar_linea_base/${proyecto.id}/${fase.id}">Listar Linea Base</OPTION>
+				<py:if test="cerrarLB"><py:if test="esLider"><py:if test="tg.predicates.has_permission('Gestionar linea base')"><OPTION value="/lb/cerrar_linea_base_abierta/${fase.id}">Cerrar LB</OPTION></py:if></py:if></py:if>
+				
 				<py:if test="existeLB==1">
 					
-				<py:if test="esLider"><py:if test="tg.predicates.has_permission('Gestionar linea base')"><OPTION value="/lb/cerrar_linea_base_abierta/${fase.id}">Cerrar LB</OPTION></py:if></py:if>
 				<!-- OPTION value="/item/verSolicitudAperturaLB/${fase.id}">Abrir LB</OPTION-->
 				<py:if test="esDesarrollador"><py:if test="tg.predicates.has_permission('Solicitar apertura lb')"><OPTION value="/item/solicitudAperturaLB/${fase.id}">Solicitar Apertura LB</OPTION></py:if>
 				</py:if></py:if>	
@@ -235,7 +236,7 @@ function mostrar(param) {
         			<py:if test="item.estado_id==4 "><a title="Calcular Impacto" href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if>
         			<py:if test="item.estado_id==5 "><a  href="/item/calculoImpacto/${item.id}">Calcular Impacto</a></py:if></td>
         		<td class="col_1"><py:if test="item.version>1 "><a  href="/item/historialItem/${item.id}">Historial</a></py:if></td>
-				<td class="col_1"><IMG title="Atencion" height="20" border="0" src="${tg.url('/images/warning.png')}"/><a  title="Revisar Item" href="/item/verificarItem/${item.id}">Revisar el item</a></td>
+				<td class="col_1"><IMG title="Atencion" height="20" border="0" src="${tg.url('/images/warning.png')}"/><py:if test="esDesarrollador"><a  title="Revisar Item" href="/item/verificarItem/${item.id}">Revisar el item</a></py:if></td>
      	
            </py:if>
            </py:if>

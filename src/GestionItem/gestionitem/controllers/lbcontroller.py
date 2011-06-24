@@ -115,10 +115,7 @@ class LineaBaseController(BaseController):
             fase=DBSession.query(Fase).filter_by(id=faseid).one()
             fase.estado_id=4
             DBSession.flush()
-        else:
-            fase=DBSession.query(Fase).filter_by(id=faseid).one()
-            fase.estado_id=4
-            DBSession.flush()  
+       
         redirect('/item/itemList/'+faseid)
         
     @expose(template="gestionitem.templates.lineaBase.lista_linea_base")
@@ -244,7 +241,6 @@ class LineaBaseController(BaseController):
         for lb in lbs:
             accion=named.get(str(lb.id),'')
             if (accion!="") and (accion=="Cerrar"):
-                
                 lb.estado_id=1
                 DBSession.flush()
                 ###Cambia Estado del Item
@@ -253,6 +249,16 @@ class LineaBaseController(BaseController):
                     if(item.estado_id == 5):
                         item.estado_id=3
                         DBSession.flush
+                estados=[1,2,3,4,5,8]
+                itemsEnLB=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(ItemUsuario.estado_id.in_(estados)).order_by(ItemUsuario.id).all()
+                faseConLB=0
+                for itemP in itemsEnLB:
+                    if itemP.estado_id!=3:
+                        faseConLB=1
+                if faseConLB==0:
+                    fase=DBSession.query(Fase).filter_by(id=idFase).one()
+                    fase.estado_id=4
+                    DBSession.flush()
         fase=DBSession.query(Fase).filter_by(id=idFase).one()
                   
         redirect( '/item/itemList/'+str(fase.id) )
