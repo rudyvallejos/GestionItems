@@ -25,7 +25,19 @@ import pygraphviz as pgv
 
  
 class ItemControler(BaseController):
-
+    @expose()
+    def concluir_proyecto( self,id, **named ):
+        """Create a new movie record"""
+        submit= named.get('submit','0')
+        if submit=="Reabrir":
+            proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+            proyecto.estado=2,
+            DBSession.flush()
+        else:    
+            proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+            proyecto.estado=3,
+            DBSession.flush()
+        redirect( '/item/faseList/'+ id)
     @expose(template="gestionitem.templates.item.faseList")
     def faseList(self,id, **named):
         identity = request.environ.get('repoze.who.identity')
@@ -47,6 +59,13 @@ class ItemControler(BaseController):
         else:
             fases = DBSession.query(Fase).filter_by(proyecto_id=id).order_by(Fase.id).all()
         
+        puedeCerrar=1
+        for f in fases:
+            if(f.estado_id!=4):
+                puedeCerrar=0
+        
+            
+        
         mensajes=[]
         for i, fase in enumerate(fases):
             lbs = DBSession.query(LineaBase).filter_by(fase_id=fase.id).order_by(LineaBase.id).all()
@@ -58,7 +77,17 @@ class ItemControler(BaseController):
                 mensajes.append("Solicitud de Apertura de LB")
             else:
                 mensajes.append("")
-        return dict(page='Lista de Fases',user=user,mensajes=mensajes,
+        from webhelpers import paginate
+        #count = items.count()
+        count = fases.__len__()
+        page =int( named.get( 'page', '1' ))
+        currentPage = paginate.Page(
+            fases, page, item_count=count, 
+            items_per_page=3,
+        )
+        fases = currentPage.items
+        
+        return dict(currentPage=currentPage,puedeCerrar=puedeCerrar,user=user,mensajes=mensajes,
                     id=id,fases=fases,proyecto=proyecto,subtitulo='Lista de Fases')
           
     @expose('gestionitem.templates.item.itemList')
@@ -1304,7 +1333,7 @@ class ItemControler(BaseController):
                 tipoRelacion="Antecesor/Sucesor(*)"
                 observacion="Una relacion Antecesor/Sucesor indica una relacion entre un item de la fase actual(Antecesor) con un item perteneciente a la fase inmediatamente anterior(Sucesor)"
                 faseActual=DBSession.query(Fase).filter_by(id=idFase).one()
-                faseAnterior=DBSession.query(Fase).filter_by(numero_fase=faseActual.numero_fase-1).one()
+                faseAnterior=DBSession.query(Fase).filter_by(proyecto_id=faseActual.proyecto_id).filter_by(numero_fase=faseActual.numero_fase-1).one()
                 fasesRelacion=faseAnterior
                 items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
                 itemSelec=named.get( 'itemselect','0')
