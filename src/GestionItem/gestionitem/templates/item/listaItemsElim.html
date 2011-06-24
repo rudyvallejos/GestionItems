@@ -206,11 +206,11 @@ function verificarItems()
                 	
                 	<py:if test="itemA.cod_item not in itemsEnProduccion">
                 	<py:if test="itemA.estado.id!=3">
-                 		<py:if test="itemA.estado.id!=4">
+                 		<py:if test="esDesarrollador"><py:if test="itemA.estado.id!=4">
                  			<td><a href="/item/revivirItem/${itemA.id}/" onclick="return confirm('Esta seguro que desea revivir el item ${itemA.cod_item}?');">
                  			<IMG title="Revivir Item" border="0" height="25" src="${tg.url('/images/revivir.png')}" /></a>
                 			</td>  		
-                		
+                		</py:if>
                 		</py:if>
                 		</py:if>
                 		</py:if>

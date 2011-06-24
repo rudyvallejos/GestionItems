@@ -48,15 +48,17 @@
 			</tr-->
         
             <tr py:for="i, fase in enumerate(fases)" class="${i%2 and 'odd' or 'even'}">
-            	<py:if test="fase.estadoObj.id==4"><td class="col_0"><IMG title="Con Linea Base" height="20" border="0" src="${tg.url('/images/ok.png')}" /><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
-            	<py:if test="fase.estadoObj.id==2"><td class="col_0"><IMG title="En dasarrollo" height="40" border="0" src="${tg.url('/images/trabajando.jpeg')}" /><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
-            	<py:if test="fase.estadoObj.id!=2"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
-                <td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
-                <td class="col_1">${fase.estadoObj.descripcion}</td>
+            	<td class="col_1">${fase.numero_fase}</td>
+            	<td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
+                
+                <py:if test="fase.estadoObj.id==4"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.estadoObj.descripcion}</a><IMG title="Con Linea Base" height="20" border="0" src="${tg.url('/images/ok.png')}" /></td></py:if>
+            	<py:if test="fase.estadoObj.id==2"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.estadoObj.descripcion}</a><IMG title="En dasarrollo" height="40" border="0" src="${tg.url('/images/trabajando.jpeg')}" /></td></py:if>
+            	<py:if test="fase.estadoObj.id!=2 and fase.estadoObj.id!=4"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.estadoObj.descripcion}</a></td></py:if>
+                
                 <td class="col_1"><py:if test="tg.predicates.has_permission('Generar linea base')"><a href="/lb/generar_linea_base/${fase.id}">Generar Linea Base</a></py:if></td>
-        		<td class="col_1"><py:if test="mensajes[i]!=''"><a href="/proyecto/lista" ><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /></a>
+        		<td class="col_1"><py:if test="tg.predicates.has_permission('Gestionar linea base')"><py:if test="mensajes[i]!=''"><a href="/proyecto/lista" ><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /></a>
         		<a href="/item/verSolicitudAperturaLB/${fase.id}">${mensajes[i]}</a>
-        		</py:if></td>
+        		</py:if></py:if></td>
         </tr>
         </tbody>
     </table>

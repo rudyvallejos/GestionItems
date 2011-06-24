@@ -162,19 +162,16 @@ function verificarItems()
    
     <table border="0">
 	<tr>
-		<td>Proyecto:</td>
-		<td><input  size="35" disable="TRUE"  readonly="TRUE" value="${proyecto.descripcion}"/>
-		</td>
-		<td>Fase:</td>
-		<td colspan="3"><input size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
-		</td>
+		<td><u><b>Proyecto:</b></u></td>
+		<td colspan="3"><label>${proyecto.descripcion}</label></td>
+		
+		
 	</tr>
 
 	
 	<tr>
-		<!--td><label>Descripcion:</label></td>
-		<td><textarea name="descripcion" py:content="item.descripcion" rows="7" cols="38"/></td-->
-		
+		<td><u><b>Fase:</b></u></td>
+		<td colspan="3"><label>${fase.descripcion}</label></td>		
 	</tr>
 	
 	<tr/><tr/><tr/><tr/><tr/><tr/>
@@ -201,7 +198,7 @@ function verificarItems()
   	
   	
   	<div id="Buscador">
-    	<div><td/><td/><td><label><b>Buscar:</b></label>
+    	<div><td/><td/><td/><td><label algin="right"><b>Buscar:</b></label>
     		</td><td><input   type="text" size="15" name="filtros" value="${filtro}"/></td><td><input   type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/></td>
  		<td><input   type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/></td>
  		</div>   

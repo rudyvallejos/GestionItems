@@ -162,14 +162,12 @@ function verificarItems()
    
     <table border="0">
 	<tr>
-		<td>Proyecto:</td>
-		<td><input  size="35" disable="TRUE"  readonly="TRUE" value="${proyecto.descripcion}"/>
-		</td>
-		<td>Fase:</td>
-		<td colspan="3"><input size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
-		</td>
+		<td><u><b>Proyecto:</b></u></td>
+		<td colspan="3"><label>${proyecto.descripcion}</label></td>
+		
+		<td><u><b>Fase:</b></u></td>
+		<td colspan="3"><label>${fase.descripcion}</label></td>
 	</tr>
-
 	
 	<tr>
 		<!--td><label>Descripcion:</label></td>
@@ -201,7 +199,7 @@ function verificarItems()
   	
   	
   	<div id="Buscador">
-    	<div><td/><td/><td><label><b>Buscar:</b></label>
+    	<div><td/><td/><td/><td/><td/><td/><td><label><b>Buscar:</b></label>
     		</td><td><input   type="text" size="15" name="filtros" value="${filtro}"/></td><td><input   type="submit" onClick="botonPresionado('Buscar')" name="submit" value="Buscar"/></td>
  		<td><input   type="submit" onClick="botonPresionado('ListaTodos')" name="submit" value="Listar Todos"/></td>
  		</div>   
@@ -215,9 +213,9 @@ function verificarItems()
     <!-- form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/" method="get"-->
     
     <div><h3>Lista de Lineas Bases Activas: </h3></div>
-	<div class="crud_table" style="height:80%; width:100%">
+	<div class="crud_table" >
 		<div>
-			<table class="grid"  rules="all">
+			<table class="grid" style="height:80%; width:100%">
     		<thead>
      			<tr><th></th><th>ID LB</th><th >Items de la LB</th><th>Fase</th><th>Nro.Fase</th><th>Usuario Solicitante</th><th>Comentario</th></tr>
     		</thead>
