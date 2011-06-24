@@ -194,7 +194,7 @@ class LineaBaseController(BaseController):
         lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
         for idLB in lbSolicitadas:
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).filter(ItemUsuario.estado_id==5).all()
             codigosItemsSol=""
             for item in items:
                 codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "

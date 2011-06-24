@@ -703,7 +703,17 @@ class ItemControler(BaseController):
         for i, atrVal in enumerate(atributosValor):
             DBSession.delete(atrVal)
         DBSession.delete(DBSession.query(ItemUsuario).filter_by(id=id).one())
-        
+        DBSession.flush()
+        estados=[1,2,3,4,5,8]
+        itemsEnLB=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(ItemUsuario.estado_id.in_(estados)).order_by(ItemUsuario.id).all()
+        faseConLB=0
+        for itemP in itemsEnLB:
+            if itemP.estado_id!=3:
+                faseConLB=1
+        if faseConLB==0:
+            fase=DBSession.query(Fase).filter_by(id=idFase).one()
+            fase.estado_id=4
+            DBSession.flush()
         redirect( '/item/itemList/'+idFase)
     
     
@@ -737,8 +747,26 @@ class ItemControler(BaseController):
         item.estado_id=7
         DBSession.flush()
         lbAC=DBSession.query(LineaBase).filter_by(id=item.linea_base_id).one()
-        lbAC.estado_id=2
-        DBSession.flush()
+        itemsEnLB=DBSession.query(ItemUsuario).filter_by(linea_base_id=lbAC.estado_id).filter(ItemUsuario.id!=item.id).all()
+        existeItemEnLB=0
+        for elemen in itemsEnLB:
+            existeItemEnLB=1
+        if existeItemEnLB==1:
+            lbAC.estado_id=2
+            DBSession.flush()
+        else: 
+            lbAC.estado_id=5
+            DBSession.flush()
+        estados=[1,2,3,4,5,8]
+        itemsEnLB=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(ItemUsuario.estado_id.in_(estados)).order_by(ItemUsuario.id).all()
+        faseConLB=0
+        for itemP in itemsEnLB:
+            if itemP.estado_id!=3:
+                faseConLB=1
+        if faseConLB==0:
+            fase=DBSession.query(Fase).filter_by(id=idFase).one()
+            fase.estado_id=4
+            DBSession.flush()
         redirect( '/item/itemList/'+idFase)
             
     @expose('gestionitem.templates.item.errorEliminarItem')
@@ -1785,8 +1813,8 @@ class ItemControler(BaseController):
         if fase.numero_fase==1:
             itemNuevo.estado_id=2
             DBSession.flush()
-            
-        
+        fase.estado_id=2
+        DBSession.flush()
         redirect( '/item/itemList/'+str(itemNuevo.fase_id) )
         flash( '''Tipo Item Agregado! %s''')    
        
