@@ -776,7 +776,7 @@ class ItemControler(BaseController):
         item.estado_id=7
         DBSession.flush()
         lbAC=DBSession.query(LineaBase).filter_by(id=item.linea_base_id).one()
-        itemsEnLB=DBSession.query(ItemUsuario).filter_by(linea_base_id=lbAC.estado_id).filter(ItemUsuario.id!=item.id).all()
+        itemsEnLB=DBSession.query(ItemUsuario).filter_by(linea_base_id=lbAC.id).filter(ItemUsuario.id!=item.id).all()
         existeItemEnLB=0
         for elemen in itemsEnLB:
             existeItemEnLB=1
@@ -795,6 +795,15 @@ class ItemControler(BaseController):
         if faseConLB==0:
             fase=DBSession.query(Fase).filter_by(id=idFase).one()
             fase.estado_id=4
+            DBSession.flush()
+        
+        itemConLB=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter_by(estado_id=3).all()
+        existeItem=0 
+        for i in itemConLB:
+            existeItem=1
+        if(existeItem==0):
+            fase=DBSession.query(Fase).filter_by(id=idFase).one()
+            fase.estado_id=2
             DBSession.flush()
         redirect( '/item/itemList/'+idFase)
             
