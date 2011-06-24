@@ -16,6 +16,14 @@ function comprueba(objOrigen) {
 
 }
 
+function salir(form,id){
+	url= "/tipoItems/atributosDef/"+id ;
+	
+	window.location=url;
+	return false;
+	
+}
+
 
 </script>
 
@@ -60,13 +68,14 @@ function comprueba(objOrigen) {
  
 	
 	
-	
+	<input type="button" name="cancelar" value="Cancelar" onclick="salir(this,'${tipoItem.id}');"/>
  	<input type="submit" name="submit" value="Guardar"/>
   </form>
 
 <br/><br/>
+<!-- 
 <a href="/tipoItems/atributosDef/${tipoItem.id}">Def. Atributos</a>
-    
+ -->    
   
   <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
   <!--<h2>Nuevo Recurso</h2>

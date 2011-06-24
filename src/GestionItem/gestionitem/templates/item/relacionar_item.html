@@ -179,17 +179,17 @@ function verificarItems()
 	<tr>
 	<py:if test= "tipo==1"><py:if test= "fase.numero_fase!=1"><a href="/item/relacionar_item/${item.id}/${fase.id}/2" ><IMG title="Relacionar Antecesor/Sucesor" border="0" height="25" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
  	</py:if></py:if>
-		<td>Proyecto:</td>
-		<td><input  size="35" disable="TRUE"  readonly="TRUE" value="${proyecto.descripcion}"/>
+		<td><b><u>Proyecto:</u></b></td>
+		<td><label>${proyecto.descripcion}</label>
 		</td>
-		<td>Fase:</td>
-		<td colspan="3"><input size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
+		<td><b><u>Fase:</u></b></td>
+		<td colspan="3"><label>${fase.descripcion}</label>
 		</td>
 	</tr>
 
 	<tr>
-		<td><label>Cod.Item:</label></td>
-		<td><input  disable="TRUE" readonly="TRUE" value="${item.cod_item}"/></td>		
+		<td><b><u>Cod.Item:</u></b></td>
+		<td><label>${item.cod_item}</label></td>		
 	</tr>
 	<tr>
 		<!--td><label>Descripcion:</label></td>
@@ -237,11 +237,11 @@ function verificarItems()
     <!-- form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get"-->
     
     <div><h3>Lista de Items con LB: </h3></div>
-	<div class="crud_table" style="height:80%; width:100%">
+	<div class="crud_table" >
 		<div>
-			<table class="grid"  >
+			<table class="grid"  style="height:80%; width:100%">
     		<thead>
-     			<tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Fase</th><th>Nro.Fase</th></tr>
+     			<tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Version</th><th>Fase</th><th>Nro.Fase</th></tr>
     		</thead>
      		<tbody >
      			<!--p class="pagelist">
@@ -264,6 +264,7 @@ function verificarItems()
             		</td>
             		<td class="col_0">${item.cod_item}</td>
                 	<td class="col_1">${item.descripcion}</td>
+                	<td class="col_1">${item.version}</td>
                 	<td class="col_1">${item.fase.descripcion}</td>
                 	<td class="col_1">${item.fase.numero_fase}</td>
         		 </py:if>
@@ -276,6 +277,7 @@ function verificarItems()
             		</td>
             		<td class="col_0">${itemse.cod_item}</td>
                 	<td class="col_1">${itemse.descripcion}</td>
+                	<td class="col_1">${item.version}</td>
                 	<td class="col_1">${itemse.fase.descripcion}</td>
                 	<td class="col_1">${itemse.fase.numero_fase}</td>
         		

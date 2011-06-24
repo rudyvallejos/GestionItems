@@ -19,14 +19,22 @@
 
 
 <body class="tundra">
-
+<form   name="formulario"  action="/item/concluir_proyecto/${proyecto.id}" method="post">
 <!--div py:replace="aux.descripcion">Page text goes here.</div-->
  <h2>${proyecto.descripcion}</h2>
  <table>
  <tr>
  		<td><a href="/proyecto/lista" ><IMG title="Lista Proyectos" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
  		</td>
- 		<td><b><u>Lider de Proyecto:</u> ${proyecto.lider.user_name}</b>
+ 		<td><b><u>Lider de Proyecto:</u></b> ${proyecto.lider.user_name}
+ 		</td>
+ 		<td><b><u>Fecha de Creacion:</u></b></td>
+ 		<td class="col_4">${proyecto.fecha_creacion.strftime("%Y/%m/%d")}</td>
+                                
+ 		
+ </tr>
+ <tr>
+ 		<td/><td><b><u>Estado del Proyecto:</u></b> ${proyecto.estadoObj.descripcion}
  		</td>
  		
  </tr>
@@ -39,34 +47,65 @@
         <thead>
             <tr><th>Nro. Fase</th><th >Descripcion</th><th>Estado</th><th>Opciones</th><th>Mensajes</th></tr>
         </thead>
-        <tbody >
-        	<!--tr class="navigation" py:if="currentPage.page_count > 1">
+        <tbody>
+        	<tr class="navigation" py:if="currentPage.page_count > 1">
     			<td colspan="4" class="pager">${currentPage.pager()}</td>
 			</tr>
 			<tr class="navigation" py:if="currentPage.item_count == 0">
     			<td colspan="4" class="pager">No existen datos</td>
-			</tr-->
+			</tr>
         
             <tr py:for="i, fase in enumerate(fases)" class="${i%2 and 'odd' or 'even'}">
-            	<py:if test="fase.estadoObj.id==4"><td class="col_0"><IMG title="Con Linea Base" height="20" border="0" src="${tg.url('/images/ok.png')}" /><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
-            	<py:if test="fase.estadoObj.id==2"><td class="col_0"><IMG title="En dasarrollo" height="40" border="0" src="${tg.url('/images/trabajando.jpeg')}" /><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
-            	<py:if test="fase.estadoObj.id!=2"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.numero_fase}</a></td></py:if>
-                <td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
-                <td class="col_1">${fase.estadoObj.descripcion}</td>
+            	<td class="col_1">${fase.numero_fase}</td>
+            	<td class="col_1"><a href="/item/itemList/${fase.id}">${fase.descripcion}</a></td>
+                
+                <py:if test="fase.estadoObj.id==4"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.estadoObj.descripcion}</a><IMG title="Con Linea Base" height="20" border="0" src="${tg.url('/images/ok.png')}" /></td></py:if>
+            	<py:if test="fase.estadoObj.id==2"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.estadoObj.descripcion}</a><IMG title="En dasarrollo" height="40" border="0" src="${tg.url('/images/trabajando.jpeg')}" /></td></py:if>
+            	<py:if test="fase.estadoObj.id!=2 and fase.estadoObj.id!=4"><td class="col_0"><a href="/item/itemList/${fase.id}">${fase.estadoObj.descripcion}</a></td></py:if>
+                
                 <td class="col_1"><py:if test="tg.predicates.has_permission('Generar linea base')"><a href="/lb/generar_linea_base/${fase.id}">Generar Linea Base</a></py:if></td>
-        		<td class="col_1"><py:if test="mensajes[i]!=''"><a href="/proyecto/lista" ><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /></a>
+        		<td class="col_1"><py:if test="tg.predicates.has_permission('Gestionar linea base')"><py:if test="mensajes[i]!=''"><a href="/proyecto/lista" ><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /></a>
         		<a href="/item/verSolicitudAperturaLB/${fase.id}">${mensajes[i]}</a>
-        		</py:if></td>
+        		</py:if></py:if></td>
         </tr>
         </tbody>
+    <tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>
+  	<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>
+  
     </table>
-  
-  
+  <tr><py:if test="puedeCerrar==1 and proyecto.estado==2"><py:if test="tg.predicates.has_permission('Aprobar items')">	
+  	<br/><br/><br/>
+ 		<td><b><p><IMG title="Mensaje" height="25" border="0" src="${tg.url('/images/info.png')}" />
+ 		Aviso: Todas las fases pertenecientes a este proyecto se encuentran con LB total,
+ 		desea concluir el proyecto?
+ 		
+ 		<input type="submit" name="submit"  value="Concluir" />
+		</p>
+ 		</b> 
+ 		
+ 		</td>
+ 		
+      </py:if></py:if>
+ </tr>
+ <tr><py:if test="puedeCerrar==1 and proyecto.estado==3"><py:if test="tg.predicates.has_permission('Aprobar items')">	
+  	<br/><br/><br/>
+ 		<td><b><p><IMG title="Mensaje" height="25" border="0" src="${tg.url('/images/ok.png')}" />
+ 		Proyecto terminado,
+ 		desea reabrir el proyecto?
+ 		
+ 		<input type="submit" name="submit"  value="Reabrir" />
+		</p>
+ 		</b> 
+ 		
+ 		</td>
+ 		
+      </py:if></py:if>
+ </tr>
   
 </div>
 <br/><br/>
-<a href="/proyecto/lista">Lista de Proyectos</a>
- <div style="clear:both;"/>
 
+ <div style="clear:both;"/>
+</form>
 </body>
 </html>

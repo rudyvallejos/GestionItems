@@ -13,7 +13,7 @@ class LineaBaseController(BaseController):
     
     @expose(template="gestionitem.templates.lineaBase.generar_linea_base")
     @require(All(in_group('LiderProyecto', msg='Debe poseer Rol "LiderProyecto" para generar lineas bases'),
-                 has_permission('Generar linea base', msg='Debe poseer Permiso "Generar linea base" para agregar fases')))
+                 has_permission('Gestionar linea base', msg='Debe poseer Permiso "Generar linea base" para agregar fases')))
 
     def generar_linea_base(self,idfase,**named):
         #items = DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idfase).filter(ItemUsuario.estado_id==2).all()
@@ -119,10 +119,7 @@ class LineaBaseController(BaseController):
             fase=DBSession.query(Fase).filter_by(id=faseid).one()
             fase.estado_id=4
             DBSession.flush()
-        else:
-            fase=DBSession.query(Fase).filter_by(id=faseid).one()
-            fase.estado_id=4
-            DBSession.flush()  
+       
         redirect('/item/itemList/'+faseid)
         
     @expose(template="gestionitem.templates.lineaBase.lista_linea_base")
@@ -201,7 +198,7 @@ class LineaBaseController(BaseController):
         lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
         for idLB in lbSolicitadas:
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).filter(ItemUsuario.estado_id==5).all()
             codigosItemsSol=""
             for item in items:
                 codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
@@ -248,7 +245,6 @@ class LineaBaseController(BaseController):
         for lb in lbs:
             accion=named.get(str(lb.id),'')
             if (accion!="") and (accion=="Cerrar"):
-                
                 lb.estado_id=1
                 DBSession.flush()
                 ###Cambia Estado del Item
@@ -257,6 +253,16 @@ class LineaBaseController(BaseController):
                     if(item.estado_id == 5):
                         item.estado_id=3
                         DBSession.flush
+                estados=[1,2,3,4,5,8]
+                itemsEnLB=DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idFase).filter(ItemUsuario.estado_id.in_(estados)).order_by(ItemUsuario.id).all()
+                faseConLB=0
+                for itemP in itemsEnLB:
+                    if itemP.estado_id!=3:
+                        faseConLB=1
+                if faseConLB==0:
+                    fase=DBSession.query(Fase).filter_by(id=idFase).one()
+                    fase.estado_id=4
+                    DBSession.flush()
         fase=DBSession.query(Fase).filter_by(id=idFase).one()
                   
         redirect( '/item/itemList/'+str(fase.id) )

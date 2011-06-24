@@ -65,6 +65,24 @@
                 }
                 return true;
             }
+            
+            function validarEstado(formEliminar, estado, id){
+            	
+            	if(estado!=1){
+            		
+            		url = "/proyecto/avisoEliminarProyecto/"+id
+            		window.location=url;
+                	return false;
+            	
+            	}
+            	else{
+            		url = "/proyecto/eliminar/"+id;
+            		document.formEliminar.action=url;
+            		return true;
+            	}
+            	
+            	
+            }
 
         </script>
 
@@ -138,11 +156,9 @@
                                         </div>
                                         <div py:if="tg.predicates.has_permission('eliminar proyecto')">
 
-                                            <form method="POST" action="/proyecto/eliminar/${proyecto.id}"
-                                                  class="button-to">
-                                                <input class="delete-button"
-                                                       onclick="return confirm('Esta seguro que desea eliminar el registro con id ${proyecto.id}?');"
-                                                       value="eliminar" type="submit"
+                                            <form name="formEliminar" method="post" action="/proyecto/eliminar/${proyecto.id}"
+                                                  class="button-to" onsubmit="return validarEstado(this, '${proyecto.estado}','${proyecto.id}');">
+                                                <input class="delete-button" value="eliminar" type="submit"
                                                        style="background-color: transparent; float: left; border: 0; color: #286571; display: inline; margin: 0; padding: 0;" />
                                             </form>
                                         </div>
@@ -156,7 +172,7 @@
                                 <py:if test="proyecto.lider == None">
                                     <td bgcolor="red" class="col_3">No posee lider !!!!</td>
                                 </py:if>
-                                <td class="col_4">${proyecto.fecha_creacion}</td>
+                                <td class="col_4">${proyecto.fecha_creacion.strftime("%Y/%m/%d")}</td>
                                 <td class="col_5">${proyecto.estadoObj.descripcion}</td>
 
                                 <py:if test="proyecto.estado== 1">

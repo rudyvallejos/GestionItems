@@ -5,6 +5,30 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <xi:include href="master.html" />
+  <script>
+  var boton
+  function botonPresionado(botonP){
+	  
+
+  boton=botonP
+  }
+  
+  function validarCamposObligatorios(form){
+
+	  
+	  if (boton=="Cancelar")
+			  		{  
+	     				
+	      				
+	      				document.form.action="/tipoItems/atributosDef/${tipoItem.id}"
+	  			  		
+	  			  		return true;	
+	  				
+	         	}
+  }
+  
+  </script>
+  
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
 </head>
@@ -14,7 +38,7 @@
 <div><h2>Agregar Atributo</h2></div>
 <div><h3>Tipo de Item: ${tipoItem.descripcion}</h3></div> 
 
-  <form  display="none" action="/tipoItems/saveItemAtri" method="post">
+  <form  display="none" name="form" action="/tipoItems/saveItemAtri" onsubmit="return validarCamposObligatorios(this)" method="post">
 	
     <input type="hidden" name="id" value="${tipoItem.id}"/>
     <label>Nombre:</label>
@@ -24,11 +48,13 @@
 		<OPTION py:for="tipo in tipos"  value="${tipo.id}">${tipo.descripcion}</OPTION>
 		</SELECT>
 	<br/><br/>
+	<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" /> 
  	<input type="submit" name="submit" value="Guardar"/>
+ 	
   </form>
 
 <br/><br/>
-<a href="/tipoItems/atributosDef/${tipoItem.id}">Def. Atributos</a>
+
     
   
   <!--a href="${tg.url('/Agregar Recurso')}">Agregar Recurso</a-->
