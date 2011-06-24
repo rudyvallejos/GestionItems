@@ -276,9 +276,9 @@ class LineaBaseController(BaseController):
         if(submit=="Buscar"): 
             expresion=named.get( 'filtros')
             expre_cad=expresion
-            proyectos = DBSession.query(Proyecto).filter(Proyecto.estado == 2).filter(Proyecto.descripcion.like('%'+str(expre_cad)+'%')).all()
+            proyectos = DBSession.query(Proyecto).filter(or_(Proyecto.estado == 2,Proyecto.estado == 3 )).filter(Proyecto.descripcion.like('%'+str(expre_cad)+'%')).all()
         else:
-            proyectos = DBSession.query(Proyecto).filter(Proyecto.estado == 2).all()
+            proyectos = DBSession.query(Proyecto).filter(or_(Proyecto.estado == 2,Proyecto.estado == 3 )).all()
         
         
         
