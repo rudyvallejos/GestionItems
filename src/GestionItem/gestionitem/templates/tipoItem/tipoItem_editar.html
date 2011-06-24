@@ -90,6 +90,15 @@ for(j=0; ele=codigos[j]; j++){
 codRepetido=false 
 }
 
+function salir(form,id){
+	url= "/tipoItems/tipoItemUsuario/"+id+"/lista" ;
+	
+	window.location=url;
+	return false;
+	
+}
+
+
 
 
 </script> 
@@ -142,7 +151,11 @@ codRepetido=false
 	
 	<tr/><tr/><tr/><tr/><tr/><tr/><tr/>
 	<tr>
-    	<td><input type="submit" name="submit" value="Guardar"/></td>
+		
+    	<td>
+    	<input type="button" name="cancelar" value="Cancelar" onclick="salir(this,'${fase.id}');"/>
+    	<input type="submit" name="submit" value="Guardar"/>
+    	</td>
     </tr>
  </table>
   </form>
@@ -157,7 +170,8 @@ codRepetido=false
 </div>
 
 <br/><br/>
+<!-- 
 <a href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista">Def. Tipo Item</a>
-  
+ -->  
 </body>
 </html>
