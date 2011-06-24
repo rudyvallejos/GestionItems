@@ -333,7 +333,7 @@ class LineaBaseController(BaseController):
         
             
         
-        return dict(listaItemUser=itemUsuarios, proyecto=proyecto, itemSeleccionado=itemSeleccionado, filtro = "",fase=fase)
+        return dict(listaItemUser=itemUsuarios, proyecto=proyecto, itemSeleccionado=itemSeleccionado, filtro = "",fase=fase,idfaseDestino=idfaseDestino)
         
     @expose()
     def guardar_items_importados(self,idfaseDestino,**named):
