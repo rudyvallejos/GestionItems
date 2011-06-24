@@ -338,6 +338,7 @@ class LineaBaseController(BaseController):
     @expose()
     def guardar_items_importados(self,idfaseDestino,**named):
         
+      
          
         itemselect = named.get('itemselect')
             
@@ -403,6 +404,6 @@ class LineaBaseController(BaseController):
                     DBSession.add(at)
                     DBSession.flush()
         
-    redirect("/tipoItems/tipoItemUsuario/${idfaseDestino}/lista")
+        redirect("/tipoItems/tipoItemUsuario/" + idfaseDestino + "/lista")
     
     
