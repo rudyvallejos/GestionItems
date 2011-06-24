@@ -47,27 +47,27 @@ class ProyectoController(BaseController):
         for grupo in id.groups:
             if(grupo.group_name == 'Administrador'):
                 if(orden == None or orden == 'Listar Todos'):
-                    proyectos = DBSession.query(Proyecto).all()
+                    proyectos = DBSession.query(Proyecto).filter(Proyecto.estado != 4).all()
                     muestraBoton = "false"
                 elif(orden == 'Buscar' and expresion != None):
-                    proyectoxlider = DBSession.query(Proyecto).join((User, Proyecto.lider)).filter(User.user_name.like('%' + expresion + '%')).order_by(Proyecto.descripcion).all()
-                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%' + expresion + '%')).order_by(Proyecto.descripcion).all()
-                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%' + expresion + '%')).order_by(Proyecto.descripcion).all()
+                    proyectoxlider = DBSession.query(Proyecto).join((User, Proyecto.lider)).filter(User.user_name.like('%' + expresion + '%')).filter(Proyecto.estado != 4).all()
+                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.estado != 4).all()
+                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.estado != 4).all()
                     proyectos = proyectoxdescripcion + proyectoxlider + proyectoxestado
                     muestraBoton = "true"
             
             if(grupo.group_name == 'LiderProyecto'):
                 if(orden == None or orden == 'Listar Todos'):
-                    proyectosLider = DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id).all()
+                    proyectosLider = DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id).filter(Proyecto.estado != 4).all()
                     muestraBoton = "false"
                 elif(orden == 'Buscar' and expresion != None):
-                    proyectoxlider = DBSession.query(Proyecto).join((User, Proyecto.lider)).filter(User.user_name.like('%' + expresion + '%')).filter(Proyecto.id_lider == id.user_id).order_by(Proyecto.descripcion).all()
-                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.id_lider == id.user_id).order_by(Proyecto.descripcion).all()
-                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.id_lider == id.user_id).order_by(Proyecto.descripcion).all()
+                    proyectoxlider = DBSession.query(Proyecto).join((User, Proyecto.lider)).filter(User.user_name.like('%' + expresion + '%')).filter(Proyecto.id_lider == id.user_id).filter(Proyecto.estado != 4).all()
+                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.id_lider == id.user_id).filter(Proyecto.estado != 4).all()
+                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.id_lider == id.user_id).filter(Proyecto.estado != 4).all()
                     proyectosLider = proyectoxdescripcion + proyectoxlider + proyectoxestado
                     muestraBoton = "true"
                 elif(orden):
-                    proyectosLider = DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id).all()
+                    proyectosLider = DBSession.query(Proyecto).filter(Proyecto.id_lider == id.user_id).filter(Proyecto.estado != 4).all()
                     muestraBoton = "false"
                     
                 
@@ -90,16 +90,19 @@ class ProyectoController(BaseController):
                
                 if(orden == None or orden == 'Listar Todos'): 
                     for ufr in ufrs:
-                        fase = DBSession.query(Fase).filter(Fase.id == ufr.fase_id).one()
-                        proyectosDesarrollador.append(fase.proyectoObj) 
+                        try:
+                            fase = DBSession.query(Fase).join((Proyecto, Fase.proyectoObj)).filter(Fase.id == ufr.fase_id).filter(Proyecto.estado !=4).one()
+                            proyectosDesarrollador.append(fase.proyectoObj)
+                        except:
+                            pass 
                     proyectosDesarrolladorset = set(proyectosDesarrollador)
                     proyectosDesarrollador = list(proyectosDesarrolladorset)
                     muestraBoton = "false"
                     
                 elif(orden == 'Buscar' and expresion != None):
-                    proyectoxlider = DBSession.query(Proyecto).join((User, Proyecto.lider)).filter(User.user_name.like('%' + expresion + '%')).order_by(Proyecto.descripcion).all()
-                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%' + expresion + '%')).order_by(Proyecto.descripcion).all()
-                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%' + expresion + '%')).order_by(Proyecto.descripcion).all()
+                    proyectoxlider = DBSession.query(Proyecto).join((User, Proyecto.lider)).filter(User.user_name.like('%' + expresion + '%')).filter(Proyecto.estado != 4).all()
+                    proyectoxdescripcion = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.estado != 4).all()
+                    proyectoxestado = DBSession.query(Proyecto).join((EstadoProyecto, Proyecto.estadoObj)).filter(EstadoProyecto.descripcion.like('%' + expresion + '%')).filter(Proyecto.estado != 4).all()
                     proyectosaux = proyectoxlider + proyectoxdescripcion + proyectoxestado
                     proyectosauxset = set(proyectosaux)
                     proyectosaux = list(proyectosauxset)
@@ -228,6 +231,7 @@ class ProyectoController(BaseController):
                  msg='Debe poseer Rol "Administrador" eliminar proyectos'))
     def eliminar(self, id):
         proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        proyecto.estado=4
         
         redirect('/proyecto')
         
