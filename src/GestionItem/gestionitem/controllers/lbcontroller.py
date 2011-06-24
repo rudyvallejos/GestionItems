@@ -276,9 +276,9 @@ class LineaBaseController(BaseController):
         if(submit=="Buscar"): 
             expresion=named.get( 'filtros')
             expre_cad=expresion
-            proyectos = DBSession.query(Proyecto).filter(Proyecto.estado_id == 2).filter(Proyecto.descripcion.like('%'+str(expre_cad)+'%')).all()
+            proyectos = DBSession.query(Proyecto).filter(Proyecto.estado == 2).filter(Proyecto.descripcion.like('%'+str(expre_cad)+'%')).all()
         else:
-            proyectos = DBSession.query(Proyecto).filter(Proyecto.estado_id == 2).all()
+            proyectos = DBSession.query(Proyecto).filter(Proyecto.estado == 2).all()
         
         
         
@@ -347,9 +347,9 @@ class LineaBaseController(BaseController):
             itemselect=[itemselect]
             tipoItemSeleccionado = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).all()
          
-            tipoItemExiste = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.codigo == tipoItemSeleccionado.codigo).filter(TipoItemUsuario.fase_id == idfaseDestino).one()
+            tipoItemExiste = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.codigo == tipoItemSeleccionado.codigo).filter(TipoItemUsuario.fase_id == idfaseDestino).all()
                 
-            if tipoItemExiste.lenght == 0:                
+            if tipoItemExiste.__len__() == 0:                
                 listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
                 if (listaIds.count()>0):
                     list=listaIds[-1]
@@ -380,9 +380,9 @@ class LineaBaseController(BaseController):
             
             for tipoItemSelect in  itemseleccionados:
                 
-                tipoItemExiste = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.codigo == tipoItemSelect.codigo).filter(TipoItemUsuario.fase_id == idfaseDestino).one()
+                tipoItemExiste = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.codigo == tipoItemSelect.codigo).filter(TipoItemUsuario.fase_id == idfaseDestino).all()
                 
-                if tipoItemExiste.lenght == 0:
+                if tipoItemExiste.__len__() == 0:
                 
                     listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
                     if (listaIds.count()>0):
