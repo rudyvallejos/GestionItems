@@ -3,7 +3,7 @@ from tg import expose,request
 from tg import redirect
 from sqlalchemy import or_
 from gestionitem.model import DBSession
-from gestionitem.model.proyecto import ItemUsuario,Fase,LineaBase,Proyecto
+from gestionitem.model.proyecto import ItemUsuario,Fase,LineaBase,Proyecto,TipoItemUsuario,TipoItemUsuarioAtributos
 from repoze.what.predicates import not_anonymous, in_group, has_permission, All
 from tg.decorators import require
 
@@ -20,13 +20,17 @@ class LineaBaseController(BaseController):
         expresion=""
         
         itemSeleccionado=DBSession.query(ItemUsuario).filter_by(id=-1)
-        itemSelec=named.get( 'itemselect','0')
+        itemselect=named.get( 'itemselect','0')
         
         fase=DBSession.query(Fase).filter(Fase.id==idfase).one()
         
-        if (itemSelec!=0 ):
-            itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).order_by(ItemUsuario.id)
-        
+        if (itemselect!=0 ):
+            try:
+                itemselect=int(itemselect)
+                itemselect=[itemselect]
+                itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemselect)).order_by(ItemUsuario.id)
+            except:
+                itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemselect)).order_by(ItemUsuario.id)
         
         submit=named.get( 'submit')
         
@@ -257,13 +261,142 @@ class LineaBaseController(BaseController):
                   
         redirect( '/item/itemList/'+str(fase.id) )
         
-    @expose(template="gestionitem.templates.lineaBase.listar_proyectos_definidos")
-    def listar_proyectos_definidos(self):
-        
-        proyectos = DBSession.query(Proyecto).filter(Proyecto.estado_id == 1).all()
+    @expose(template="gestionitem.templates.proyectoTmpl.listar_proyectos_definidos")
+    def listar_proyectos_definidos(self, idfaseDestino,**named):
         
         
+        submit=named.get( 'submit')
         
+        if(submit=="Buscar"): 
+            expresion=named.get( 'filtros')
+            expre_cad=expresion
+            proyectos = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%'+str(expre_cad)+'%')).all()
+        else:
+            proyectos = DBSession.query(Proyecto).all()
+        
+        
+        
+        return dict(proyecto=proyectos, filtro='', proy = '1', idfaseDestino=idfaseDestino)
     
+    @expose(template="gestionitem.templates.proyectoTmpl.listar_fases_definidas")
+    def listar_fases_definidas(self, idfaseDestino,idproyecto, **named):
+        expre_cad=""
+        proyecto = DBSession.query(Proyecto).filter_by(id= idproyecto).one()
+        
+        submit=named.get( 'submit')
+        
+        if(submit=="Buscar"): 
+            expresion=named.get( 'filtros')
+            expre_cad=expresion
+            fases = DBSession.query(Fase).filter(Fase.proyecto_id == idproyecto).filter(Fase.descripcion.like('%'+str(expre_cad)+'%')).all()
+        else:
+            fases = DBSession.query(Fase).filter(Fase.proyecto_id == idproyecto).all()
+        return dict(proyecto=proyecto, fases=fases, filtro = expre_cad, idfaseDestino=idfaseDestino)
+    
+    @expose(template="gestionitem.templates.proyectoTmpl.importar_tipoItems_proyecto")
+    def importar_tipoItems_proyecto(self, idfaseDestino,idfase, **named):
+        
+        #proyecto= DBSession.query(Proyecto).filter(Proyecto.id == idproyecto).one()
+        itemSeleccionado=DBSession.query(TipoItemUsuario).filter_by(id=-1)
+        
+        itemselect=named.get( 'itemselect','0')
+        
+        if (itemselect!=0 ):
+            
+            try:
+                itemselect=int(itemselect)
+                itemselect=[itemselect]
+                itemSeleccionado=DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).order_by(TipoItemUsuario.id)
+                
+            except:
+                itemSeleccionado=DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).order_by(TipoItemUsuario.id)
+        
+        fase= DBSession.query(Fase).filter(Fase.id == idfase).one()
+        
+        proyecto = DBSession.query(Proyecto).filter(Proyecto.id == fase.proyecto_id).one()
+        
+        submit=named.get('submit')
+        
+        if(submit=="Buscar"): 
+            expresion=named.get( 'filtros')
+            expre_cad=expresion
+            itemUsuarios = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.fase_id == idfase).filter(or_(TipoItemUsuario.descripcion.like('%'+str(expre_cad)+'%'),(TipoItemUsuario.codigo.like('%'+str(expre_cad)+'%')))).all()
+        else:
+            itemUsuarios = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.fase_id == idfase).all()
+        
+        
+            
+        
+        return dict(listaItemUser=itemUsuarios, proyecto=proyecto, itemSeleccionado=itemSeleccionado, filtro = "",fase=fase)
+        
+    @expose()
+    def guardar_items_importados(self,idfaseDestino,**named):
+        
+         
+        itemselect = named.get('itemselect')
+            
+        try:
+            itemselect=int(itemselect)
+            itemselect=[itemselect]
+            tipoItemSeleccionado = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).all()
+         
+            
+            listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
+            if (listaIds.count()>0):
+                list=listaIds[-1]
+                id=list.id + 1
+            else: 
+                id=1    
+        
+            ti = TipoItemUsuario(id = int(id),
+                                 descripcion = tipoItemSeleccionado.descripcion,
+                                 codigo = tipoItemSeleccionado.codigo,
+                                 fase_id = idfaseDestino)#el parametro pasado aca debe ir.
+            DBSession.add(ti)
+            DBSession.flush()
+            
+            for atributo in tipoItemSeleccionado.atributos:
+                
+                at = TipoItemUsuarioAtributos(nombre_atributo = atributo.nombre_atributo,
+                                              tipo_item_id= int(id),
+                                              tipo_id=atributo.tipo_id
+                                              )
+                           
+                DBSession.add(at)
+                DBSession.flush()
+            
+        except:
+            
+            itemseleccionados = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).all()
+            
+            for tipoItemSelect in  itemseleccionados:
+                
+                listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
+                if (listaIds.count()>0):
+                    list=listaIds[-1]
+                    id=list.id + 1
+                else: 
+                    id=1    
+            
+                ti = TipoItemUsuario(id = int(id),
+                                     descripcion = tipoItemSelect.descripcion,
+                                     codigo = tipoItemSelect.codigo,
+                                     fase_id = idfaseDestino)#el parametro pasado aca debe ir.
+                DBSession.add(ti)
+                DBSession.flush()
+                
+                
+                
+                for atributo in tipoItemSelect.atributos:
+                    
+                    at = TipoItemUsuarioAtributos(nombre_atributo = atributo.nombre_atributo,
+                                                  tipo_item_id= int(id),
+                                                  tipo_id=atributo.tipo_id
+                                                  )
+                               
+                    DBSession.add(at)
+                    DBSession.flush()
+        
+    redirect("/tipoItems/tipoItemUsuario/${idfaseDestino}/lista")
     
     
