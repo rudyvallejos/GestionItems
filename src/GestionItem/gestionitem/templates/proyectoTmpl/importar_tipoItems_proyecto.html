@@ -22,7 +22,7 @@
 								 for(j=0; ele=document.form1.itemselect[j]; j++){ 
 									 ip = document.form1.itemselect.length;
 								 if (ele.checked==true){
-									 document.form1.action="/lb/guardar_items_importados/6"
+								 		document.form1.action="/lb/guardar_items_importados/${idfaseDestino}"
 									 //F.filtros.value="Lista"
 									 return true;	
 								 }
