@@ -7,7 +7,7 @@
   <xi:include href="master.html" />
 
 <head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/tw.forms/static/grid.css" media="all" />
-    <title>Turbogears Admin System - Group Listing</title><style>
+    <title>Lista de tipos de items</title><style>
 #menu_items {
   padding:0px 12px 0px 2px;
   list-style-type:None
@@ -60,6 +60,7 @@ function mostrar(param) {
 
 
 <body class="tundra" onload="mostrar(${muestraBoton});  return true">
+<h3>Lista de Tipos de Items</h3>
     <table border="0">
 		<tr>
 		<td><a href="/proyecto/definir_fase/${proyecto.id}"><IMG title="Lista fase" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
@@ -97,7 +98,7 @@ function mostrar(param) {
  		</div>
 <!--FIN-Buscador--> 
  
-    <a   title="Lista Todos los Tipos de Items" href="/tipoItems/tipoItemUsuario/${proyecto.id}/lista"><h2>Lista de Tipos de Items</h2></a>
+    
  <a class="add_link" href="/tipoItems/agregar_tipoItem/${fase.id}">Agregar Nuevo Tipo de Item</a>
     <div class="crud_table" style="height:50%; width:90%">
     <div>

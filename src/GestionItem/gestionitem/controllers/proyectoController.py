@@ -227,8 +227,22 @@ class ProyectoController(BaseController):
     @require(All(in_group('Administrador'), has_permission('eliminar proyecto'),
                  msg='Debe poseer Rol "Administrador" eliminar proyectos'))
     def eliminar(self, id):
-        DBSession.delete(DBSession.query(Proyecto).filter_by(id=id).one())
-        redirect('/proyecto')    
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        
+        redirect('/proyecto')
+        
+    @expose(template='gestionitem.templates.proyectoTmpl.avisoEliminarProyecto')
+    def avisoEliminarProyecto(self,id, **named):
+        identity = request.environ.get('repoze.who.identity')
+        user = identity['user']
+        proyecto = DBSession.query(Proyecto).filter_by(id=id).one()
+        
+        return dict(page='Aviso Editar Item',
+                    user=user,
+                    fases=proyecto.fases,
+                    proyecto=proyecto,
+                    subtitulo='Aviso')
+        
     
     @expose()    
     def cambiarEstado(self, id, estado, **named):
@@ -271,7 +285,7 @@ class ProyectoController(BaseController):
         for grupo in iduser.groups:
             if(grupo.group_name == 'LiderProyecto'):
                 if(orden == None or orden == 'Listar Todos' or orden == 'Cancelar'):
-                    fases = DBSession.query(Fase).filter(Fase.proyecto_id == id).all()
+                    fases = DBSession.query(Fase).filter(Fase.proyecto_id == id).order_by(Fase.numero_fase).all()
                     muestraBoton = "false"
                 elif(orden == 'Buscar' and expresion != None):
                     fasesxdescripcion = DBSession.query(Fase).filter(Fase.proyecto_id == id).filter(Fase.descripcion.like('%' + expresion + '%')).all()
@@ -300,6 +314,7 @@ class ProyectoController(BaseController):
         
         faseset = set(fases)
         fases = list(faseset)
+        fases=sorted(fases, key=lambda Fase:Fase.numero_fase)
         proyecto_id = id
         
         from webhelpers import paginate
@@ -317,6 +332,7 @@ class ProyectoController(BaseController):
                     user=iduser,
                     proyectoEstado=proyectoEstado,
                     muestraBoton=muestraBoton,
+                    proyecto=proyecto,
                     currentPage=currentPage)
         
     
@@ -445,6 +461,7 @@ class ProyectoController(BaseController):
         )
         usuarioFaseRol = currentPage.items
         descripcion = fase.descripcion
+        proyecto = DBSession.query(Proyecto).filter(Proyecto.id==fase.proyecto_id).one()
         
         return dict(page='Usuarios de fase ' + descripcion,
                     usuariofaserol=usuarioFaseRol,
@@ -454,6 +471,7 @@ class ProyectoController(BaseController):
                     proyecto_id=fase.proyecto_id,
                     user=user,
                     muestraBoton=muestraBoton,
+                    proyecto=proyecto,
                     currentPage=currentPage
                     ) 
     

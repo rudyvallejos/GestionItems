@@ -102,6 +102,8 @@ class Fase(DeclarativeBase):
     proyectoObj = relation('Proyecto', foreign_keys=proyecto_id, backref='fases')
     codigo_fase = Column("codigo_fase", String(10), unique=False, nullable=False)
     
+    
+    
 class EstadoItem(DeclarativeBase):
     __tablename__ = 'estado_item'
     id = Column("id",Integer, autoincrement=True, primary_key=True)

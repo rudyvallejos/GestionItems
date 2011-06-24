@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+
+
+<head>
+<style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+  
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <title>SGP - Aviso</title>
+  
+  <script language="JavaScript">
+
+function funcionCancelar(param){ 
+	window.location="/proyecto";
+}
+
+function funcionContinuar(param){ 
+	window.location="/proyecto/eliminar/${proyecto.id}";
+}
+
+
+
+</script>
+</head>
+
+<body>
+<div class="centrado"><IMG title="Mensaje" height="50" border="0" src="${tg.url('/images/warning.png')}" /></div>
+<div class="centrado"><h1><u>Aviso Importante</u></h1></div>
+<fieldset>
+<div><h3><i>Usted esta tratando de eliminar un proyecto Activo</i></h3></div></fieldset>
+<div><h3>Informacion del Proyecto: ${proyecto.descripcion}</h3></div>
+<div><h4>Lider de Proyecto: ${proyecto.lider.user_name}</h4></div>
+<div><h4>Fecha de creacion: ${proyecto.fecha_creacion.strftime("%Y/%m/%d")}</h4></div>
+<div><h4>Estado: ${proyecto.estadoObj.descripcion}</h4></div>
+ 	
+  <table border="0">
+	
+	<tr><td></td><td><u><b>Fases</b></u></td></tr>
+	<tr>
+	<td><u><b>Nombre de fase</b></u></td>
+	<td></td>
+	<td><u><b>estado</b></u></td>
+	</tr>
+		
+		<tr py:for="fase in fases">
+		
+		<td>${fase.descripcion}</td>
+		<td></td>
+		<td>${fase.estadoObj.descripcion}</td>
+		</tr>
+		
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>
+	<tr>
+	
+	<td><input type="button" name="Cancelar" value="Cancelar"
+       onclick="funcionCancelar(this)" ></input>
+       <input type="button" name="Continuar" value="Continuar"
+       onclick="funcionContinuar(this)" ></input>
+	</td>
+	</tr>
+  
+</table>  
+
+
+</body>
+</html>

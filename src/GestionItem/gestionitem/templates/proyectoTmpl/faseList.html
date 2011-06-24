@@ -62,8 +62,28 @@
 	
 </head>
 <body class="tundra" onload="mostrar(${muestraBoton}); return true">
-	<a href="/proyecto/lista"><IMG title="Lista de Proyectos" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
-	<h2>Lista de Fases</h2>
+	<div><h3>Lista de fases</h3></div>
+	<table border="0">
+		<tr>
+		<td><a href="/proyecto/lista"><IMG title="Lista de Proyectos" height="25" border="0" src="${tg.url('/images/flechaAtras.jpg')}" /></a>
+ 		</td>	
+		<td ><u><b>Proyecto</b></u></td>
+		<td ><label>${proyecto.descripcion}</label></td>
+		</tr>
+		<tr><td/>
+		<td><u><b>Lider</b></u></td>
+		<td ><label>${proyecto.lider.user_name}</label></td>
+		</tr>
+		<tr><td/>
+		<td><u><b>Estado</b></u></td>
+		<td ><label>${proyecto.estadoObj.descripcion}</label></td>
+		</tr>
+		<tr><td/>
+		<td><u><b>Fec. Creacion</b></u></td>
+		<td ><label>${proyecto.fecha_creacion.strftime("%Y/%m/%d")}</label></td>
+		</tr>	
+		<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>	
+</table>
 	
 	<!-- Inicio Buscador-->
 
