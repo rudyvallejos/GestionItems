@@ -60,6 +60,19 @@ class ItemControler(BaseController):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
         expresion=named.get('expresion','lista')
+        fase = DBSession.query(Fase).filter_by(id=id).one()    
+            
+        mensajes=[]
+        lbs = DBSession.query(LineaBase).filter_by(fase_id=fase.id).order_by(LineaBase.id).all()
+        existe_sol=0
+        for lb in lbs:
+            if (lb.apertura=="1"):
+                existe_sol=1
+            if existe_sol:
+                mensajes.append("Solicitud de Apertura de LB")
+            else:
+                mensajes.append("")
+    
         existeLB=0
         if expresion=="lista":
             muestraBoton="false"
@@ -92,7 +105,7 @@ class ItemControler(BaseController):
         )
         items = currentPage.items
 
-        return dict(muestraBoton=muestraBoton,page='Lista de Items',user=user,existeLB=existeLB,
+        return dict(mensajes=mensajes,muestraBoton=muestraBoton,page='Lista de Items',user=user,existeLB=existeLB,
                     tiposItemUs=tiposItemUs, fase=fase,items=items, proyecto=proyecto,
                     subtitulo='Lista de Items',currentPage = currentPage)
     @expose(template="gestionitem.templates.tipoItem.tipoItem_editar")
@@ -112,6 +125,9 @@ class ItemControler(BaseController):
         redirect( '/tipoItems/tipoItemUsuario/'+ idProy+'/lista')
  
     @expose('gestionitem.templates.item.agregar_item')
+    @require(All(in_group('Desarrollador', msg='Debe poseer Rol "Desarrollador" para editar Items'),
+                 has_permission('Agregar items', msg='Debe poseer Permiso "Agregar items" gestionar Items')))
+   
     def agregar_item(self,idFase,tipo):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
@@ -466,6 +482,9 @@ class ItemControler(BaseController):
         return redirect(path)
     
     @expose('gestionitem.templates.item.editar_item')
+    @require(All(in_group('Desarrollador', msg='Debe poseer Rol "Desarrollador" para editar Items'),
+                 has_permission('Editar items', msg='Debe poseer Permiso "Editar items" gestionar Items')))
+    
     def editar_item(self,id,idItem):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
@@ -495,6 +514,9 @@ class ItemControler(BaseController):
                     proyecto=proyecto, atributosValor=atributosValor,
                     item=item,subtitulo='ABM-Item',current_files=current_files)
     @expose('gestionitem.templates.item.editar_itemLB')
+    @require(All(in_group('Desarrollador', msg='Debe poseer Rol "Desarrollador" para editar Items'),
+                 has_permission('Editar items', msg='Debe poseer Permiso "Editar items" gestionar Items')))
+   
     def editar_itemLB(self,id,idItem, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
@@ -570,6 +592,9 @@ class ItemControler(BaseController):
                     item=item,subtitulo='Aviso')
 
     @expose()
+    @require(All(in_group('Desarrollador', msg='Debe poseer Rol "Desarrollador" para editar Items'),
+                 has_permission('Eliminar items', msg='Debe poseer Permiso "Eliminar items" gestionar Items')))
+   
     def eliminar_item(self,idFase,id):
         
         
@@ -945,6 +970,8 @@ class ItemControler(BaseController):
     def verSolicitudAperturaLB(self,idFase, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user'] 
+        path=named.get('return','0')
+        
         #CONSULTA ALA BD
         lbSolicitadas=DBSession.query(LineaBase).filter_by(apertura="1").filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
@@ -986,13 +1013,17 @@ class ItemControler(BaseController):
         filtro=""
         muestraBoton="false"
         return dict(page='Solicitudes de Apertura',user=user,itemsLBSol=itemsLBSol,muestraBoton=muestraBoton,lbSolicitadas=lbSolicitadas,named=named,filtro=filtro,itemSelec=itemSelec,items=items,
-                    fase=fase,  
+                    fase=fase,
                     proyecto=proyecto,currentPage = currentPage,subtitulo='Solicitudes de Apertura')
     
     @expose()  
     def accionSolicitud( self, idFase, **named):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
+        path=named.get('return','0')
+        retorno="/item/itemList/"+idFase
+        if path!=0:
+            retorno=path
         lbs=DBSession.query(LineaBase).filter_by(fase_id=idFase).filter_by(apertura="1").all()
         for lb in lbs:
             accion=named.get(str(lb.id),'')

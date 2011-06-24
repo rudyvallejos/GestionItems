@@ -84,15 +84,18 @@ function mostrar(param) {
 				<OPTION  selected="true" value="/item/itemList/${fase.id}" disable ="false">Seleccione un Opcion</OPTION>
 				<py:if test="tg.predicates.has_permission('Aprobar items')"><OPTION value="/item/aprobarItems/${fase.id}">Aprobar Items</OPTION></py:if>
 				<OPTION value="/item/listaItemsElim/${fase.id}">Listar Items Eliminados</OPTION>
-				<OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION>
+				<py:if test="tg.predicates.has_permission('Gestionar linea base')"><OPTION value="/lb/generar_linea_base/${fase.id}">Generar Linea Base</OPTION></py:if>
 				<py:if test="existeLB==1">
 					<OPTION  value="/lb/listar_linea_base/${proyecto.id}/${fase.id}">Listar Linea Base</OPTION>
-				<OPTION value="/lb/cerrar_linea_base_abierta/${fase.id}">Cerrar LB</OPTION>
-				<OPTION value="/item/verSolicitudAperturaLB/${fase.id}">Abrir LB</OPTION>
-				<OPTION value="/item/solicitudAperturaLB/${fase.id}">Solicitar Apertura LB</OPTION>
+				<py:if test="tg.predicates.has_permission('Gestionar linea base')"><OPTION value="/lb/cerrar_linea_base_abierta/${fase.id}">Cerrar LB</OPTION></py:if>
+				<!-- OPTION value="/item/verSolicitudAperturaLB/${fase.id}">Abrir LB</OPTION-->
+				<py:if test="tg.predicates.has_permission('Solicitar apertura lb')"><OPTION value="/item/solicitudAperturaLB/${fase.id}">Solicitar Apertura LB</OPTION></py:if>
 				</py:if>	
 			</SELECT>
 		</td>
+		
+			
+		
 		</tr>
 		<tr><td/>
 		<td><u><b>Fase Nro.</b></u></td>
@@ -101,12 +104,18 @@ function mostrar(param) {
 		<tr><td/>
 		<td><u><b>Fase</b></u></td>
 		<td><label>${fase.descripcion}</label></td>
-		<!--  td><input  size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
-		</td-->
+			<py:if test="mensajes[0]!=''">
+			<py:if test="tg.predicates.has_permission('Gestionar linea base')">
+			<td colspan="7">
+					<a href="/proyecto/lista" ><IMG title="Mensaje" height="20" border="0" src="${tg.url('/images/warning.png')}" /></a>
+        			<a href="/item/verSolicitudAperturaLB/${fase.id}">${mensajes[0]}</a>
+        	</td>
+        	</py:if>
+        		</py:if>
 		</tr>
   		<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>		
   		<tr>
-  		 <td colspan="5"><a class="add_link" href="/item/agregar_item/${fase.id}/0">Agregar Nuevo Item</a></td>
+  		 <td colspan="5"><py:if test="tg.predicates.has_permission('Agregar items')"><a class="add_link" href="/item/agregar_item/${fase.id}/0">Agregar Nuevo Item</a></py:if></td>
   			<div id="Buscador">
   				<form  class="izquierda" display="none" onSubmit="return valida(this);" action="/item/itemList/${fase.id}"> 
   					<div>
@@ -135,7 +144,7 @@ function mostrar(param) {
 	  		</td>
   			<!--FIN-BUSCADOR-->
     
-   		
+   	
     </tr>	
    	
    </table> 
@@ -159,18 +168,18 @@ function mostrar(param) {
             <py:if test="item.estado_id!=6">
             
             <td class="col_0">
-                <div><div><py:if test="item.estado.id!=3"> <py:if test="item.estado.id!=4">
-                <a class="edit_link" href="/item/editar_item/${fase.id}/${item.id}" style="text-decoration:none">edit</a>   
+                <div><div><py:if test="item.estado.id!=3"><py:if test="item.estado.id!=4">
+                <py:if test="tg.predicates.has_permission('Editar items')"><a class="edit_link" href="/item/editar_item/${fase.id}/${item.id}" style="text-decoration:none">edit</a></py:if>   
                 </py:if></py:if></div><div>
              	<!-- Pregunta si no es con linea base o Pendiente de Revision-->
              	<py:if test="item.estado.id==4"><IMG title="Atencion" height="20" border="0" src="${tg.url('/images/warning.png')}"/></py:if>
                 <py:if test="item.estado.id==3"><IMG title="Con Linea Base" height="20" border="0" src="${tg.url('/images/ok.png')}" /></py:if>
                 <py:if test="item.estado.id!=3">
                  <py:if test="item.estado.id!=4">
-                <form method="POST" action="/item/eliminar_item/${fase.id}/${item.id}" class="button-to">
+                <py:if test="tg.predicates.has_permission('Eliminar items')"><form method="POST" action="/item/eliminar_item/${fase.id}/${item.id}" class="button-to">
                 	<input class="delete-button" onclick="return confirm('Esta seguro que desea eliminar el registro con codigo ${item.cod_item}?');" 
                 	value="eliminar"  type="submit" style="background-color: transparent; float:left; border:0; color: #286571; display: inline; margin: 0; padding: 0;"/>
-                </form>
+                </form></py:if>
                 </py:if></py:if>
                 </div></div>
             
