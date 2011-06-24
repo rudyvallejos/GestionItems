@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+
+
+<SCRIPT LANGUAGE="JavaScript">
+boton=""
+function botonPresionado(botonP){
+
+boton=botonP
+}  
+
+function validarCampos(form){
+
+if (boton=="Cancelar")
+		{  
+   				
+    			
+    				document.form.action="/item/itemList/${fase.id}"
+			  		
+			  		return true;	
+				
+       	}
+if (boton!="Cancelar")
+		{  
+   				
+    				
+    				document.form.action="/item/revertirItemLB/${item.id}/${itemAnterior.id}"
+			  		
+			  		return true;	
+				
+       	}       	
+
+}
+</SCRIPT>
+
+
+
+<head>
+<style>
+#menu_items {
+  padding:0px 12px 0px 2px;
+  list-style-type:None
+  }
+  
+</style>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="/css/admin.css"/>
+
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <title>SGP - Aviso</title>
+</head>
+
+<body>
+<!--div onclick="comprueba(this)">Otro comentario</div-->
+<div class="centrado"><IMG title="Mensaje" height="50" border="0" src="${tg.url('/images/warning.png')}" /></div>
+<div class="centrado"><h1><u>Aviso Importante</u></h1></div>
+<fieldset >
+<div ><h3><i>Usted esta tratando de volver a una version anterior de un item que 
+ya pertenece a una linea Base, verifique la informacion del item 
+y el calculo de impacto.</i></h3></div></fieldset>
+<div><h3>Informacion del Item Actual</h3></div>
+<div id="CargaAtributos">
+ 	<input type="hidden" name="idFase" value="${fase.id}"/>
+    <input type="hidden" name="idProy" value="${proyecto.id}"/>
+    <table border="0">
+	<tr>
+	
+		<td/><td><u><b>Proyecto</b></u></td>
+		<td><label>${proyecto.descripcion}</label></td>
+		<!-- td><input  size="35" disable="TRUE" readonly="TRUE" value="${proyecto.descripcion}"/>
+		</td-->
+		<td><u><b>Fase</b></u></td>
+		<td><label>${fase.descripcion}</label></td>
+		
+		<!--  td><input  size="25" disable="TRUE" readonly="TRUE" value="${fase.descripcion}"/>
+		</td-->
+	</tr>
+		<tr>
+		<td/><td><label><u><b>Cod.Item</b></u></label></td>
+		<td><label>${item.cod_item}</label></td>
+		<!-- td><input name="codItem" disable="TRUE" readonly="TRUE" value="${item.cod_item}"/></td-->		
+		<td><label><u><b>Descripcion</b></u></label></td>
+		<td><label>${item.descripcion}</label></td>
+		<!--  td><textarea name="descripcion" disable="TRUE" readonly="TRUE" py:content="item.descripcion" rows="0" cols="38"/></td-->
+	</tr>
+	<tr>
+		<td/><td><u><b>Complejidad</b></u></td>
+		<td><label>${item.prioridad}</label></td>
+		<td><u><b>Version</b></u></td>
+		<td><label>${item.version}</label></td>
+		
+	</tr>	
+	<tr>
+		<td colspan="7"><h3>Informacion del Item a la que desea volver:</h3></td>
+	</tr>
+
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+		<tr>
+		<td/><td><label><u><b>Cod.Item</b></u></label></td>
+		<td><label>${itemAnterior.cod_item}</label></td>
+		<!-- td><input name="codItem" disable="TRUE" readonly="TRUE" value="${item.cod_item}"/></td-->		
+		<td><label><u><b>Descripcion</b></u></label></td>
+		<td><label>${itemAnterior.descripcion}</label></td>
+		<!--  td><textarea name="descripcion" disable="TRUE" readonly="TRUE" py:content="item.descripcion" rows="0" cols="38"/></td-->
+	</tr>
+	<tr>
+		<td/><td><u><b>Complejidad</b></u></td>
+		<td><label>${itemAnterior.prioridad}</label></td>
+		<td><u><b>Version</b></u></td>
+		<td><label>${itemAnterior.version}</label></td>
+		
+	</tr>
+	
+	<tr/><tr/><tr/><tr/><tr/><tr/>
+
+</table>
+    <form  display="none"  name="form" onSubmit="return validarCampos(this);"  action="/item/saveRelacion/${item.id}" method="get">
+    <div><h3>Calculo de Impacto: ${calculoImpacto}</h3></div>
+    <tr><td><h3><u>Items Calculados:</u></h3></td></tr>
+    
+    <div class="crud_table" >
+    <div>
+	 	  <table  class="grid"  style="height:80%; width:100%">
+	        <thead>
+	            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Complejidad</th><th>Fase</th></tr>
+	        </thead>
+	        <tbody >
+	        	<tr class="navigation" py:if="currentPage.page_count > 1">
+	    			<td colspan="4" class="pager">${currentPage.pager()}</td>
+				</tr>
+				<tr class="navigation" py:if="currentPage.item_count == 0">
+	    			<td colspan="4" class="pager">No existen datos</td>
+				</tr>
+	        
+	            <tr py:for="i, item in enumerate(itemsCalculados)" class="${i%2 and 'odd' or 'even'}">
+	            <td class="col_0">
+	                
+	            </td>
+	            	<td class="col_0">${item.cod_item}</td>
+	                <td class="col_1">${item.descripcion}</td>
+	        		<td class="col_1">${item.prioridad}</td>
+	        		<td class="col_1">Nro-${item.fase.numero_fase}/${item.fase.descripcion}</td>
+	        	
+	        	</tr>
+	    
+	        </tbody>
+	    </table>
+      </div>
+      </div>
+      	<br/><br/><br/><br/>
+		<!--input type="button" name="submit" value="Cancelar" /-->
+			<td> 
+		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" /></td>
+		<td><input type="submit"  name="submit"  title="Continuar" value="Continuar"/></td>	
+	
+		
+	 </form>
+ 
+  
+  
+  
+  
+</div>
+
+<br/><br/>
+
+  
+</body>
+</html>

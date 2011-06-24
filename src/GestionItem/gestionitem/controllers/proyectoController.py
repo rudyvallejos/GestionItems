@@ -42,7 +42,6 @@ class ProyectoController(BaseController):
         orden = named.get('submit')
         proyectos = []
         
-
         id = identity['user']
         for grupo in id.groups:
             if(grupo.group_name == 'Administrador'):
