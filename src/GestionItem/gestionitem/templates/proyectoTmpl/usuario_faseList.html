@@ -107,7 +107,7 @@
 
         <!--FIN-Buscador-->
 
-        <a class="add_link" href="/proyecto/agregar_usuario_fase/${fase_id}">Agregar
+        <a py:if="tg.predicates.has_permission('asignar desarrollador')" class="add_link" href="/proyecto/agregar_usuario_fase/${fase_id}">Agregar
 		Usuario</a>
         <br />
         <br />
@@ -135,12 +135,12 @@
                         <tr class="even" py:for="ufr in usuariofaserol">
                             <td class="col_0">
                                 <div>
-                                    <div>
+                                    <div py:if="tg.predicates.has_permission('editar desarrollador')">
                                         <a class="edit_link" href="/proyecto/editar_usuario_fase/${ufr.id}"
                                            style="text-decoration: none" >edit</a>
 
                                     </div>
-                                    <div>
+                                    <div py:if="tg.predicates.has_permission('eliminar desarrollador')">
 
                                         <form method="POST" action="/proyecto/eliminar_usuario_fase/${ufr.id}"
                                               class="button-to">
