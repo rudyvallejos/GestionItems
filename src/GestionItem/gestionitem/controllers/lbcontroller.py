@@ -141,11 +141,11 @@ class LineaBaseController(BaseController):
             expresion=named.get( 'filtro')
             
             if expresion.isdigit():
-                lista=DBSession.query(LineaBase).filter(LineaBase.fase_id==idfase).filter(LineaBase.id == int(expresion)).all()
+                lista=DBSession.query(LineaBase).filter(LineaBase.estado_id == 1).filter(LineaBase.fase_id==idfase).filter(LineaBase.id == int(expresion)).all()
             else:
-                lista=DBSession.query(LineaBase).filter(LineaBase.fase_id==idfase).all()
+                lista=DBSession.query(LineaBase).filter(LineaBase.estado_id == 1).filter(LineaBase.fase_id==idfase).all()
         else:
-            lista=DBSession.query(LineaBase).filter(LineaBase.fase_id==idfase).all()
+            lista=DBSession.query(LineaBase).filter(LineaBase.estado_id == 1).filter(LineaBase.fase_id==idfase).all()
         
         
         fase = DBSession.query(Fase).filter(Fase.id == idfase).one()
