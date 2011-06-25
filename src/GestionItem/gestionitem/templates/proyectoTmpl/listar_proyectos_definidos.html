@@ -19,6 +19,7 @@
 		
 		if (boton=="genlb")
 		{  
+			  try{
    				for(j=0; ele=document.form1.itemselect[j]; j++){ 
               		
 						  if (ele.checked==true){
@@ -28,21 +29,23 @@
     			}
     				
     			if(document.form1.itemselect.checked==true){
-			  		document.form1.action="/lb/listar_fases_definidas/${idfaseDestino}/" + document.form1.itemselect.value;
+			  		document.form1.action="/lb/listar_fases_definidas/${idfaseDestino}/" + document.form1.itemselect;
 			  		//F.filtros.value=""
 			  		return true;	
 				}
     			alert("Debe seleccionar un proyecto.");
     			return false;
+    		  }catch(err){return false;}
        	}
        	
        	if(boton=="Buscar"){
-        		if(F.filtros.value != "") {   
-                	return true 
-        		}
-        		else if (F.filtros.value == ""){
-        			return false
-        		}	 
+								
+							 if(F.filtros.value != "") {   
+									 return true 
+							 }
+							 else if (F.filtros.value == ""){
+								 return false
+							 }	
         }else if (boton=="ListarTodos"){
        	 	F.filtros.value=""
         		return true
@@ -112,7 +115,7 @@ function botonPresionado(botonP){
       	<br/><br/><br/><br/>
       	<div align="left">
       		<input type="submit" name="submit" onClick="botonPresionado('Cancelar')" value="Cancelar" />
-			<input align="right" name="submit" onclick="botonPresionado('genlb')" title="Generar" type="submit" value="Listar Tipo de items"/>
+			 <input align="right" name="submit" onclick="botonPresionado('genlb')" title="Generar" type="submit" value="Listar Tipo de items"/>
 		</div>	
 	 </form>
 </div>

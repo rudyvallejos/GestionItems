@@ -16,7 +16,14 @@ class LineaBaseController(BaseController):
                  has_permission('Gestionar linea base', msg='Debe poseer Permiso "Generar linea base" para agregar fases')))
 
     def generar_linea_base(self,idfase,**named):
-        #items = DBSession.query(ItemUsuario).filter(ItemUsuario.fase_id==idfase).filter(ItemUsuario.estado_id==2).all()
+        """ Se utiliza para generar la linea base de un fase indicada en el parametro.
+   
+        @param idfase: identificador de la fase.
+        @type idfase: Integer
+       
+        @return: diccionario de todos los elementos que se obtienen con las consultas para mostrar en la pagina.
+        @rtype: Diccionario.
+        """
         expresion=""
         
         itemSeleccionado=DBSession.query(ItemUsuario).filter_by(id=-1)
@@ -43,6 +50,7 @@ class LineaBaseController(BaseController):
             
         
         return dict(items=items,fase=fase,filtro=expresion, itemSeleccionado=itemSeleccionado)
+    print generar_linea_base.__doc__
     
     @expose()
     def guardar_linea_base(self, faseid,**named):
