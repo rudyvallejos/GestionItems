@@ -14,29 +14,27 @@
 			 }
 	  </style>
 	  <script>
-					 boton=""
-					 function valida(F) {
-					 
-					 if (boton=="genlb")
-					 {  
-								 for(j=0; ele=document.form1.itemselect[j]; j++){ 
-									 ip = document.form1.itemselect.length;
-								 if (ele.checked==true){
-								 		document.form1.action="/lb/guardar_items_importados/${idfaseDestino}"
-									 //F.filtros.value="Lista"
-									 return true;	
-								 }
-							 }
-								 
-							 if(document.form1.itemselect.checked==true){
-								 document.form1.action="/lb/guardar_items_importados/${idfaseDestino}"
-								 //F.filtros.value=""
-								 return true;	
-							 }
-							 alert("Debe seleccionar al menos un item para importar");
-							 return false;
-						 }
-						 
+			boton=""
+			function valida(F) {
+				  try{
+							if (boton=="genlb")
+							{  
+										for(j=0; ele=document.form1.itemselect[j]; j++){ 
+											  ip = document.form1.itemselect.length;
+											  if (ele.checked==true){
+													 document.form1.action="/lb/guardar_items_importados/${idfaseDestino}"
+													 return true;	
+											  }
+										}
+										
+										  if(document.form1.itemselect.checked==true){
+											  document.form1.action="/lb/guardar_linea_base/${proyecto.id}"
+											  return true;	
+										  }
+									alert("Debe seleccionar al menos un item para importar");
+									return false;
+							}
+								
 						 if(boton=="Buscar"){
 							 if(F.filtros.value != "") {   
 									 return true 
@@ -48,38 +46,35 @@
 							 F.filtros.value=""
 							 return true
 						}
-						
-						 if (boton=="Cancelar")
-					 {  
-								 
-								 
-					 		document.form1.action="/tipoItems/tipoItemUsuario/${idfaseDestino}/lista"
-								 
-								 return true;	
+							  
+						 if (boton=="Cancelar"){  
+							document.form1.action="/tipoItems/tipoItemUsuario/${idfaseDestino}/lista"
+							return true;	
 							 
-						 }				
-					}
+						 }			
+				  }catch(err){return false;}
+ 	    }
 					
-					function botonPresionado(botonP){
-						boton=botonP
-					}  
-					
-										
-										
-					checked=false;
-					function checkedAll(F) 
-					{
-						 if (checked == false)
-						{
-							  checked = true
-						} else{
-							 checked = false
-						}
-						hasta = document.form1.itemselect.length; 
-						 for(j=0; j!=hasta; j++){ 
-						
-								document.form1.itemselect[j].checked= checked;
-							 }
+			 function botonPresionado(botonP){
+				 boton=botonP
+			 }  
+			 
+								 
+								 
+			 checked=false;
+			 function checkedAll(F) 
+			 {
+				  if (checked == false)
+				 {
+						checked = true
+				 } else{
+					  checked = false
+				 }
+				 hasta = document.form1.itemselect.length; 
+				  for(j=0; j!=hasta; j++){ 
+				 
+						 document.form1.itemselect[j].checked= checked;
+					  }
 						
 				 }
 	  </script>

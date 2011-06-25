@@ -16,47 +16,6 @@
 	  
 	  <script>
 			 boton=""
-			 function validaxx(F) {
-				
-				if (boton=="genlb")
-				{  
-	   				for(j=0; ele=document.form1.itemselect[j]; j++){ 
-	              		
-	    				if (ele.checked==true){
-	    					document.form1.action="/lb/guardar_linea_base/${fase.id}"
-	        				//F.filtros.value="Lista"
-	    					return true;	
-	    				}
-	    			}
-	    				
-	    			if(document.form1.itemselect.checked==true){
-				  		document.form1.action="/lb/guardar_linea_base/${fase.id}"
-				  		//F.filtros.value=""
-				  		return true;	
-					}
-	    			alert("Debe Selexfsff");
-	    			return false;
-		       	}
-	       	
-		       	if(boton=="Buscar"){
-		        		if(F.filtros.value != "") {   
-		                	return true 
-		        		}
-		        		else if (F.filtros.value == ""){
-		        			return false
-		        		}	 
-		        }else if (boton=="ListarTodos"){
-		       	 	F.filtros.value=""
-		        		return true
-		        }
-		        
-		        if (boton=="Cancelar")
-				{  		
-		    				document.form1.action="/item/itemList/${fase.id}/"  		
-					  		return true;	
-		       	}				
-			}
-			
 			function valida(F) {  
           
 		        if(F.filtro.value != "" ) { 

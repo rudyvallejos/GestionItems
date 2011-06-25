@@ -19,21 +19,24 @@
 		
 		if (boton=="genlb")
 		{  
-   				for(j=0; ele=document.form1.itemselect[j]; j++){ 
-              		
-						  if (ele.checked==true){
-								 document.form1.action="/lb/importar_tipoItems_proyecto/${idfaseDestino}/" + document.form1.itemselect[j].value;
-								 return true;	
-						  }
-    			}
-    				
-    			if(document.form1.itemselect.checked==true){
-			  		document.form1.action="/lb/importar_tipoItems_proyecto/${idfaseDestino}/" + document.form1.itemselect;
-			  		//F.filtros.value=""
-			  		return true;	
-				}
-    			alert("Debe seleccionar una fase p/ importar los items");
-    			return false;
+			  try{
+						  for(j=0; ele=document.form1.itemselect[j]; j++){ 
+							  
+								 if (ele.checked==true){
+										document.form1.action="/lb/importar_tipoItems_proyecto/${idfaseDestino}/" + document.form1.itemselect[j].value;
+										return true;	
+								 }
+					  }
+						  
+					  if(document.form1.itemselect.checked==true){
+						  document.form1.action="/lb/importar_tipoItems_proyecto/${idfaseDestino}/" + document.form1.itemselect;
+						  //F.filtros.value=""
+						  return true;	
+					  }
+					  alert("Debe seleccionar una fase p/ importar los items");
+					  return false;
+			  }catch(err)
+			  {return false;}
        	}
        	
        	if(boton=="Buscar"){
