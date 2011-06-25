@@ -276,9 +276,9 @@ class LineaBaseController(BaseController):
         if(submit=="Buscar"): 
             expresion=named.get( 'filtros')
             expre_cad=expresion
-            proyectos = DBSession.query(Proyecto).filter(Proyecto.descripcion.like('%'+str(expre_cad)+'%')).all()
+            proyectos = DBSession.query(Proyecto).filter(or_(Proyecto.estado == 2,Proyecto.estado == 3 )).filter(Proyecto.descripcion.like('%'+str(expre_cad)+'%')).all()
         else:
-            proyectos = DBSession.query(Proyecto).all()
+            proyectos = DBSession.query(Proyecto).filter(or_(Proyecto.estado == 2,Proyecto.estado == 3 )).all()
         
         
         
@@ -347,37 +347,9 @@ class LineaBaseController(BaseController):
             itemselect=[itemselect]
             tipoItemSeleccionado = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).all()
          
-            
-            listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
-            if (listaIds.count()>0):
-                list=listaIds[-1]
-                id=list.id + 1
-            else: 
-                id=1    
-        
-            ti = TipoItemUsuario(id = int(id),
-                                 descripcion = tipoItemSeleccionado.descripcion,
-                                 codigo = tipoItemSeleccionado.codigo,
-                                 fase_id = idfaseDestino)#el parametro pasado aca debe ir.
-            DBSession.add(ti)
-            DBSession.flush()
-            
-            for atributo in tipoItemSeleccionado.atributos:
+            tipoItemExiste = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.codigo == tipoItemSeleccionado.codigo).filter(TipoItemUsuario.fase_id == idfaseDestino).all()
                 
-                at = TipoItemUsuarioAtributos(nombre_atributo = atributo.nombre_atributo,
-                                              tipo_item_id= int(id),
-                                              tipo_id=atributo.tipo_id
-                                              )
-                           
-                DBSession.add(at)
-                DBSession.flush()
-            
-        except:
-            
-            itemseleccionados = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).all()
-            
-            for tipoItemSelect in  itemseleccionados:
-                
+            if tipoItemExiste.__len__() == 0:                
                 listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
                 if (listaIds.count()>0):
                     list=listaIds[-1]
@@ -386,15 +358,13 @@ class LineaBaseController(BaseController):
                     id=1    
             
                 ti = TipoItemUsuario(id = int(id),
-                                     descripcion = tipoItemSelect.descripcion,
-                                     codigo = tipoItemSelect.codigo,
+                                     descripcion = tipoItemSeleccionado.descripcion,
+                                     codigo = tipoItemSeleccionado.codigo,
                                      fase_id = idfaseDestino)#el parametro pasado aca debe ir.
                 DBSession.add(ti)
                 DBSession.flush()
                 
-                
-                
-                for atributo in tipoItemSelect.atributos:
+                for atributo in tipoItemSeleccionado.atributos:
                     
                     at = TipoItemUsuarioAtributos(nombre_atributo = atributo.nombre_atributo,
                                                   tipo_item_id= int(id),
@@ -403,6 +373,42 @@ class LineaBaseController(BaseController):
                                
                     DBSession.add(at)
                     DBSession.flush()
+            
+        except:
+            
+            itemseleccionados = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.id.in_(itemselect)).all()
+            
+            for tipoItemSelect in  itemseleccionados:
+                
+                tipoItemExiste = DBSession.query(TipoItemUsuario).filter(TipoItemUsuario.codigo == tipoItemSelect.codigo).filter(TipoItemUsuario.fase_id == idfaseDestino).all()
+                
+                if tipoItemExiste.__len__() == 0:
+                
+                    listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
+                    if (listaIds.count()>0):
+                        list=listaIds[-1]
+                        id=list.id + 1
+                    else: 
+                        id=1    
+                
+                    ti = TipoItemUsuario(id = int(id),
+                                         descripcion = tipoItemSelect.descripcion,
+                                         codigo = tipoItemSelect.codigo,
+                                         fase_id = idfaseDestino)#el parametro pasado aca debe ir.
+                    DBSession.add(ti)
+                    DBSession.flush()
+                    
+                    
+                    
+                    for atributo in tipoItemSelect.atributos:
+                        
+                        at = TipoItemUsuarioAtributos(nombre_atributo = atributo.nombre_atributo,
+                                                      tipo_item_id= int(id),
+                                                      tipo_id=atributo.tipo_id
+                                                      )
+                                   
+                        DBSession.add(at)
+                        DBSession.flush()
         
         redirect("/tipoItems/tipoItemUsuario/" + idfaseDestino + "/lista")
     

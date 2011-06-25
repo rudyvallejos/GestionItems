@@ -89,7 +89,15 @@ class TipoItemControler(BaseController):
     @expose()
     def saveItem( self, idProy, idFase, codItem, descripcion,submit ):
         """Create a new movie record"""
+        listaIds=DBSession.query(TipoItemUsuario).order_by(TipoItemUsuario.id)
+        if (listaIds.count()>0):
+            list=listaIds[-1]
+            id=list.id + 1
+        else: 
+            id=1
+        
         new = TipoItemUsuario(
+            id=id,
             descripcion = descripcion,
             fase_id = idFase,
             codigo = codItem

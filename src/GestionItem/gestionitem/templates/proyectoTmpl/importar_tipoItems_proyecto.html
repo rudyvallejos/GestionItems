@@ -29,7 +29,7 @@
 							 }
 								 
 							 if(document.form1.itemselect.checked==true){
-								 document.form1.action="/lb/guardar_linea_base/${proyecto.id}"
+								 document.form1.action="/lb/guardar_items_importados/${idfaseDestino}"
 								 //F.filtros.value=""
 								 return true;	
 							 }
@@ -53,7 +53,7 @@
 					 {  
 								 
 								 
-								 document.form1.action="/lb/listar_proyectos_definidos"
+					 		document.form1.action="/tipoItems/tipoItemUsuario/${idfaseDestino}/lista"
 								 
 								 return true;	
 							 
