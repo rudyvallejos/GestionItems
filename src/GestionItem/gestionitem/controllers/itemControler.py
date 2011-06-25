@@ -843,10 +843,23 @@ class ItemControler(BaseController):
                     item=item,subtitulo='Error')
     @expose()
     def actualizarRelacion( self, id, tipo, filtros, **named ):
-        antecesor=DBSession.query(RelacionItem).filter_by(estado_id=1).filter(RelacionItem.antecesor_item_id==id)
-        for i, ant in enumerate(antecesor):
-            DBSession.delete(ant)
-        DBSession.flush()
+        item=DBSession.query(ItemUsuario).filter_by(id=id).one()
+        if (tipo=="1"):
+            itemsMifase=DBSession.query(ItemUsuario).filter_by(fase_id=item.fase_id).all()
+            idsMifase=[]
+            for xItem in itemsMifase:
+                idsMifase.append(xItem.id)
+            antecesor=DBSession.query(RelacionItem).filter_by(estado_id=1).filter(RelacionItem.antecesor_item_id==id).filter(RelacionItem.sucesor_item_id.in_(idsMifase)).all()
+            for i, ant in enumerate(antecesor):
+                DBSession.delete(ant)
+                DBSession.flush()
+        else:
+            antecesor=DBSession.query(RelacionItem).filter_by(estado_id=1).filter(RelacionItem.antecesor_item_id==id)
+            for i, ant in enumerate(antecesor):
+                itemSuc=DBSession.query(ItemUsuario).filter_by(id=ant.sucesor_item_id).one()
+                if (item.fase_id!=itemSuc.fase_id):
+                    DBSession.delete(ant)
+                    DBSession.flush()
         item=DBSession.query(ItemUsuario).filter_by(id=id).one()
         item.estado_id=2
         DBSession.flush()
@@ -877,7 +890,10 @@ class ItemControler(BaseController):
             
         else:
             if(itemselect=='' )and(item.fase.numero_fase>1):
-                    item.estado_id=1
+                    relaciones=DBSession.query(RelacionItem).filter(RelacionItem.antecesor_item_id==item.id).all()
+                    if (relaciones.__len__()==0):
+                        item.estado_id=1
+                        DBSession.flush()
         
         
         submit=named.get('submit','')
@@ -886,7 +902,8 @@ class ItemControler(BaseController):
                 redirect( '/item/itemList/'+str(item.fase_id) )    
         else:
             if (submit!="Relacionar"):
-                    redirect( '/item/relacionar_item/'+str(id)+'/'+ str(item.fase_id)+'/1')    
+                    #redirect( '/item/relacionar_item/'+str(id)+'/'+ str(item.fase_id)+'/1')
+                    redirect( '/item/updateRelacion/'+ str(item.fase_id)+'/'+str(id)+'?submit='+submit)    
         flash( '''Atributo Agregado! %s''')
    
     
@@ -1033,7 +1050,8 @@ class ItemControler(BaseController):
                 itemselect=itemselect+"itemselect="+str(item.sucesor_item_id)+"&"
             redirect( '/item/editar_relacion/'+str(idItem)+'/'+ str(fase.id)+'/1?'+str(itemselect))        
         else: 
-            itemselecccionado = DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(antecesor_item_id=idItem).all()      
+            item_sucesores = DBSession.query(ItemUsuario.id).filter(ItemUsuario.fase_id!=idFase).all()
+            itemselecccionado = DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(antecesor_item_id=idItem).filter(RelacionItem.sucesor_item_id.in_(item_sucesores)).all()      
             itemselect=""
             for item in itemselecccionado:
                 itemselect=itemselect+"itemselect="+str(item.sucesor_item_id)+"&"
@@ -1112,7 +1130,7 @@ class ItemControler(BaseController):
         lbSolicitadas=DBSession.query(LineaBase).filter_by(apertura="1").filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
         for idLB in lbSolicitadas:
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
             codigosItemsSol=""
             for item in items:
                 codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
@@ -1131,7 +1149,7 @@ class ItemControler(BaseController):
             itemsLB=[]
             for idLB in lbSolicitadas:
                 lbIds.append(idLB.id)
-                items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+                items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
                 codigosItems=""
                 for item in items:
                     codigosItems=codigosItems+"|"+item.cod_item+" "
@@ -1194,7 +1212,7 @@ class ItemControler(BaseController):
         lbSolicitadas=DBSession.query(LineaBase).filter_by(apertura="1").filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
         for idLB in lbSolicitadas:
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
             codigosItemsSol=""
             for item in items:
                 codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
@@ -1206,7 +1224,7 @@ class ItemControler(BaseController):
         itemsLB=[]
         for idLB in lineasBases:
             lbIds.append(idLB.id)
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
             codigosItems=""
             for item in items:
                 codigosItems=codigosItems+"|"+item.cod_item+" "
@@ -1222,7 +1240,7 @@ class ItemControler(BaseController):
             lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.id.in_(listaFiltros)).filter(LineaBase.fase_id==fase.id).order_by(LineaBase.id).all()
             itemsLBSol=[]
             for idLB in lbSolicitadas:
-                items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+                items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
                 codigosItemsSol=""
                 for item in items:
                     codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
@@ -1237,7 +1255,7 @@ class ItemControler(BaseController):
             itemsLB=[]
             for idLB in lineasBases:
                 lbIds.append(idLB.id)
-                items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
+                items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
                 codigosItems=""
                 for item in items:
                     codigosItems=codigosItems+"|"+item.cod_item+" "
