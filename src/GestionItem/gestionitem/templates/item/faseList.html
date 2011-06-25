@@ -74,7 +74,7 @@
   	<tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/><tr/>
   
     </table>
-  <tr><py:if test="puedeCerrar==1 and proyecto.estado==2"><py:if test="tg.predicates.has_permission('Aprobar items')">	
+  <tr><py:if test="puedeCerrar==1 and proyecto.estado==2"><py:if test="tg.predicates.has_permission('Gestionar linea base')">	
   	<br/><br/><br/>
  		<td><b><p><IMG title="Mensaje" height="25" border="0" src="${tg.url('/images/info.png')}" />
  		Aviso: Todas las fases pertenecientes a este proyecto se encuentran con LB total,
@@ -88,7 +88,7 @@
  		
       </py:if></py:if>
  </tr>
- <tr><py:if test="puedeCerrar==1 and proyecto.estado==3"><py:if test="tg.predicates.has_permission('Aprobar items')">	
+ <tr><py:if test="puedeCerrar==1 and proyecto.estado==3"><py:if test="tg.predicates.has_permission('Gestionar linea base')">	
   	<br/><br/><br/>
  		<td><b><p><IMG title="Mensaje" height="25" border="0" src="${tg.url('/images/ok.png')}" />
  		Proyecto terminado,
