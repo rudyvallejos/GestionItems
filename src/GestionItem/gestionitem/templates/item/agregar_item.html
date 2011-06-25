@@ -243,7 +243,7 @@ formatoNoValido[i]=false
 		<td><py:if test="atributo.tipo_id==1"><input size="35" name="lista" /></py:if>
 		<py:if test="atributo.tipo_id==2"><input   onBlur="validarEntero(this.form,'$i')" size="8" name="lista" /></py:if>
 		<py:if test="atributo.tipo_id==3">
-		<input type="TEXT" size="8" onBlur="validaFecha(this.form,'$i')"     name="lista" /><b>Formato Valido:</b> mm/dd/yyyy<br /></py:if></td>
+		<input type="TEXT" size="8" onBlur="validaFecha(this.form,'$i')"     name="lista" /><b>Formato Valido:</b> dd/mm/yyyy<br /></py:if></td>
 		
 		<td><input type="hidden" name="idAtributos" value="${atributo.id}"/></td>
 		

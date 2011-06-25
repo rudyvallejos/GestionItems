@@ -200,12 +200,10 @@ class ItemControler(BaseController):
         todosItems=DBSession.query(ItemUsuario).filter_by(fase_id=idFase)
         codigos=[]
         for i, itemUser in enumerate(todosItems):
-           codigos.append(itemUser.cod_item)
-           codigos.append(",")
+            codigos.append(itemUser.cod_item)
+            codigos.append(",")
             
         fase=DBSession.query(Fase).filter_by(id=idFase).one()
-        fase.estado_id=2
-        DBSession.flush()
         if tipo!="0":
             tipos=DBSession.query(TipoItemUsuario).filter_by(id=tipo).one()
             atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=tipos.id).order_by(TipoItemUsuarioAtributos.id)
@@ -396,6 +394,10 @@ class ItemControler(BaseController):
             new.tipo_item_generico = 1
             DBSession.add( new )
             DBSession.flush()
+        
+        
+        
+        
         fase = DBSession.query(Fase).filter_by(id=idFase).one() 
         
         archivosAnteriores=DBSession.query(ArchivosAdjuntos).filter_by(item_usuario_id=itemAnterior.id).all()
@@ -462,6 +464,9 @@ class ItemControler(BaseController):
         listaIds=DBSession.query(ItemUsuario).order_by(ItemUsuario.id)
         
         fase=DBSession.query(Fase).filter_by(id=idFase).one()
+        fase.estado_id=2
+        DBSession.flush()
+        
         if (listaIds.count()>0):
             listaTemp=listaIds[-1]
             id=listaTemp.id + 1
@@ -758,7 +763,9 @@ class ItemControler(BaseController):
         for i, suc in enumerate(sucesor):
             itemRel=DBSession.query(ItemUsuario).filter_by(id=suc.antecesor_item_id).one()
             if (itemRel.estado_id==2 or itemRel.estado_id==8):
-                if(item.numero_fase>1):
+                DBSession.delete(suc)
+                DBSession.flush()
+                if(item.fase.numero_fase>1):
                     item.estado_id=1
                     DBSession.flush()
             else:    
@@ -935,7 +942,11 @@ class ItemControler(BaseController):
         itemSeleccionado=DBSession.query(ItemUsuario).filter_by(id=-1)
         itemSelec=named.get( 'itemselect','0')
         if (itemSelec!=0 ):
-            itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).order_by(ItemUsuario.id)
+            try:
+                itemselect=int(itemSelec)
+                itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id==itemselect).order_by(ItemUsuario.id)
+            except:
+                itemSeleccionado=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(itemSelec)).order_by(ItemUsuario.id)
         itemUsuario=DBSession.query(ItemUsuario).filter_by(id=id).one()
         fase=DBSession.query(Fase).filter_by(id=itemUsuario.fase_id).one()
         submit=named.get( 'submit')            
@@ -977,7 +988,7 @@ class ItemControler(BaseController):
                 tipoRelacion="Antecesor/Sucesor(*)"
                 observacion="Una relacion Antecesor/Sucesor indica una relacion entre un item de la fase actual(Antecesor) con un item perteneciente a la fase inmediatamente anterior(Sucesor)"
                 faseActual=DBSession.query(Fase).filter_by(id=idFase).one()
-                faseAnterior=DBSession.query(Fase).filter_by(numero_fase=faseActual.numero_fase-1).one()
+                faseAnterior=DBSession.query(Fase).filter_by(proyecto_id=faseActual.proyecto_id).filter_by(numero_fase=faseActual.numero_fase-1).one()
                 fasesRelacion=faseAnterior
                 items=DBSession.query(ItemUsuario).filter_by(fase_id=faseAnterior.id).filter(ItemUsuario.id!=id).filter_by(estado_id=3)
                 itemSelec=named.get( 'itemselect','0')

@@ -90,7 +90,9 @@ function valida(F) {
    				for(j=0; ele=document.formulario.itemselect[j]; j++){ 
               		
     				if (ele.checked==true){
-    					document.formulario.action="/item/updateRelacion/${fase.id}/${item.id}"
+    					// ANtes document.formulario.action="/item/updateRelacion/${fase.id}/${item.id}"
+        				document.formulario.action="/item/actualizarRelacion/${item.id}"
+        		
         				F.filtros.value="Lista"
     					return true;
     					
@@ -98,12 +100,13 @@ function valida(F) {
     				}
     				
     			if(document.formulario.itemselect.checked==true){
-			  		document.formulario.action="/item/saveRelacion/${item.id}"
+			  		document.formulario.action="/item/actualizarRelacion/${item.id}"
 			  		F.filtros.value="Lista"
 			  		return true;	
 				}
-    			document.formulario.action="/item/relacionar_item/${item.id}/${fase.id}/1"
-			  	F.filtros.value=""
+    			document.formulario.action="/item/actualizarRelacion/${item.id}"
+			  	F.filtros.value="Lista"
+			  
        	}
        	if(boton=="Cancelar"){
         		document.formulario.action="/item/itemList/${fase.id}"
