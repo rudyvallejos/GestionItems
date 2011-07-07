@@ -35,9 +35,9 @@ for(j=0; ele=valorNoNumerico[j]; j++){
 }
 
 
-if(document.form.TipoItem.value=="")
+if(document.form.tipoItem.value=="")
 {
-document.form.action="/item/updateItemSinTipo"
+document.form.action="/item/updateItem"
 			  		return true;	
 }
 
@@ -175,11 +175,11 @@ formatoNoValido[i]=false
 <!--div onclick="comprueba(this)">Otro comentario</div-->
 <div><h3>Editar Item</h3></div>
 <div id="CargaAtributos">
- 	<form  display="none"  name="form" onsubmit="return validarCamposObligatorios(this)" action="/item/updateItemConTipo" enctype="multipart/form-data" method="post">
+ 	<form  display="none"  name="form" onsubmit="return validarCamposObligatorios(this)" action="/item/updateItem" enctype="multipart/form-data" method="post">
      <input type="hidden" name="idFase" value="${fase.id}"/>
     <input type="hidden" name="idProy" value="${proyecto.id}"/>
     <input type="hidden" name="idItem" value="${item.id}"/>
-    <input type="hidden" name="TipoItem" value="${item.tipo_item_id}"/>
+    <input type="hidden" name="tipoItem" value="${item.tipo_item_id}"/>
     <input type="hidden" name="numCod" value="${item.numero_cod}"/>
     <table border="0">
 	<tr>

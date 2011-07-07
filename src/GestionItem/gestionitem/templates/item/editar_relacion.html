@@ -252,7 +252,7 @@ function verificarItems()
     			<td colspan="4" class="pager">${currentPage.pager()}</td>
 				</tr-->
 					<tr class="navigation" py:if="currentPage.item_count == 0">
-    			<td colspan="4" class="pager">No existen items con LB</td>
+    			<td colspan="4" class="pager">No existen items para relacionar</td>
 				</tr> 
         		<tr py:for="i, item in enumerate(items)" class="${i%2 and 'odd' or 'even'}">
       			  <py:if test="item not in itemSeleccionado">
