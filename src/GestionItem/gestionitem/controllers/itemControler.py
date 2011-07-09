@@ -60,11 +60,21 @@ class ItemControler(BaseController):
             fases = DBSession.query(Fase).filter_by(proyecto_id=id).order_by(Fase.id).all()
         
         puedeCerrar=1
+        mensajesDes=[]
         for f in fases:
             if(f.estado_id!=4):
                 puedeCerrar=0
-        
-            
+            #Pregunta si existe item pendiente de revision
+            items = DBSession.query(ItemUsuario).filter_by(fase_id=f.id).order_by(ItemUsuario.id).all()
+            existe_rev=0
+            for i in items:
+                if (i.estado_id==4):
+                    puedeCerrar=0
+                    existe_rev=1
+            if existe_rev:
+                mensajesDes.append("Items pendiente de Revision")
+            else:
+                mensajesDes.append("")
         
         mensajes=[]
         for i, fase in enumerate(fases):
@@ -87,7 +97,7 @@ class ItemControler(BaseController):
         )
         fases = currentPage.items
         
-        return dict(currentPage=currentPage,puedeCerrar=puedeCerrar,user=user,mensajes=mensajes,
+        return dict(currentPage=currentPage,puedeCerrar=puedeCerrar,user=user,mensajes=mensajes,mensajesDes=mensajesDes,
                     id=id,fases=fases,proyecto=proyecto,subtitulo='Lista de Fases')
           
     @expose('gestionitem.templates.item.itemList')
@@ -98,7 +108,15 @@ class ItemControler(BaseController):
         user = identity['user']
         expresion=named.get('expresion','lista')
         fase = DBSession.query(Fase).filter_by(id=id).one()
-        
+        lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==id).all()
+        for idLB in lbSolicitadas:
+            items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).filter(ItemUsuario.estado_id==5).all()
+            existeItems=0
+            for item in items:
+                existeItems=1
+            if not existeItems:
+                idLB.estado_id=5
+                DBSession.flush()
         
         fasesDelUsuario=DBSession.query(UsuarioFaseRol).filter_by(fase_id=id).filter_by(user_id=user.user_id).all()
         
@@ -464,6 +482,7 @@ class ItemControler(BaseController):
     def updateItem( self,idFase,idProy,idItem,tipoItem ,numCod,codItem,complejidad,descripcion,file,  **named):
         #Obtiene el id del Item a modificar
         itemAnterior=DBSession.query(ItemUsuario).filter_by(id=idItem).one()
+        estadoAnt=itemAnterior.estado_id
         itemAnterior.estado_id=6
         DBSession.flush()
         DBSession.flush()
@@ -508,7 +527,7 @@ class ItemControler(BaseController):
             new.prioridad=complejidad
             new.descripcion=descripcion
             new.version=version
-            new.estado_id=2
+            new.estado_id=estadoAnt
             DBSession.add( new )
             DBSession.flush()
             cont=0
@@ -537,7 +556,7 @@ class ItemControler(BaseController):
             new.numero_cod = numCod,
             new.prioridad=complejidad,
             new.descripcion=descripcion,
-            new.estado_id=2,
+            new.estado_id=estadoAnt,
             new.version=version,
             new.tipo_item_generico = 1
             DBSession.add( new )
@@ -581,7 +600,7 @@ class ItemControler(BaseController):
                                )
             DBSession.add( new )
             DBSession.flush()
-        itemNuevaVersion.estado_id=2
+        itemNuevaVersion.estado_id=estadoAnt
         DBSession.flush()
         
         
@@ -764,22 +783,117 @@ class ItemControler(BaseController):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
         itemUsuario=DBSession.query(ItemUsuario).filter_by(id=id).one()
+        # OBTIENE LOS ATRIBUTOS DEL TIPO DE ITEM
+        conTipo=0
+        atributos=""
+        tipoItem=""
+        atributoValor=[]
+        if (itemUsuario.tipo_item_id!=None):
+            conTipo=1
+            tipo=DBSession.query(TipoItemUsuario).filter_by(id=itemUsuario.tipo_item_id).one()
+            tipoItem=tipo.descripcion
+            atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=tipo.id).order_by(TipoItemUsuarioAtributos.id).all()
+            
+        
+            for i, atri in enumerate(atributos):
+                atributoValor.append(DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemUsuario.id).filter_by(atributo_id=atri.id).one())
+        if (conTipo==0):
+            tipoItem="General"
+        
+        ###FIN OBTIENE LOS ATRIBUTOS DEL TIPO DE ITEM
+        
+        
+        
         fase=DBSession.query(Fase).filter_by(id=itemUsuario.fase_id).one()
-        ItemsCalculados=[]
-        calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        ItemsCalculadosAnt=[]
+        ItemsCalculadosSuc=[]
+        
+        #PARA GRAFICAR
+        relaciones=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(antecesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        relacionesSucesores=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(sucesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        idrelaciones=[0]
+        idrelacionesSucesor=[0]
+        idFaseRelacion=[0]
+        idFaseRelacionSucesor=[0]
+        contRelaciones=0
+        contRelacionesSucesores=0
+        
+        A=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        A.node_attr['fixedsize']='true'
+        A.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        S=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        S.node_attr['fixedsize']='true'
+        S.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        for i, relacion in enumerate(relaciones):
+            contRelaciones=contRelaciones+1
+            idrelaciones.append(relacion.sucesor_item_id)
+            
+        for i, relacionSucesor in enumerate(relacionesSucesores):
+            contRelacionesSucesores=contRelacionesSucesores+1
+            idrelacionesSucesor.append(relacionSucesor.antecesor_item_id)
+            
+        itemsRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelaciones)).order_by(ItemUsuario.fase_id)
+        itemsAntecesoresRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelacionesSucesor)).order_by(ItemUsuario.fase_id)
+        for i, item in enumerate(itemsRelacionados):
+            S.add_edge(str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")",str(item.cod_item)+"("+str(item.prioridad)+")")    
+            idFaseRelacion.append(item.fase_id)
+        for i, item in enumerate(itemsAntecesoresRelacionados):
+            A.add_edge(str(item.cod_item)+"("+str(item.prioridad)+")",str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")")
+            idFaseRelacionSucesor.append(item.fase_id)    
+        #FIN GRAFICAR
+        
+        
+        # [Esto era la version 1 de calculo de impacto] ItemsCalculados=[]
+        # [Esto era la version 1 de calculo de impacto] calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        calculoImpacto, ItemsCalculadosAnt=self.calcularImpactoV2Antecesor(itemUsuario.id, ItemsCalculadosAnt,itemUsuario.prioridad,itemUsuario.id,A)
+        calculoImpacto, ItemsCalculadosSuc=self.calcularImpactoV2Sucesor(itemUsuario.id, ItemsCalculadosSuc,calculoImpacto,itemUsuario.id,S)
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
-        itemsCalculados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculados)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosAntecesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosAnt)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosSucesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosSuc)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        
+        
+        A.graph_attr['epsilon']='0.3'
+        print A.string()
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        
+        S.graph_attr['epsilon']='0.3'
+        print S.string()
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        
+        
+        
+        B=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        B.layout() # layout with default (neato)
+        B.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png') # draw png
+        
+        C=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        C.layout() # layout with default (neato)
+        C.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png') # draw png
+        
         from webhelpers import paginate
-        count = itemsCalculados.count()
+        count = itemsCalculadosAntecesores.count()
         page =int( named.get( 'page', '1'))
         currentPage = paginate.Page(
-            itemsCalculados, page, item_count=count, 
+            itemsCalculadosAntecesores, page, item_count=count, 
             items_per_page=5,
         )
-        itemsCalculados = currentPage.items
+        count2 = itemsCalculadosSucesores.count()
+        page =int( named.get( 'page', '1'))
+        currentPage2 = paginate.Page(
+            itemsCalculadosSucesores, page, item_count=count2, 
+            items_per_page=5,
+        )
+        itemsCalculadosSucesores = currentPage2.items
+        itemsCalculadosAntecesores = currentPage.items
         item=itemUsuario
         return dict(page='Aviso Editar Item',user=user,
-                    fase=fase,itemsCalculados=itemsCalculados,currentPage=currentPage,
+                    conTipo=conTipo,
+                    atributos=atributos,atributoValor=atributoValor,tipoItem=tipoItem,
+                    fase=fase,itemsCalculadosAntecesores=itemsCalculadosAntecesores,itemsCalculadosSucesores=itemsCalculadosSucesores,currentPage=currentPage,currentPage2=currentPage2,
                     proyecto=proyecto, calculoImpacto=calculoImpacto,
                     item=item,subtitulo='Aviso')
     @expose('gestionitem.templates.item.avisoRevertirItemLB')
@@ -788,23 +902,117 @@ class ItemControler(BaseController):
         user = identity['user']
         itemUsuario=DBSession.query(ItemUsuario).filter_by(id=id).one()
         itemAnterior=DBSession.query(ItemUsuario).filter_by(id=idAnterior).one()
+        # OBTIENE LOS ATRIBUTOS DEL TIPO DE ITEM
+        conTipo=0
+        atributos=""
+        tipoItem=""
+        atributoValor=[]
+        if (itemUsuario.tipo_item_id!=None):
+            conTipo=1
+            tipo=DBSession.query(TipoItemUsuario).filter_by(id=itemUsuario.tipo_item_id).one()
+            tipoItem=tipo.descripcion
+            atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=tipo.id).order_by(TipoItemUsuarioAtributos.id).all()
+            
+        
+            for i, atri in enumerate(atributos):
+                atributoValor.append(DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemUsuario.id).filter_by(atributo_id=atri.id).one())
+        if (conTipo==0):
+            tipoItem="General"
+        
+        ###FIN OBTIENE LOS ATRIBUTOS DEL TIPO DE ITEM
+        
+        
         
         fase=DBSession.query(Fase).filter_by(id=itemUsuario.fase_id).one()
-        ItemsCalculados=[]
-        calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        ItemsCalculadosAnt=[]
+        ItemsCalculadosSuc=[]
+        
+        #PARA GRAFICAR
+        relaciones=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(antecesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        relacionesSucesores=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(sucesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        idrelaciones=[0]
+        idrelacionesSucesor=[0]
+        idFaseRelacion=[0]
+        idFaseRelacionSucesor=[0]
+        contRelaciones=0
+        contRelacionesSucesores=0
+        
+        A=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        A.node_attr['fixedsize']='true'
+        A.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        S=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        S.node_attr['fixedsize']='true'
+        S.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        for i, relacion in enumerate(relaciones):
+            contRelaciones=contRelaciones+1
+            idrelaciones.append(relacion.sucesor_item_id)
+            
+        for i, relacionSucesor in enumerate(relacionesSucesores):
+            contRelacionesSucesores=contRelacionesSucesores+1
+            idrelacionesSucesor.append(relacionSucesor.antecesor_item_id)
+            
+        itemsRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelaciones)).order_by(ItemUsuario.fase_id)
+        itemsAntecesoresRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelacionesSucesor)).order_by(ItemUsuario.fase_id)
+        for i, item in enumerate(itemsRelacionados):
+            S.add_edge(str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")",str(item.cod_item)+"("+str(item.prioridad)+")")    
+            idFaseRelacion.append(item.fase_id)
+        for i, item in enumerate(itemsAntecesoresRelacionados):
+            A.add_edge(str(item.cod_item)+"("+str(item.prioridad)+")",str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")")
+            idFaseRelacionSucesor.append(item.fase_id)    
+        #FIN GRAFICAR
+        
+        
+        # [Esto era la version 1 de calculo de impacto] ItemsCalculados=[]
+        # [Esto era la version 1 de calculo de impacto] calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        calculoImpacto, ItemsCalculadosAnt=self.calcularImpactoV2Antecesor(itemUsuario.id, ItemsCalculadosAnt,itemUsuario.prioridad,itemUsuario.id,A)
+        calculoImpacto, ItemsCalculadosSuc=self.calcularImpactoV2Sucesor(itemUsuario.id, ItemsCalculadosSuc,calculoImpacto,itemUsuario.id,S)
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
-        itemsCalculados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculados)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosAntecesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosAnt)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosSucesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosSuc)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        
+        
+        A.graph_attr['epsilon']='0.3'
+        print A.string()
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        
+        S.graph_attr['epsilon']='0.3'
+        print S.string()
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        
+        
+        
+        B=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        B.layout() # layout with default (neato)
+        B.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png') # draw png
+        
+        C=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        C.layout() # layout with default (neato)
+        C.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png') # draw png
+        
         from webhelpers import paginate
-        count = itemsCalculados.count()
+        count = itemsCalculadosAntecesores.count()
         page =int( named.get( 'page', '1'))
         currentPage = paginate.Page(
-            itemsCalculados, page, item_count=count, 
+            itemsCalculadosAntecesores, page, item_count=count, 
             items_per_page=5,
         )
-        itemsCalculados = currentPage.items
+        count2 = itemsCalculadosSucesores.count()
+        page =int( named.get( 'page', '1'))
+        currentPage2 = paginate.Page(
+            itemsCalculadosSucesores, page, item_count=count2, 
+            items_per_page=5,
+        )
+        itemsCalculadosSucesores = currentPage2.items
+        itemsCalculadosAntecesores = currentPage.items
         item=itemUsuario
         return dict(page='Aviso Revertir Item',user=user,itemAnterior=itemAnterior,
-                    fase=fase,itemsCalculados=itemsCalculados,currentPage=currentPage,
+                    conTipo=conTipo,
+                    atributos=atributos,atributoValor=atributoValor,tipoItem=tipoItem,
+                    fase=fase,itemsCalculadosAntecesores=itemsCalculadosAntecesores,itemsCalculadosSucesores=itemsCalculadosSucesores,currentPage=currentPage,currentPage2=currentPage2,
                     proyecto=proyecto, calculoImpacto=calculoImpacto,
                     item=item,subtitulo='Aviso')
     @expose('gestionitem.templates.item.avisoEliminarItem')
@@ -812,22 +1020,117 @@ class ItemControler(BaseController):
         identity = request.environ.get('repoze.who.identity')
         user = identity['user']
         itemUsuario=DBSession.query(ItemUsuario).filter_by(id=id).one()
+        # OBTIENE LOS ATRIBUTOS DEL TIPO DE ITEM
+        conTipo=0
+        atributos=""
+        tipoItem=""
+        atributoValor=[]
+        if (itemUsuario.tipo_item_id!=None):
+            conTipo=1
+            tipo=DBSession.query(TipoItemUsuario).filter_by(id=itemUsuario.tipo_item_id).one()
+            tipoItem=tipo.descripcion
+            atributos=DBSession.query(TipoItemUsuarioAtributos).filter_by(tipo_item_id=tipo.id).order_by(TipoItemUsuarioAtributos.id).all()
+            
+        
+            for i, atri in enumerate(atributos):
+                atributoValor.append(DBSession.query(TipoItemUsuarioAtributosValor).filter_by(item_usuario_id=itemUsuario.id).filter_by(atributo_id=atri.id).one())
+        if (conTipo==0):
+            tipoItem="General"
+        
+        ###FIN OBTIENE LOS ATRIBUTOS DEL TIPO DE ITEM
+        
+        
+        
         fase=DBSession.query(Fase).filter_by(id=itemUsuario.fase_id).one()
-        ItemsCalculados=[]
-        calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        ItemsCalculadosAnt=[]
+        ItemsCalculadosSuc=[]
+        
+        #PARA GRAFICAR
+        relaciones=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(antecesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        relacionesSucesores=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(sucesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        idrelaciones=[0]
+        idrelacionesSucesor=[0]
+        idFaseRelacion=[0]
+        idFaseRelacionSucesor=[0]
+        contRelaciones=0
+        contRelacionesSucesores=0
+        
+        A=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        A.node_attr['fixedsize']='true'
+        A.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        S=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        S.node_attr['fixedsize']='true'
+        S.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        for i, relacion in enumerate(relaciones):
+            contRelaciones=contRelaciones+1
+            idrelaciones.append(relacion.sucesor_item_id)
+            
+        for i, relacionSucesor in enumerate(relacionesSucesores):
+            contRelacionesSucesores=contRelacionesSucesores+1
+            idrelacionesSucesor.append(relacionSucesor.antecesor_item_id)
+            
+        itemsRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelaciones)).order_by(ItemUsuario.fase_id)
+        itemsAntecesoresRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelacionesSucesor)).order_by(ItemUsuario.fase_id)
+        for i, item in enumerate(itemsRelacionados):
+            S.add_edge(str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")",str(item.cod_item)+"("+str(item.prioridad)+")")    
+            idFaseRelacion.append(item.fase_id)
+        for i, item in enumerate(itemsAntecesoresRelacionados):
+            A.add_edge(str(item.cod_item)+"("+str(item.prioridad)+")",str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")")
+            idFaseRelacionSucesor.append(item.fase_id)    
+        #FIN GRAFICAR
+        
+        
+        # [Esto era la version 1 de calculo de impacto] ItemsCalculados=[]
+        # [Esto era la version 1 de calculo de impacto] calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        calculoImpacto, ItemsCalculadosAnt=self.calcularImpactoV2Antecesor(itemUsuario.id, ItemsCalculadosAnt,itemUsuario.prioridad,itemUsuario.id,A)
+        calculoImpacto, ItemsCalculadosSuc=self.calcularImpactoV2Sucesor(itemUsuario.id, ItemsCalculadosSuc,calculoImpacto,itemUsuario.id,S)
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
-        itemsCalculados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculados)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosAntecesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosAnt)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosSucesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosSuc)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        
+        
+        A.graph_attr['epsilon']='0.3'
+        print A.string()
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        
+        S.graph_attr['epsilon']='0.3'
+        print S.string()
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        
+        
+        
+        B=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        B.layout() # layout with default (neato)
+        B.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png') # draw png
+        
+        C=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        C.layout() # layout with default (neato)
+        C.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png') # draw png
+        
         from webhelpers import paginate
-        count = itemsCalculados.count()
+        count = itemsCalculadosAntecesores.count()
         page =int( named.get( 'page', '1'))
         currentPage = paginate.Page(
-            itemsCalculados, page, item_count=count, 
+            itemsCalculadosAntecesores, page, item_count=count, 
             items_per_page=5,
         )
-        itemsCalculados = currentPage.items
+        count2 = itemsCalculadosSucesores.count()
+        page =int( named.get( 'page', '1'))
+        currentPage2 = paginate.Page(
+            itemsCalculadosSucesores, page, item_count=count2, 
+            items_per_page=5,
+        )
+        itemsCalculadosSucesores = currentPage2.items
+        itemsCalculadosAntecesores = currentPage.items
         item=itemUsuario
         return dict(page='Aviso Eliminar Item',user=user,
-                    fase=fase,itemsCalculados=itemsCalculados,currentPage=currentPage,
+                    conTipo=conTipo,
+                    atributos=atributos,atributoValor=atributoValor,tipoItem=tipoItem,
+                    fase=fase,itemsCalculadosAntecesores=itemsCalculadosAntecesores,itemsCalculadosSucesores=itemsCalculadosSucesores,currentPage=currentPage,currentPage2=currentPage2,
                     proyecto=proyecto, calculoImpacto=calculoImpacto,
                     item=item,subtitulo='Aviso')
 
@@ -837,6 +1140,8 @@ class ItemControler(BaseController):
    
     def eliminar_item(self,idFase,id):
         item=DBSession.query(ItemUsuario).filter_by(id=id).one()
+        if (item.estado.id==5):
+            redirect( '/item/avisoEliminarItem/'+ str(item.id))
         sucesor=DBSession.query(RelacionItem).filter(RelacionItem.sucesor_item_id==id).filter(RelacionItem.estado_id!=2)  
         for i, suc in enumerate(sucesor):
             itemRel=DBSession.query(ItemUsuario).filter_by(id=suc.antecesor_item_id).one()
@@ -912,8 +1217,12 @@ class ItemControler(BaseController):
             else:    
                 redirect( '/item/errorEliminarItem/'+ str(item.id))
         
-        antecesor=DBSession.query(RelacionItem).filter(RelacionItem.antecesor_item_id==id)
+        antecesor=DBSession.query(RelacionItem).filter(RelacionItem.antecesor_item_id==id).filter(RelacionItem.estado_id!=2).all()
         for i, ant in enumerate(antecesor):
+            itemSuc=DBSession.query(ItemUsuario).filter_by(id=ant.sucesor_item_id).one()
+            if (itemSuc.estado_id==3):
+                itemSuc.estado_id=4
+                DBSession.flush()
             DBSession.delete(ant)
             #DBSession.delete(suc)
         #atributosValor=DBSession.query(TipoItemUsuarioAtributosValor).filter(TipoItemUsuarioAtributosValor.item_usuario_id==id)
@@ -1289,7 +1598,7 @@ class ItemControler(BaseController):
         lbSolicitadas=DBSession.query(LineaBase).filter_by(apertura="1").filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
         for idLB in lbSolicitadas:
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            items=DBSession.query(ItemUsuario).filter(or_((ItemUsuario.estado_id==3),(ItemUsuario.estado_id==4))).filter(ItemUsuario.linea_base_id==idLB.id).all()
             codigosItemsSol=""
             for item in items:
                 codigosItemsSol=codigosItemsSol+"|"+item.cod_item+" "
@@ -1355,7 +1664,7 @@ class ItemControler(BaseController):
                 fase.estado_id=2
                 DBSession.flush() 
                 ###Cambia Estado del Item
-                items=DBSession.query(ItemUsuario).filter_by(linea_base_id=lb.id).all()
+                items=DBSession.query(ItemUsuario).filter_by(linea_base_id=lb.id).filter(or_((ItemUsuario.estado_id==3),(ItemUsuario.estado_id==4))).all()
                 for item in items:
                     item.estado_id=5
                     DBSession.flush
@@ -1383,7 +1692,7 @@ class ItemControler(BaseController):
         itemsLB=[]
         for idLB in lineasBases:
             lbIds.append(idLB.id)
-            items=DBSession.query(ItemUsuario).filter(ItemUsuario.estado_id==3).filter(ItemUsuario.linea_base_id==idLB.id).all()
+            items=DBSession.query(ItemUsuario).filter(or_((ItemUsuario.estado_id==3),(ItemUsuario.estado_id==4))).filter(ItemUsuario.linea_base_id==idLB.id).all()
             codigosItems=""
             for item in items:
                 codigosItems=codigosItems+"|"+item.cod_item+" "
@@ -1773,7 +2082,41 @@ class ItemControler(BaseController):
                
         redirect( '/item/itemList/'+idFase )    
         flash( '''Item Aprobado! %s''')
- 
+    
+    def calcularImpactoV2Sucesor(self, idItemActual, ItemsCalculados, CalcImpacto, id, S):
+        itemActual = DBSession.query(ItemUsuario).filter_by(id=idItemActual).one()
+        if itemActual.id!=id:
+            ItemsCalculados.append(itemActual.id)
+        
+        #itemsRelacionados = DBSession.query(RelacionItem).filter(or_(RelacionItem.sucesor_item_id == itemActual.id, RelacionItem.antecesor_item_id == itemActual.id)).filter(and_(~RelacionItem.antecesor_item_id.in_(ItemsCalculados), ~RelacionItem.antecesor_item_id.in_(ItemsCalculados))).order_by(RelacionItem.id).all()
+        itemsRelacionados = DBSession.query(RelacionItem).filter_by(estado_id=1).filter(or_(RelacionItem.sucesor_item_id == itemActual.id, RelacionItem.antecesor_item_id == itemActual.id)).order_by(RelacionItem.id).all()
+
+        if (len(itemsRelacionados)!=0):
+            for iRel in itemsRelacionados:
+                if (iRel.sucesor_item_id not in ItemsCalculados and iRel.sucesor_item_id!=id):
+                    itemRel = DBSession.query(ItemUsuario).filter_by(id=iRel.sucesor_item_id).one()
+                    S.add_edge(str(itemActual.cod_item)+"("+str(itemActual.prioridad)+")",str(itemRel.cod_item)+"("+str(itemRel.prioridad)+")")    
+                    CalcImpacto, ItemsCalculados= self.calcularImpactoV2Sucesor(iRel.sucesor_item_id, ItemsCalculados,CalcImpacto,id, S)    
+        if itemActual.id!=id:
+            CalcImpacto=itemActual.prioridad+CalcImpacto
+        return CalcImpacto, ItemsCalculados
+    
+    def calcularImpactoV2Antecesor(self, idItemActual, ItemsCalculados, CalcImpacto, id, A):
+        itemActual = DBSession.query(ItemUsuario).filter_by(id=idItemActual).one()
+        if itemActual.id!=id:
+            ItemsCalculados.append(itemActual.id)
+        #itemsRelacionados = DBSession.query(RelacionItem).filter(or_(RelacionItem.sucesor_item_id == itemActual.id, RelacionItem.antecesor_item_id == itemActual.id)).filter(and_(~RelacionItem.antecesor_item_id.in_(ItemsCalculados), ~RelacionItem.antecesor_item_id.in_(ItemsCalculados))).order_by(RelacionItem.id).all()
+        itemsRelacionados = DBSession.query(RelacionItem).filter_by(estado_id=1).filter(or_(RelacionItem.sucesor_item_id == itemActual.id, RelacionItem.antecesor_item_id == itemActual.id)).order_by(RelacionItem.id).all()
+
+        if (len(itemsRelacionados)!=0):
+            for iRel in itemsRelacionados:
+                if (iRel.antecesor_item_id not in ItemsCalculados and iRel.antecesor_item_id!=id):
+                    itemRel = DBSession.query(ItemUsuario).filter_by(id=iRel.antecesor_item_id).one()
+                    A.add_edge(str(itemRel.cod_item)+"("+str(itemRel.prioridad)+")",str(itemActual.cod_item)+"("+str(itemActual.prioridad)+")")
+                    CalcImpacto, ItemsCalculados= self.calcularImpactoV2Antecesor(iRel.antecesor_item_id, ItemsCalculados,CalcImpacto,id, A)
+        if itemActual.id!=id:
+            CalcImpacto=itemActual.prioridad+CalcImpacto
+        return CalcImpacto, ItemsCalculados
     
     
     
@@ -1820,23 +2163,95 @@ class ItemControler(BaseController):
         
         
         fase=DBSession.query(Fase).filter_by(id=itemUsuario.fase_id).one()
-        ItemsCalculados=[]
-        calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        ItemsCalculadosAnt=[]
+        ItemsCalculadosSuc=[]
+        
+        #PARA GRAFICAR
+        relaciones=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(antecesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        relacionesSucesores=DBSession.query(RelacionItem).filter_by(estado_id=1).filter_by(sucesor_item_id=id).filter_by(estado_id=1).order_by(RelacionItem.id)
+        idrelaciones=[0]
+        idrelacionesSucesor=[0]
+        idFaseRelacion=[0]
+        idFaseRelacionSucesor=[0]
+        contRelaciones=0
+        contRelacionesSucesores=0
+        
+        A=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        A.node_attr['fixedsize']='true'
+        A.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        S=pgv.AGraph(directed=True,strict=True,rankdir='LR')
+        S.node_attr['fixedsize']='true'
+        S.add_node(str(itemUsuario.cod_item)+'('+str(itemUsuario.prioridad)+')',color='blue')
+        
+        for i, relacion in enumerate(relaciones):
+            contRelaciones=contRelaciones+1
+            idrelaciones.append(relacion.sucesor_item_id)
+            
+        for i, relacionSucesor in enumerate(relacionesSucesores):
+            contRelacionesSucesores=contRelacionesSucesores+1
+            idrelacionesSucesor.append(relacionSucesor.antecesor_item_id)
+            
+        itemsRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelaciones)).order_by(ItemUsuario.fase_id)
+        itemsAntecesoresRelacionados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(idrelacionesSucesor)).order_by(ItemUsuario.fase_id)
+        for i, item in enumerate(itemsRelacionados):
+            S.add_edge(str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")",str(item.cod_item)+"("+str(item.prioridad)+")")    
+            idFaseRelacion.append(item.fase_id)
+        for i, item in enumerate(itemsAntecesoresRelacionados):
+            A.add_edge(str(item.cod_item)+"("+str(item.prioridad)+")",str(itemUsuario.cod_item)+"("+str(itemUsuario.prioridad)+")")
+            idFaseRelacionSucesor.append(item.fase_id)    
+        #FIN GRAFICAR
+        
+        
+        # [Esto era la version 1 de calculo de impacto] ItemsCalculados=[]
+        # [Esto era la version 1 de calculo de impacto] calculoImpacto, ItemsCalculados=self.calcularImpacto(itemUsuario.id, ItemsCalculados,0)
+        calculoImpacto, ItemsCalculadosAnt=self.calcularImpactoV2Antecesor(itemUsuario.id, ItemsCalculadosAnt,itemUsuario.prioridad,itemUsuario.id,A)
+        calculoImpacto, ItemsCalculadosSuc=self.calcularImpactoV2Sucesor(itemUsuario.id, ItemsCalculadosSuc,calculoImpacto,itemUsuario.id,S)
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
-        itemsCalculados=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculados)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosAntecesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosAnt)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        itemsCalculadosSucesores=DBSession.query(ItemUsuario).filter(ItemUsuario.id.in_(ItemsCalculadosSuc)).order_by(ItemUsuario.fase_id).order_by(ItemUsuario.id)
+        
+        
+        A.graph_attr['epsilon']='0.3'
+        print A.string()
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        A.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        
+        S.graph_attr['epsilon']='0.3'
+        print S.string()
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        S.write('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        
+        
+        
+        B=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png')
+        B.layout() # layout with default (neato)
+        B.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoA.png') # draw png
+        
+        C=pgv.AGraph('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png')
+        C.layout() # layout with default (neato)
+        C.draw('/home/pyworkspace/GestionItems/src/GestionItem/gestionitem/public/images/calcImpactoS.png') # draw png
+        
         from webhelpers import paginate
-        count = itemsCalculados.count()
+        count = itemsCalculadosAntecesores.count()
         page =int( named.get( 'page', '1'))
         currentPage = paginate.Page(
-            itemsCalculados, page, item_count=count, 
+            itemsCalculadosAntecesores, page, item_count=count, 
             items_per_page=5,
         )
-        itemsCalculados = currentPage.items
+        count2 = itemsCalculadosSucesores.count()
+        page =int( named.get( 'page', '1'))
+        currentPage2 = paginate.Page(
+            itemsCalculadosSucesores, page, item_count=count2, 
+            items_per_page=5,
+        )
+        itemsCalculadosSucesores = currentPage2.items
+        itemsCalculadosAntecesores = currentPage.items
         item=itemUsuario
         return dict(page='Nuevo Item',user=user,
                     conTipo=conTipo,
                     atributos=atributos,atributoValor=atributoValor,tipoItem=tipoItem,
-                    fase=fase,itemsCalculados=itemsCalculados,currentPage=currentPage,
+                    fase=fase,itemsCalculadosAntecesores=itemsCalculadosAntecesores,itemsCalculadosSucesores=itemsCalculadosSucesores,currentPage=currentPage,currentPage2=currentPage2,
                     proyecto=proyecto, calculoImpacto=calculoImpacto,
                     item=item,subtitulo='ABM-Item')
               
@@ -1945,6 +2360,8 @@ class ItemControler(BaseController):
             itemsElimFase, page, item_count=count, 
             items_per_page=3,
         )
+        itemsElimFase = currentPage.items
+        
         itemsEnProduccion=[]
         for itemP in itemsEnProd:
             itemsEnProduccion.append(itemP.cod_item)

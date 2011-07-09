@@ -159,11 +159,11 @@ boton=botonP
  	</h3></div>
  	<fieldset>
  	<py:if test="contRelaciones==0"><b><i>No Posee Relacion</i></b></py:if>    
- 	<div class="crud_table" style="height:80%; width:100%">
+ 	<div class="crud_table">
     <div>
 	 <tr py:for="i, fase in enumerate(fasesRelacionados)" class="${i%2 and 'odd' or 'even'}">   
 		<div><h3><u>Fase:</u> ${fase.descripcion} <u>Tipo Relacion:</u><py:if test="item.fase_id==fase.id"> Padre/hijo</py:if><py:if test="item.fase_id!=fase.id"> Antecesor/Sucesor</py:if></h3></div>	  
-		  <table class="grid">
+		  <table class="grid" style="height:80%; width:100%">
 	        	<thead>
 	            	<tr><th></th><th>Cod. Item</th><th>Descripcion</th><th>Version</th><th>Estado</th></tr>
 	        	</thead>
@@ -199,7 +199,7 @@ boton=botonP
 		<i>Ningun Item se relaciona con este</i>
 	</b>
 </py:if>
-<div class="crud_table" style="height:80%; width:100%">
+<div class="crud_table">
 	<div>
 		<tr py:for="i, faseS in enumerate(fasesRelacionadosSucesoras)" class="${i%2 and 'odd' or 'even'}">
 			<div>
@@ -209,7 +209,7 @@ boton=botonP
 					<py:if test="item.fase_id!=faseS.id"> Sucesor/Antecesor</py:if>
 				</h3>
 			</div>
-			<table class="grid">
+			<table class="grid" style="height:80%; width:100%">
 				<thead>
 					<tr>
 						<th></th>

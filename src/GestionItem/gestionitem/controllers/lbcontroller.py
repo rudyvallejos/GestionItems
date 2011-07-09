@@ -201,7 +201,8 @@ class LineaBaseController(BaseController):
     def cerrar_linea_base_abierta(self,idFase, **named):
         
         identity = request.environ.get('repoze.who.identity')
-        user = identity['user'] 
+        user = identity['user']
+        
         #CONSULTA ALA BD
         lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==idFase).all()
         itemsLBSol=[]
@@ -223,6 +224,7 @@ class LineaBaseController(BaseController):
                 lbSolicitadas=DBSession.query(LineaBase).filter(LineaBase.estado_id == 2).filter(LineaBase.fase_id==idFase).filter(LineaBase.descripcion.like('%'+str(filtro)+'%')).order_by(LineaBase.id).all()
             lbIds=[]
             itemsLB=[]
+            
             for idLB in lbSolicitadas:
                 lbIds.append(idLB.id)
                 items=DBSession.query(ItemUsuario).filter(ItemUsuario.linea_base_id==idLB.id).all()
@@ -230,6 +232,8 @@ class LineaBaseController(BaseController):
                 for item in items:
                     codigosItems=codigosItems+"|"+item.cod_item+" "
                 itemsLB.append(codigosItems)
+                
+                
         proyecto=DBSession.query(Proyecto).filter_by(id=fase.proyecto_id).one()
         from webhelpers import paginate
         count = items.__len__()

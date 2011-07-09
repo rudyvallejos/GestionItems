@@ -121,6 +121,11 @@ function verificarItems()
 			<td><u><b>Tipo</b></u></td>
 			<td><label>${tipoItem}</label></td>
 		</tr>
+		<tr>
+			<td/><td><u><b>Complejidad</b></u></td>
+			<td><label>${item.prioridad}</label></td>
+			
+		</tr>
 		<py:if test="conTipo!=0">
 			<tr><td/><td colspan="3"><b>Atributos Especificos del Tipo de Item</b></td>
 			</tr>
@@ -135,7 +140,62 @@ function verificarItems()
 </table>
     <form  display="none"  name="formulario2" onSubmit="return verificarItems(this);"  action="/item/saveRelacion/${item.id}" method="get">
     <div><h3><u>Calculo de Impacto:</u> ${calculoImpacto}</h3></div>
-    <tr><td><h3><u>Items Calculados:</u></h3></td></tr>
+    <tr><td><h3><u>Items Calculados Hacia Adelante:</u></h3></td></tr>
+	<tr>
+	    		<td/><td>
+	    			<div class="centrado">
+	    				<h1><u>Grafo hacia Adelante</u></h1>
+	    				<img  src="${tg.url('/images/calcImpactoS.png')}" align="center" width="140" height="210" border="0" alt="Relaciones"/>
+	    				<br/>
+	    				<b><i>*El presente Item esta pintado con azul</i></b>
+	    				
+	    				
+	    			</div>
+	    			
+	    		</td>
+	    	</tr>
+    <div class="crud_table">
+    <div>
+	 	  <table  class="grid" style="height:80%; width:100%">
+	        <thead>
+	            <tr><th></th><th>Cod. Item</th><th >Descripcion</th><th>Complejidad</th><th>Fase</th></tr>
+	        </thead>
+	        <tbody >
+	        	<tr class="navigation" py:if="currentPage2.item_count == 0">
+	    			<td colspan="4" class="pager">No existen relaciones hacia Adelante</td>
+				</tr>
+	        
+	            <tr py:for="i, itemS in enumerate(itemsCalculadosSucesores)" class="${i%2 and 'odd' or 'even'}">
+	            <td class="col_0">
+	                
+	            </td>
+	            	<td class="col_0">${itemS.cod_item}</td>
+	                <td class="col_1">${itemS.descripcion}</td>
+	        		<td class="col_1">${itemS.prioridad}</td>
+	        		<td class="col_1">Nro-${itemS.fase.numero_fase}/${itemS.fase.descripcion}</td>
+	        	
+	        	</tr>
+	    
+	        </tbody>
+	    </table>
+      </div>
+      </div>
+      <br/><br/><br/><br/>
+		
+    <tr><td><h3><u>Items Calculados Hacia Atras:</u></h3></td></tr>
+    <tr>
+	    		<td/><td>
+	    			<div class="centrado">
+	    				<h1><u>Grafo hacia Atras</u></h1>
+	    				<img  src="${tg.url('/images/calcImpactoA.png')}" align="center" width="140" height="210" border="0" alt="Relaciones"/>
+	    				<br/>
+	    				<b><i>*El presente Item esta pintado con azul</i></b>
+	    				
+	    				
+	    			</div>
+	    			
+	    		</td>
+	    	</tr>
     <div class="crud_table">
     <div>
 	 	  <table  class="grid" style="height:80%; width:100%">
@@ -147,10 +207,10 @@ function verificarItems()
 	    			<td colspan="4" class="pager">${currentPage.pager()}</td>
 				</tr>
 				<tr class="navigation" py:if="currentPage.item_count == 0">
-	    			<td colspan="4" class="pager">No existen datos</td>
+	    			<td colspan="4" class="pager">No existen Relaciones hacia Atras</td>
 				</tr>
 	        
-	            <tr py:for="i, item in enumerate(itemsCalculados)" class="${i%2 and 'odd' or 'even'}">
+	            <tr py:for="i, item in enumerate(itemsCalculadosAntecesores)" class="${i%2 and 'odd' or 'even'}">
 	            <td class="col_0">
 	                
 	            </td>
@@ -165,7 +225,7 @@ function verificarItems()
 	    </table>
       </div>
       </div>
-      	<br/><br/><br/><br/>
+      	
 		<!--input type="button" name="submit" value="Cancelar" /-->
 		
 		
